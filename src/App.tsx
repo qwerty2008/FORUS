@@ -496,7 +496,7 @@ export default function App() {
     >
       {/* Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 z-50 max-w-md bg-slate-800 dark:bg-emerald-600 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 dark:border-emerald-400 flex items-center gap-3 animate-bounce">
+        <div className="fixed bottom-20 lg:bottom-6 right-3 left-3 sm:left-auto sm:right-6 z-50 max-w-md bg-slate-800 dark:bg-emerald-600 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 dark:border-emerald-400 flex items-center gap-3 animate-bounce">
           <Sparkles className="w-5 h-5 text-amber-300 shrink-0" />
           <p className="text-xs sm:text-sm font-semibold leading-snug">
             {toastMessage}
@@ -612,40 +612,6 @@ export default function App() {
               </button>
             </div>
           </div>
-
-          {/* Mobile & Tablet Top Service Bar (Scrollable horizontally right inside top header) */}
-          <nav className="flex lg:hidden items-center gap-1.5 py-2 border-t border-slate-100 dark:border-slate-700/70 overflow-x-auto no-scrollbar">
-            {navItems.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0 cursor-pointer ${
-                    isActive
-                      ? "bg-blue-700 dark:bg-blue-600 text-white shadow-2xs"
-                      : "bg-slate-100/80 dark:bg-slate-700/60 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
-                  }`}
-                >
-                  {tab.icon}
-                  <span>{tab.shortLabel}</span>
-                  {tab.badge && (
-                    <span
-                      className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono font-extrabold ${
-                        isActive
-                          ? "bg-white/20 text-white"
-                          : isVip
-                          ? "bg-amber-500/20 text-amber-600 dark:text-amber-300"
-                          : "bg-blue-100 dark:bg-slate-800 text-blue-700 dark:text-sky-300"
-                      }`}
-                    >
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
         </div>
       </header>
 
@@ -1026,7 +992,7 @@ export default function App() {
       )}
 
       {/* Main Content Container */}
-      <main className="max-w-[1380px] mx-auto px-3 sm:px-6 py-4 sm:py-8 pb-16">
+      <main className="max-w-[1380px] mx-auto px-3 sm:px-6 py-4 sm:py-8 pb-24 lg:pb-16">
         {/* ================= HOME TAB ================= */}
         {activeTab === "home" && (
           <div className="space-y-8 sm:space-y-12">
@@ -1685,7 +1651,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-slate-800/95 border-t border-slate-200/80 dark:border-slate-700/80 py-8 transition-colors">
+      <footer className="bg-white dark:bg-slate-800/95 border-t border-slate-200/80 dark:border-slate-700/80 py-8 pb-24 lg:pb-8 transition-colors">
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-300">
           <div className="flex items-center gap-3">
             <img
@@ -1715,6 +1681,33 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile Bottom Service Navigation Bar — Fixed at Bottom (Matching Reference Style) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#131B2E]/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-700/80 px-2 py-2 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="grid grid-cols-7 items-center max-w-lg mx-auto">
+          {navItems.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex flex-col items-center justify-center py-1 px-0.5 transition-colors cursor-pointer ${
+                  isActive
+                    ? "text-orange-500 dark:text-orange-400 font-semibold"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-medium"
+                }`}
+              >
+                <div className="w-5 h-5 flex items-center justify-center [&>svg]:w-5 [&>svg]:h-5">
+                  {tab.icon}
+                </div>
+                <span className="text-[10px] sm:text-[11px] mt-1 leading-tight tracking-tight truncate max-w-full">
+                  {tab.shortLabel}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* Modals & Drawers */}
       <StudentAuthModal
