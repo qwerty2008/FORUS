@@ -1,0 +1,6 @@
+{
+  "name": "FORUS - Tiện ích Sinh viên ĐH Khoa học Tự nhiên (Cơ sở 1)",
+  "description": "Hệ sinh thái tiện ích cho sinh viên Trường ĐH Khoa học Tự nhiên ĐHQG-HCM (Cơ sở 1): Thuê & bán thiết bị học tập, giao đồ ăn sáng tận phòng, in tài liệu lấy liền, kết nối gia sư, săn điểm rèn luyện và trợ lý AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

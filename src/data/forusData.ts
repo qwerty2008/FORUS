@@ -1,0 +1,862 @@
+import { ProductItem, TutorListing, TrainingPointEvent } from "../types";
+
+export const BRAND_ASSETS = {
+  logoLight: "/assets/aistudio/logo_sang_xoa_nen_7eeca75f.png",
+  logoDark: "/assets/aistudio/logo_toi_xoa_nen_6ce4afed.png",
+  logoSquare: "/assets/aistudio/logo_goc_693bb8c1.png",
+  standImage: "/assets/aistudio/giado_3bd2a9c8.png",
+  macropadImage: "/assets/aistudio/banphim_8bb481e9.png",
+  tabletComboImage: "/assets/aistudio/Gemini_Generated_Image_g1wck2g1wck2g1wc__1__26472242.png",
+  flashcardImage: "/assets/aistudio/Gemini_Generated_Image_jemh74jemh74jemh__1__9159e332.png",
+};
+
+export const CAMPUS_BUILDINGS_CS1 = [
+  "Tòa nhà I (Khoa CNTT - 11 tầng)",
+  "Dãy B (Phòng học lý thuyết B11 - B44)",
+  "Dãy C (Phòng học C11 - C45)",
+  "Dãy E (Phòng máy & Thí nghiệm)",
+  "Dãy F (Khoa Toán - Tin & Vật lý)",
+  "Dãy A (Khu Hiệu bộ & Giảng đường A)",
+  "Thư viện Cơ sở 1 (Khu tự học)",
+  "Hội trường I / Sân trường Nguyễn Văn Cừ",
+];
+
+export const GEAR_AND_RENTAL_PRODUCTS: ProductItem[] = [
+  {
+    id: "combo-ipad-sv",
+    code: "FORUS-01",
+    name: 'Combo "iPad Sinh Viên" — Bảng Vẽ Điện Tử & Găng Tay + Phần Mềm Toán',
+    subtitle: "Bảng vẽ mini kết nối thẳng laptop/điện thoại · Găng tay 2 ngón · Scrble cài sẵn",
+    category: "tech-gear",
+    description:
+      "Giải pháp ghi chép Giải tích, Đại số tuyến tính và vẽ sơ đồ thuật toán mượt như iPad với chi phí chỉ bằng 1/20. Kết nối Plug-and-Play qua USB/Type-C vào laptop hoặc điện thoại Android/macOS/Windows, đi kèm găng tay 2 ngón chống tì cảm ứng và gói cài đặt sẵn phần mềm viết toán chuyên dụng (Scrble Ink / OneNote Math) không độ trễ.",
+    highlights: [
+      "4096 mức lực nhấn bút không dùng pin, nét chữ mượt, không độ trễ",
+      "Kèm găng tay 2 ngón vải Lycra thoáng khí chống ma sát khi viết tốc độ cao",
+      "Cấu hình sẵn bộ khung giấy kẻ ô, trục tọa độ Oxy và phím tắt đổi màu bút trong Scrble",
+      "Linh hoạt chọn Thuê theo tuần (mùa ôn thi) hoặc Mua đứt bảo hành 1 đổi 1 tại CS1",
+    ],
+    imageUrl: BRAND_ASSETS.tabletComboImage,
+    fallbackIcon: "PenTool",
+    fallbackGradient: "from-sky-900 via-blue-900 to-slate-900",
+    pointsReward: 10,
+    inStock: 18,
+    deliveryInfo: "Giao tận phòng học CS1 trong 15 phút & hỗ trợ cài đặt trực tiếp",
+    variants: [
+      {
+        id: "rent-week",
+        label: "Thuê trải nghiệm 1 tuần",
+        price: 35000,
+        unitLabel: "/ tuần",
+        type: "rent",
+      },
+      {
+        id: "buy-full",
+        label: "Mua trọn bộ mới 100%",
+        price: 390000,
+        unitLabel: "/ bộ",
+        type: "buy",
+      },
+    ],
+    reviews: [
+      {
+        id: "rv-1",
+        studentName: "Nguyễn Minh Khôi",
+        studentIdMasked: "24120***",
+        faculty: "Khoa Công nghệ Thông tin",
+        rating: 5,
+        comment:
+          "Thuê thử 1 tuần đợt thi Giữa kỳ Vi tích phân 1B mà mê quá nên mua đứt luôn. Viết công thức trên Scrble mượt thật sự, không bị mỏi cổ tay.",
+        date: "2 ngày trước",
+      },
+      {
+        id: "rv-2",
+        studentName: "Trần Thảo Vy",
+        studentIdMasked: "23110***",
+        faculty: "Khoa Toán - Tin học",
+        rating: 5,
+        comment:
+          "Các bạn FORUS giao ngay tại sảnh Tòa I rồi cài luôn phần mềm giúp mình trong 5 phút. Rất đáng tiền cho sinh viên!",
+        date: "5 ngày trước",
+      },
+    ],
+  },
+  {
+    id: "macropad-onetap-latex",
+    code: "FORUS-02",
+    name: 'Bàn Phím Mini MacroPad "OneTap LaTeX"',
+    subtitle: "Lập trình sẵn phím tắt tích phân, tổng Sigma, ma trận & template C++/Python",
+    category: "tech-gear",
+    description:
+      "Bàn phím cơ mini chuyên dụng cho sinh viên KHTN thường xuyên gõ báo cáo LaTeX (Overleaf/VS Code) và lập trình thi đấu. Chỉ cần bấm 1 phím duy nhất để tự động chèn ngay khung công thức tích phân xác định, tổng Sigma, ma trận m×n, giới hạn lim, đạo hàm riêng hoặc khung sườn bài toán C++/Python chuẩn.",
+    highlights: [
+      "Hỗ trợ Hot-swap switch cơ học êm ái (không gây ồn trong giảng đường/thư viện)",
+      "Nạp sẵn bộ Macro LaTeX: \\int_{a}^{b}, \\sum_{i=1}^{n}, \\begin{bmatrix}, \\lim_{x \\to 0}, \\frac{a}{b}",
+      "Chế độ Layer 2: Chèn tức thì template C++ (#include <iostream>...) và Python NumPy/Pandas",
+      "Đèn LED RGB dịu mắt, cáp rời Type-C gọn nhẹ bỏ vừa túi chống sốc laptop",
+    ],
+    imageUrl: BRAND_ASSETS.macropadImage,
+    fallbackIcon: "Keyboard",
+    fallbackGradient: "from-indigo-900 via-slate-900 to-emerald-950",
+    pointsReward: 10,
+    inStock: 12,
+    deliveryInfo: "Giao tận nơi CS1 Nguyễn Văn Cừ · Hỗ trợ custom lại nút theo môn học",
+    variants: [
+      {
+        id: "buy-macropad",
+        label: "Mua trọn bộ (Kèm cáp & Keycap Toán)",
+        price: 220000,
+        unitLabel: "/ chiếc",
+        type: "buy",
+      },
+      {
+        id: "rent-macropad",
+        label: "Thuê làm đồ án LaTeX (1 tuần)",
+        price: 30000,
+        unitLabel: "/ tuần",
+        type: "rent",
+      },
+    ],
+    reviews: [
+      {
+        id: "rv-3",
+        studentName: "Lê Hoàng Nam",
+        studentIdMasked: "24127***",
+        faculty: "Khoa Công nghệ Thông tin",
+        rating: 5,
+        comment:
+          "Gõ bài tập Toán rời rạc với báo cáo LaTeX trên Overleaf nhanh gấp đôi. Bấm 1 nút ra luôn khung ma trận không sợ thiếu ngoặc nhọn.",
+        date: "3 ngày trước",
+      },
+    ],
+  },
+  {
+    id: "flashcard-cuu-mang-giua-ky",
+    code: "FORUS-03",
+    name: 'Bộ Flashcard Bỏ Túi "Cứu Mạng Giữa Kỳ" Chống Nước',
+    subtitle: "Tổng hợp định lý, đạo hàm, tích phân, chuỗi số & quy nạp/phản chứng",
+    category: "study-aid",
+    description:
+      "Bộ thẻ công thức nhựa PVC mờ cao cấp chống nước, chống rách 100%, đi kèm khoen inox treo trực tiếp vào móc khóa balo. Được biên soạn cô đọng từ đề cương các môn đại cương 'khó nhằn' nhất tại ĐH KHTN: Vi tích phân 1 & 2, Đại số tuyến tính, Toán rời rạc và Xác suất thống kê.",
+    highlights: [
+      "Chất liệu nhựa PVC nhám mờ chống thấm nước mưa Sài Gòn, không phai mực in",
+      "Tóm tắt 45+ công thức đạo hàm, nguyên hàm, khai triển Taylor-Maclaurin & tiêu chuẩn hội tụ chuỗi",
+      "Sơ đồ từng bước phương pháp chứng minh Quy nạp toán học, Phản chứng & Nguyên lý Dirichlet",
+      "Kích thước vừa lòng bàn tay, dễ dàng ôn bài trên xe buýt tuyến 06, 45, 56 tới trường",
+    ],
+    imageUrl: BRAND_ASSETS.flashcardImage,
+    fallbackIcon: "BookOpen",
+    fallbackGradient: "from-emerald-900 via-teal-900 to-slate-900",
+    pointsReward: 5,
+    inStock: 65,
+    deliveryInfo: "Giao ngay tại sân trường hoặc phòng học CS1",
+    variants: [
+      {
+        id: "buy-flashcard-full",
+        label: "Combo Giải Tích + Đại Số + Rời Rạc",
+        price: 39000,
+        unitLabel: "/ bộ",
+        type: "buy",
+      },
+    ],
+    reviews: [
+      {
+        id: "rv-4",
+        studentName: "Phạm Gia Hân",
+        studentIdMasked: "24120***",
+        faculty: "Khoa Khoa học & Công nghệ Vật liệu",
+        rating: 5,
+        comment:
+          "Thẻ nhựa cầm rất xịn, đi mưa không ướt. Nhờ bộ thẻ này mà mình nhớ hết bảng nguyên hàm mở rộng trước giờ vào phòng thi.",
+        date: "1 tuần trước",
+      },
+    ],
+  },
+  {
+    id: "gia-do-cong-thai-hoc-15do",
+    code: "FORUS-04",
+    name: "Giá Đỡ Nghiêng 15 Độ Công Thái Học ORICO Cho Laptop & Bảng Vẽ",
+    subtitle: "6 nấc chỉnh độ cao · Chống gù lưng & tản nhiệt thoáng mát khi code lâu",
+    category: "tech-gear",
+    description:
+      "Giá đỡ chữ X gấp gọn siêu nhẹ, thiết kế góc nghiêng chuẩn công thái học từ 15° đến 45° giúp nâng màn hình laptop ngang tầm mắt hoặc tạo mặt phẳng nghiêng vừa tay khi viết trên bảng vẽ điện tử. Đệm cao su chống trượt toàn phần, chịu tải trọng tới 15kg.",
+    highlights: [
+      "Góc nghiêng 15 độ chuẩn vàng để tì tay viết bảng vẽ điện tử không mỏi cổ tay",
+      "Thiết kế rỗng thoáng khí giúp laptop tản nhiệt nhanh khi chạy máy ảo, train model AI",
+      "Gấp gọn chỉ bằng thanh thước kẻ, tặng kèm túi nhung đựng vừa ngăn phụ balo",
+      "Tương thích mọi dòng laptop 11–17.3 inch, iPad và bảng vẽ điện tử",
+    ],
+    imageUrl: BRAND_ASSETS.standImage,
+    fallbackIcon: "Laptop",
+    fallbackGradient: "from-slate-800 via-zinc-900 to-neutral-900",
+    pointsReward: 6,
+    inStock: 30,
+    deliveryInfo: "Giao tận phòng học hoặc thư viện CS1",
+    variants: [
+      {
+        id: "buy-stand",
+        label: "Mua mới (Kèm túi đựng chống trầy)",
+        price: 75000,
+        unitLabel: "/ chiếc",
+        type: "buy",
+      },
+    ],
+    reviews: [
+      {
+        id: "rv-5",
+        studentName: "Đặng Quốc Bảo",
+        studentIdMasked: "23120***",
+        faculty: "Khoa Công nghệ Thông tin",
+        rating: 5,
+        comment:
+          "Ngồi code ở thư viện CS1 cả buổi chiều không còn bị mỏi cổ nữa. Gấp lại bỏ balo rất gọn.",
+        date: "4 ngày trước",
+      },
+    ],
+  },
+  {
+    id: "dich-vu-setup-tram-ghi-chep-latex",
+    code: "FORUS-05",
+    name: 'Gói Dịch Vụ "Setup Trạm Ghi Chép Số & Template LaTeX Chuẩn Khoa CNTT"',
+    subtitle: "Cài đặt tận tay tại CS1 hoặc qua UltraViewer · Trọn bộ Template Đồ án & Poster A1",
+    category: "study-aid",
+    description:
+      "Dịch vụ kỹ thuật 1-kèm-1 giúp tân sinh viên làm chủ hệ thống ghi chép số và soạn thảo báo cáo học thuật chuẩn Khoa CNTT ĐH KHTN. Đội ngũ kỹ thuật viên FORUS trực tiếp cài đặt môi trường TeX Live / Overleaf, cấu hình VS Code LaTeX Workshop, Obsidian Math và bàn giao kho Template báo cáo đồ án, slide Beamer, Poster A1 chuẩn.",
+    highlights: [
+      "Cài đặt hoàn chỉnh bộ gõ công thức nhanh trên Notion, Obsidian, OneNote hoặc Scrble",
+      "Bàn giao bộ Template LaTeX chuẩn Khoa CNTT (Báo cáo đồ án, tiểu luận, slide thuyết trình, Poster A1)",
+      "Hướng dẫn 15 phút nắm vững cách chèn hình ảnh, bảng biểu, trích dẫn tài liệu BibTeX không lỗi tiếng Việt",
+      "Bảo hành hỗ trợ sửa lỗi biên dịch LaTeX miễn phí suốt cả học kỳ",
+    ],
+    fallbackIcon: "Terminal",
+    fallbackGradient: "from-blue-950 via-sky-900 to-cyan-950",
+    pointsReward: 8,
+    inStock: 99,
+    deliveryInfo: "Hỗ trợ trực tiếp tại sảnh Tòa I / Thư viện CS1 hoặc Online ngay lập tức",
+    variants: [
+      {
+        id: "service-setup",
+        label: "Gói Setup trọn gói + Bộ Template",
+        price: 29000,
+        unitLabel: "/ lần",
+        type: "service",
+      },
+    ],
+    reviews: [
+      {
+        id: "rv-6",
+        studentName: "Võ Minh Tuấn",
+        studentIdMasked: "24120***",
+        faculty: "Khoa Công nghệ Thông tin",
+        rating: 5,
+        comment:
+          "Mình mới vào năm nhất chưa biết dùng LaTeX, nhờ các bạn FORUS setup và chỉ tận tình 15 phút là tự làm được báo cáo đẹp mê ly.",
+        date: "Hôm qua",
+      },
+    ],
+  },
+  {
+    id: "sticker-ban-phim-ky-hieu-toan",
+    code: "FORUS-06",
+    name: "Bộ Sticker Bàn Phím Ký Hiệu Toán Học & Tổ Hợp Phím Tắt (∀, ∃, ∈, ⇒, ⇔)",
+    subtitle: "In UV chống mờ · Tra cứu tức thì mã gõ Unicode, Alt-code & lệnh LaTeX ngay trên phím",
+    category: "study-aid",
+    description:
+      "Bộ sticker dán phím và góc chiếu nghỉ tay laptop được thiết kế riêng cho sinh viên khối ngành Khoa học Tự nhiên. Tích hợp ký hiệu toán học phổ biến (với mọi ∀, tồn tại ∃, thuộc ∈, tập con ⊂, suy ra ⇒, tương đương ⇔, tích phân ∫, vô cùng ∞, đạo hàm ∂) kèm tổ hợp phím gõ tắt và lệnh LaTeX tương ứng.",
+    highlights: [
+      "Chất liệu decal PVC cán màng nhám chống mồ hôi tay, bóc ra không để lại keo trên MacBook/Laptop",
+      "Hiển thị rõ ràng ký hiệu Logic & Tập hợp: ∀ (\\forall), ∃ (\\exists), ∈ (\\in), ⇒ (\\Rightarrow), ⇔ (\\Leftrightarrow)",
+      "Tặng kèm 1 miếng dán bảng phím tắt VS Code & Git cơ bản cho sinh viên CNTT",
+    ],
+    fallbackIcon: "Sparkles",
+    fallbackGradient: "from-violet-950 via-indigo-950 to-slate-900",
+    pointsReward: 5,
+    inStock: 120,
+    deliveryInfo: "Giao tận phòng học CS1 trong giờ giải lao",
+    variants: [
+      {
+        id: "buy-sticker-math",
+        label: "Bộ Sticker Phím Toán + Bảng Lệnh LaTeX",
+        price: 19000,
+        unitLabel: "/ bộ",
+        type: "buy",
+      },
+    ],
+    reviews: [
+      {
+        id: "rv-7",
+        studentName: "Hoàng Yến Nhi",
+        studentIdMasked: "24110***",
+        faculty: "Khoa Toán - Tin học",
+        rating: 5,
+        comment:
+          "Dán lên góc máy nhìn vừa nghệ vừa tiện, quên lệnh LaTeX của dấu tương đương hay tập hợp rỗng nhìn xuống thấy liền.",
+        date: "6 ngày trước",
+      },
+    ],
+  },
+  {
+    id: "thue-mtct-giao-trinh-ao-blouse",
+    code: "FORUS-07",
+    name: "Trạm Cho Thuê Máy Tính Cầm Tay, Giáo Trình Đại Cương & Áo Blouse",
+    subtitle: "Cứu nguy quên máy tính ngày thi, quên áo blouse giờ thực hành Hóa - Sinh tại CS1",
+    category: "rental",
+    description:
+      "Dịch vụ cho thuê khẩn cấp ngay tại cổng 227 Nguyễn Văn Cừ dành cho sinh viên quên mang dụng cụ học tập hoặc chỉ cần dùng ngắn hạn trong mùa thi: Máy tính Casio fx-580VN X / fx-880BTG chính hãng (đã thay pin mới), Áo blouse trắng chuẩn phòng thí nghiệm (đã giặt ủi sạch thơm) và Combo Giáo trình Đại cương.",
+    highlights: [
+      "Nhận đồ trong vòng 5 phút tại sảnh Tòa I hoặc cổng Nguyễn Văn Cừ — Không cần thế chấp CCCD khi đăng nhập bằng email sinh viên",
+      "Máy tính Casio fx-580VN X / fx-880BTG kiểm tra kỹ pin và phím bấm trước khi giao vào phòng thi",
+      "Áo blouse trắng đủ size S, M, L, XL luôn được giặt khử khuẩn sạch sẽ sau mỗi ca thực hành",
+      "Giáo trình Vi tích phân, Đại số tuyến tính, Vật lý đại cương bản đẹp, không rách trang",
+    ],
+    fallbackIcon: "Calculator",
+    fallbackGradient: "from-cyan-950 via-teal-900 to-slate-900",
+    imageUrl: "/assets/food/casio_real.jpg",
+    pointsReward: 5,
+    inStock: 45,
+    deliveryInfo: "Giao khẩn cấp trước giờ thi / giờ thực hành 10 phút tại CS1",
+    variants: [
+      {
+        id: "rent-casio-day",
+        label: "Thuê Máy tính Casio fx-580VN X (1 ngày thi)",
+        price: 15000,
+        unitLabel: "/ ngày",
+        type: "rent",
+      },
+      {
+        id: "rent-blouse-session",
+        label: "Thuê Áo Blouse Phòng Thí Nghiệm (1 buổi)",
+        price: 15000,
+        unitLabel: "/ buổi",
+        type: "rent",
+      },
+      {
+        id: "rent-textbook-week",
+        label: "Thuê Giáo trình Đại cương (1 tuần)",
+        price: 20000,
+        unitLabel: "/ tuần",
+        type: "rent",
+      },
+    ],
+    reviews: [
+      {
+        id: "rv-8",
+        studentName: "Trương Quốc Huy",
+        studentIdMasked: "24140***",
+        faculty: "Khoa Hóa học",
+        rating: 5,
+        comment:
+          "Sáng thứ 4 đi thực hành Hóa đại cương quên mang áo blouse, đặt trên FORUS 5 phút sau có bạn mang tới tận cửa phòng thí nghiệm. Cứu mạng thực sự!",
+        date: "3 ngày trước",
+      },
+    ],
+  },
+];
+
+export const BREAKFAST_AND_DRINK_MENU: ProductItem[] = [
+  {
+    id: "food-banh-mi-op-la",
+    code: "FOOD-01",
+    name: "Bánh Mì Thịt Nướng & Ốp La Nóng Giòn",
+    subtitle: "Giao tận cửa phòng học trước ca 1 (7h15) và giờ giải lao (9h10)",
+    category: "food",
+    description:
+      "Bánh mì Việt Nam đặc ruột nướng giòn rụm kẹp thịt nướng đậm đà, trứng ốp la, chả lụa, dưa leo, đồ chua và ngò rí tươi. Đóng gói giấy giữ nhiệt sạch sẽ, kèm khăn giấy và tăm, không gây mùi nồng trong phòng học máy lạnh.",
+    highlights: [
+      "Giữ nóng giòn 100% khi giao tới Tòa I, Dãy B, C, E, F",
+      "Tùy chọn: Ít cay / Không hành / Thêm trứng ốp la",
+      "Đặt combo kèm cà phê phin sữa đá giảm ngay thời gian chờ",
+    ],
+    imageUrl: "/assets/food/banh_mi_real.png",
+    fallbackIcon: "Utensils",
+    fallbackGradient: "from-amber-900 via-orange-950 to-slate-900",
+    pointsReward: 5,
+    inStock: 50,
+    deliveryInfo: "Giao tận phòng học Cơ sở 1 · Miễn phí ship nội khuôn viên",
+    variants: [
+      {
+        id: "bm-standard",
+        label: "Ổ Đặc Biệt (Thịt nướng + Trứng + Chả)",
+        price: 25000,
+        unitLabel: "/ ổ",
+        type: "buy",
+      },
+      {
+        id: "bm-combo-cafe",
+        label: "Combo Sáng Tỉnh Táo (Bánh mì + Cà phê sữa đá)",
+        price: 39000,
+        unitLabel: "/ combo",
+        type: "buy",
+      },
+    ],
+    reviews: [
+      {
+        id: "rv-food-1",
+        studentName: "Lê Minh Đức",
+        studentIdMasked: "24120***",
+        faculty: "Khoa Công nghệ Thông tin",
+        rating: 5,
+        comment:
+          "Bánh mì giao tới phòng I.42 lúc 7h20 vẫn còn nóng giòn rụm, thịt ướp vừa miệng, cứu đói ca 1 cực tốt!",
+        date: "Hôm nay",
+      },
+    ],
+  },
+  {
+    id: "food-com-tam-suon-nuong",
+    code: "FOOD-02",
+    name: "Cơm Tấm Sườn Nướng Mỡ Hành Sài Gòn",
+    subtitle: "Suất ăn trưa & sáng chắc bụng ngay tại giảng đường Nguyễn Văn Cừ",
+    category: "food",
+    description:
+      "Cơm tấm hạt tơi mềm ăn kèm miếng sườn cốt lết nướng mật ong vàng ươm, mỡ hành thơm phức, đồ chua củ cải cà rốt, dưa leo, cà chua và nước mắm kẹo pha chuẩn vị Sài Gòn. Phù hợp cho sinh viên học xuyên ca sáng - chiều tại Cơ sở 1.",
+    highlights: [
+      "Sườn nướng nóng mới mỗi sáng, đóng hộp phân ngăn sạch sẽ kèm muỗng nĩa",
+      "Tặng kèm 1 ly trà đá mát lạnh khi đặt giao trước 10h30",
+    ],
+    imageUrl: "/assets/food/com_tam_real.jpg",
+    fallbackIcon: "Utensils",
+    fallbackGradient: "from-orange-900 via-amber-950 to-slate-900",
+    pointsReward: 6,
+    inStock: 35,
+    deliveryInfo: "Giao tận phòng học hoặc khu tự học Thư viện CS1",
+    variants: [
+      {
+        id: "com-suon",
+        label: "Hộp Cơm Sườn Nướng Mỡ Hành",
+        price: 35000,
+        unitLabel: "/ phần",
+        type: "buy",
+      },
+      {
+        id: "com-suon-trung",
+        label: "Hộp Đặc Biệt (Sườn nướng + Ốp la + Chả)",
+        price: 42000,
+        unitLabel: "/ phần",
+        type: "buy",
+      },
+    ],
+    reviews: [],
+  },
+  {
+    id: "food-xoi-man-la-chuoi",
+    code: "FOOD-03",
+    name: "Xôi Lá Chuối Đậu Xanh Muối Đậu & Chà Bông",
+    subtitle: "Chắc bụng suốt 4 tiết học sáng · Gói lá chuối thơm dẻo truyền thống",
+    category: "food",
+    description:
+      "Xôi nếp cái hoa vàng đồ cùng đậu xanh bùi béo, gói trong lá chuối tươi giữ nhiệt tự nhiên, rắc muối đậu phộng giã nhuyễn, hành phi giòn và chà bông heo đậm đà. Giải pháp chống đói kinh tế và chắc bụng từ 7h30 đến 11h30.",
+    highlights: [
+      "Gói lá chuối tươi giữ nguyên hương thơm nếp mới, kèm muỗng gỗ",
+      "Không lo tụt huyết áp giữa giờ Giải tích hay Lập trình",
+    ],
+    imageUrl: "/assets/food/xoi_do_xanh_real.jpg",
+    fallbackIcon: "Flame",
+    fallbackGradient: "from-yellow-900 via-amber-950 to-slate-900",
+    pointsReward: 5,
+    inStock: 40,
+    deliveryInfo: "Giao tận phòng học Cơ sở 1",
+    variants: [
+      {
+        id: "xoi-truyen-thong",
+        label: "Gói Lá Chuối Đậu Xanh Muối Đậu",
+        price: 18000,
+        unitLabel: "/ gói",
+        type: "buy",
+      },
+      {
+        id: "xoi-full",
+        label: "Gói Đặc Biệt (Thêm Chà bông + Lạp xưởng)",
+        price: 25000,
+        unitLabel: "/ gói",
+        type: "buy",
+      },
+    ],
+    reviews: [],
+  },
+  {
+    id: "food-com-nam-rong-bien",
+    code: "FOOD-04",
+    name: "Set 2 Cơm Nắm Tam Giác Onigiri Rong Biển",
+    subtitle: "Ăn nhanh trong 3 phút chuyển tiết · Không vương vãi, không mùi",
+    category: "food",
+    description:
+      "Set 2 nắm cơm tam giác kiểu Nhật bọc lá rong biển Nori nướng thơm: 1 vị Cá hồi / Trứng cá tuyết mặn nhẹ và 1 vị Cá ngừ sốt Mayonnaise béo ngậy kèm củ cải vàng muối giòn. Cực kỳ tiện lợi để ăn lót dạ ngay tại bàn học hoặc phòng máy thực hành Dãy E.",
+    highlights: [
+      "Ăn gọn gàng không dính tay, tay kia vẫn lướt slide bài giảng hoặc gõ code",
+      "Gạo Nhật dẻo mềm cả khi để ở nhiệt độ phòng máy lạnh",
+    ],
+    imageUrl: "/assets/food/onigiri_real.jpg",
+    fallbackIcon: "Sparkles",
+    fallbackGradient: "from-emerald-950 via-teal-950 to-slate-900",
+    pointsReward: 5,
+    inStock: 35,
+    deliveryInfo: "Giao tận phòng học Cơ sở 1",
+    variants: [
+      {
+        id: "onigiri-pair",
+        label: "Set 2 Cơm Nắm Onigiri + Đồ Chua",
+        price: 28000,
+        unitLabel: "/ set",
+        type: "buy",
+      },
+    ],
+    reviews: [],
+  },
+  {
+    id: "food-banh-bao-nhan-thit",
+    code: "FOOD-05",
+    name: "Bánh Bao Nhân Thịt Trứng Cút Nóng Hổi",
+    subtitle: "Hấp nóng liên tục tại trạm CS1 · Cứu đói nhanh giữa ca học",
+    category: "food",
+    description:
+      "Bánh bao vỏ bột mì men tự nhiên trắng xốp, mềm thơm, bên trong đầy đặn nhân thịt heo bằm, mộc nhĩ, miến dong và 2 trứng cút bùi béo. Luôn được giữ trong tủ hấp nóng trước khi giao tới tận tay sinh viên.",
+    highlights: [
+      "Vỏ bánh mềm xốp, nhân thịt tươi làm mới mỗi ngày",
+      "Phù hợp ăn nhanh 5 phút trước khi vào phòng thi hoặc ca thực hành",
+    ],
+    imageUrl: "/assets/food/banh_bao_real.jpg",
+    fallbackIcon: "Flame",
+    fallbackGradient: "from-stone-800 via-slate-900 to-zinc-900",
+    pointsReward: 5,
+    inStock: 45,
+    deliveryInfo: "Giao nóng tận phòng học CS1 trong 10 phút",
+    variants: [
+      {
+        id: "banh-bao-1",
+        label: "1 Bánh Bao Nhân Thịt 2 Trứng Cút",
+        price: 18000,
+        unitLabel: "/ cái",
+        type: "buy",
+      },
+      {
+        id: "banh-bao-sua",
+        label: "Combo Bánh Bao + Sữa Đậu Nành Nóng",
+        price: 26000,
+        unitLabel: "/ combo",
+        type: "buy",
+      },
+    ],
+    reviews: [],
+  },
+  {
+    id: "drink-ca-phe-muoi-hcmus",
+    code: "DRINK-01",
+    name: 'Cà Phê Phin Sữa Đá & Kem Muối "Tỉnh Táo Qua Môn"',
+    subtitle: "Pha phin truyền thống đậm vị Robusta · Chống buồn ngủ ca 1 & ca chiều",
+    category: "drink",
+    description:
+      "Cà phê Việt Nam pha phin nhôm truyền thống nhỏ giọt đậm đặc, quyện cùng lớp sữa đặc ngọt dịu dưới đáy ly và đá viên mát lạnh. Giúp sinh viên KHTN giữ sự tỉnh táo tối đa trong các tiết học thuật toán, Giải tích và chứng minh định lý.",
+    highlights: [
+      "100% hạt cà phê rang mộc nguyên chất, ép màng chống tràn khi đi thang máy Tòa I",
+      "Tùy chọn thêm lớp kem muối béo mặn hoặc ít sữa theo khẩu vị",
+    ],
+    imageUrl: "/assets/food/ca_phe_real.jpg",
+    fallbackIcon: "Coffee",
+    fallbackGradient: "from-stone-900 via-amber-950 to-slate-900",
+    pointsReward: 5,
+    inStock: 80,
+    deliveryInfo: "Giao lạnh tận phòng học CS1 trong 10 phút",
+    variants: [
+      {
+        id: "cf-sua-da",
+        label: "Cà Phê Phin Sữa Đá Sài Gòn",
+        price: 18000,
+        unitLabel: "/ ly",
+        type: "buy",
+      },
+      {
+        id: "cf-muoi",
+        label: "Cà Phê Sữa Đá Phủ Kem Muối (Size L)",
+        price: 22000,
+        unitLabel: "/ ly",
+        type: "buy",
+      },
+    ],
+    reviews: [],
+  },
+  {
+    id: "drink-tra-dao-cam-sa",
+    code: "DRINK-02",
+    name: "Hồng Trà Chanh Vàng & Đào Ngâm Giải Nhiệt (Size L)",
+    subtitle: "Ủ lạnh thanh mát kèm lát chanh vàng tươi · Đập tan cơn nóng Quận 5",
+    category: "drink",
+    description:
+      "Hồng trà nguyên lá ủ lạnh màu hổ phách trong vắt, kết hợp vị chua thanh của chanh vàng tươi và hương đào dịu nhẹ. Thức uống giải khát sảng khoái sau những giờ học căng thẳng hoặc vận động ngoài sân trường.",
+    highlights: [
+      "Trà ủ mới mỗi sáng, vị thanh mát không gắt cổ",
+      "Tùy chọn mức đường (30%, 50%, 70%, 100%)",
+    ],
+    imageUrl: "/assets/food/tra_dao_real.jpg",
+    fallbackIcon: "CupSoda",
+    fallbackGradient: "from-orange-900 via-rose-950 to-slate-900",
+    pointsReward: 5,
+    inStock: 60,
+    deliveryInfo: "Giao tận phòng học CS1 trong 10 phút",
+    variants: [
+      {
+        id: "tra-chanh-dao-l",
+        label: "Ly Lớn (Hồng Trà Chanh Vàng)",
+        price: 20000,
+        unitLabel: "/ ly",
+        type: "buy",
+      },
+      {
+        id: "tra-full-dao",
+        label: "Thêm 3 Miếng Đào Ngâm Giòn",
+        price: 25000,
+        unitLabel: "/ ly",
+        type: "buy",
+      },
+    ],
+    reviews: [],
+  },
+  {
+    id: "drink-tra-sua-tran-chau",
+    code: "DRINK-03",
+    name: "Trà Sữa Trân Châu Đường Đen & Hạnh Nhân",
+    subtitle: "Béo thơm dịu nhẹ · Trân châu dai mềm nạp năng lượng học nhóm",
+    category: "drink",
+    description:
+      "Trà sữa pha chế từ cốt hồng trà đậm vị kết hợp sữa tươi béo ngậy và trân châu đen nấu đường mía dẻo mềm. Món đồ uống yêu thích cho các buổi họp nhóm làm Đồ án 1 và ôn tập tại Thư viện Cơ sở 1.",
+    highlights: [
+      "Trân châu nấu mới mỗi 3 tiếng, không bị cứng khi ngâm đá",
+      "Giao nhanh tới bàn học nhóm tại Thư viện hoặc sảnh Tòa I",
+    ],
+    imageUrl: "/assets/food/tra_sua_real.jpg",
+    fallbackIcon: "CupSoda",
+    fallbackGradient: "from-amber-950 via-stone-900 to-slate-900",
+    pointsReward: 5,
+    inStock: 55,
+    deliveryInfo: "Giao tận phòng học CS1 trong 10 phút",
+    variants: [
+      {
+        id: "ts-standard",
+        label: "Ly Tiêu Chuẩn (Đủ Trân Châu)",
+        price: 25000,
+        unitLabel: "/ ly",
+        type: "buy",
+      },
+    ],
+    reviews: [],
+  },
+];
+
+export const PRINT_PRICING_TABLE: Record<
+  "A1" | "A2" | "A3" | "A4" | "A5",
+  { bwPrice: number; colorPrice: number; desc: string }
+> = {
+  A5: {
+    bwPrice: 400,
+    colorPrice: 1500,
+    desc: "Sổ tay công thức, tài liệu ôn tập bỏ túi (14.8 × 21 cm)",
+  },
+  A4: {
+    bwPrice: 600,
+    colorPrice: 2500,
+    desc: "Slide bài giảng, đề cương, báo cáo tiểu luận (21 × 29.7 cm)",
+  },
+  A3: {
+    bwPrice: 1500,
+    colorPrice: 6000,
+    desc: "Sơ đồ tư duy, bản vẽ mạch điện, bảng tổng hợp (29.7 × 42 cm)",
+  },
+  A2: {
+    bwPrice: 15000,
+    colorPrice: 45000,
+    desc: "Bản nháp Poster đồ án, infographic nhóm (42 × 59.4 cm)",
+  },
+  A1: {
+    bwPrice: 30000,
+    colorPrice: 75000,
+    desc: "Poster Đồ án chuẩn Hội nghị (Môn CSC00006) cán màng chống thấm (59.4 × 84.1 cm)",
+  },
+};
+
+export const TUTOR_LISTINGS: TutorListing[] = [
+  {
+    id: "tutor-01",
+    type: "parent-seeking",
+    title: "Tìm SV Tự Nhiên kèm Toán & Tin học trẻ em (Python cơ bản) lớp 9",
+    subject: "Toán 9 & Python",
+    gradeLevel: "Lớp 9 (Ôn thi Chuyên Phổ Thông Năng Khiếu)",
+    district: "Quận 5 (Cách CS1 Nguyễn Văn Cừ 800m)",
+    schedule: "2 buổi/tuần (Tối Thứ 3 & Thứ 5, 18h30 - 20h30)",
+    feePerSession: "250.000đ / buổi",
+    tutorOrStudentInfo: "Phụ huynh chị Lan (Đường Trần Phú, Phường 4, Quận 5)",
+    facultyOrSchool: "Ưu tiên SV Khoa CNTT hoặc Toán - Tin ĐH KHTN",
+    verified: true,
+    requirements: [
+      "Nắm vững hình học phẳng và tư duy thuật toán cơ bản",
+      "Kiên nhẫn, truyền cảm hứng học tập cho học sinh",
+    ],
+    pointsReward: 10,
+  },
+  {
+    id: "tutor-02",
+    type: "parent-seeking",
+    title: "Cần Gia sư Vật Lý & Toán lớp 11 chương trình mới",
+    subject: "Toán & Vật Lý 11",
+    gradeLevel: "Lớp 11 THPT",
+    district: "Quận 10 (Đường Thành Thái)",
+    schedule: "3 buổi/tuần (Thứ 2 - 4 - 6, 19h00 - 20h30)",
+    feePerSession: "220.000đ / buổi",
+    tutorOrStudentInfo: "Phụ huynh anh Minh (Chung cư Hà Đô, Quận 10)",
+    facultyOrSchool: "Ưu tiên SV Khoa Vật lý - Vật lý Kỹ thuật hoặc CNTT",
+    verified: true,
+    requirements: [
+      "Điểm thi THPT Quốc gia môn Toán/Lý từ 8.5 trở lên",
+      "Có sẵn tài liệu tóm tắt công thức dễ hiểu",
+    ],
+    pointsReward: 10,
+  },
+  {
+    id: "tutor-03",
+    type: "parent-seeking",
+    title: "Tìm bạn kèm C++ / Cấu trúc dữ liệu cho học sinh lớp 10 chuyên Tin",
+    subject: "Lập trình C++ & Thuật toán",
+    gradeLevel: "Lớp 10",
+    district: "Quận 1 (Đường Nguyễn Thị Minh Khai)",
+    schedule: "2 buổi/tuần (Chiều Thứ 7 & Chủ Nhật hoặc Online)",
+    feePerSession: "300.000đ / buổi",
+    tutorOrStudentInfo: "Phụ huynh cô Hương (Quận 1, ngay sát Quận 5)",
+    facultyOrSchool: "SV Khoa CNTT ĐH KHTN (Chương trình Chuẩn / Tiên tiến / CLC)",
+    verified: true,
+    requirements: [
+      "Thành thạo C++, STL, quy hoạch động và đồ thị cơ bản",
+      "Có thể hướng dẫn giải bài trên LeetCode / VNOI",
+    ],
+    pointsReward: 10,
+  },
+  {
+    id: "tutor-04",
+    type: "student-profile",
+    title: "Hồ sơ Gia sư: Nguyễn Hoàng Quân — SV Năm 2 Khoa CNTT (GPA 3.75/4.0)",
+    subject: "Toán cấp 2-3, Lập trình C++/Python, Giải tích đại cương",
+    gradeLevel: "Lớp 8 - 12 & Tân sinh viên",
+    district: "Quận 5, Quận 1, Quận 3, Quận 10",
+    schedule: "Rảnh các buổi tối trong tuần và sáng Chủ Nhật",
+    feePerSession: "180.000đ - 250.000đ / buổi",
+    tutorOrStudentInfo: "MSSV: 23120*** · Đã xác thực thẻ SV HCMUS",
+    facultyOrSchool: "Khoa Công nghệ Thông tin — ĐH KHTN ĐHQG-HCM",
+    verified: true,
+    requirements: [
+      "Giải Nhì HSG Tin học cấp Tỉnh, IELTS 7.0",
+      "Sử dụng Combo Bảng vẽ điện tử FORUS để giảng bài trực quan",
+    ],
+    pointsReward: 10,
+  },
+];
+
+// Helper to create future timestamps relative to current runtime so countdown timers are always live and dynamic
+const getFutureIso = (hoursFromNow: number, minutesOffset = 0) => {
+  const date = new Date(
+    Date.now() + (hoursFromNow * 60 + minutesOffset) * 60 * 1000
+  );
+  return date.toISOString();
+};
+
+export const VIP_TRAINING_POINT_EVENTS: TrainingPointEvent[] = [
+  {
+    id: "drl-01",
+    title: "Hội thảo Học thuật: Xu hướng Generative AI & Ứng dụng trong Khoa học Tự nhiên",
+    organizer: "Đoàn Khoa Công nghệ Thông tin & CLB Học thuật AI — ĐH KHTN",
+    category: "Học thuật & Nghiên cứu khoa học",
+    drlSection: "Mục 1 (Ý thức tham gia hoạt động học thuật)",
+    drlPoints: 5,
+    location: "Hội trường I — Cơ sở 1 (227 Nguyễn Văn Cừ, Q.5)",
+    registrationDeadline: getFutureIso(5, 42), // ~5 hours 42 mins left to register
+    eventEndTime: getFutureIso(28, 30),
+    maxSlots: 300,
+    registeredCount: 274,
+    registrationRequirements:
+      "Đăng ký qua form MSSV trước hạn, quét mã QR check-in đầu giờ và làm bài thu hoạch trắc nghiệm 5 câu cuối buổi.",
+    importantNotes: [
+      "Bắt buộc mặc áo sơ mi trắng hoặc áo đồng phục trường/khoa, đeo bảng tên sinh viên",
+      "Có mặt trước 15 phút để quét QR điểm danh trên app Đoàn - Hội",
+      "Sinh viên vắng mặt sau khi đăng ký sẽ bị trừ 3 điểm rèn luyện theo quy định",
+    ],
+  },
+  {
+    id: "drl-02",
+    title: 'Ngày hội Đổi Rác Nhựa Lấy Cây Xanh & Sách Cũ "Green Campus HCMUS"',
+    organizer: "Hội Sinh viên Trường ĐH Khoa học Tự nhiên",
+    category: "Tình nguyện & Vì cộng đồng",
+    drlSection: "Mục 3 (Hoạt động chính trị - xã hội, tình nguyện)",
+    drlPoints: 8,
+    location: "Sân trường Cơ sở 1 (Khu vực trước Tòa nhà I)",
+    registrationDeadline: getFutureIso(18, 15),
+    eventEndTime: getFutureIso(48, 0),
+    maxSlots: 500,
+    registeredCount: 412,
+    registrationRequirements:
+      "Mang tối thiểu 10 chai nhựa sạch hoặc 1kg giấy vụn/giáo trình cũ tới quầy xác nhận MSSV.",
+    importantNotes: [
+      "Giữ lại phiếu xác nhận có mộc đỏ của BTC để đối chiếu nếu thiếu điểm cuối kỳ",
+      "Được tặng thêm 1 sen đá mini và cộng 8 điểm vào Mục 3 Điểm Rèn Luyện",
+    ],
+  },
+  {
+    id: "drl-03",
+    title: "Workshop Kỹ năng: Viết Báo Cáo Khoa Học Bằng LaTeX & Thuyết Trình Poster Hội Nghị",
+    organizer: "Trung tâm Hỗ trợ Sinh viên & Khoa Toán - Tin học",
+    category: "Kỹ năng mềm & Học thuật",
+    drlSection: "Mục 1 & Mục 2",
+    drlPoints: 5,
+    location: "Giảng đường B41 — Cơ sở 1 (Nguyễn Văn Cừ)",
+    registrationDeadline: getFutureIso(2, 18), // Urgent: ~2h 18m left!
+    eventEndTime: getFutureIso(10, 0),
+    maxSlots: 150,
+    registeredCount: 141,
+    registrationRequirements:
+      "Mang theo laptop cá nhân đã tạo sẵn tài khoản Overleaf để thực hành trực tiếp tại lớp.",
+    importantNotes: [
+      "Sắp hết hạn đăng ký! Chỉ còn 9 suất cuối cùng",
+      "Phù hợp đặc biệt cho sinh viên năm nhất đang làm Đồ án 1 (CSC00006)",
+      "Điểm danh 2 lần (đầu buổi và cuối buổi)",
+    ],
+  },
+  {
+    id: "drl-04",
+    title: "Cuộc thi Lập trình Thuật toán & Trí tuệ Nhân tạo Mở rộng — HCMUS CodeChallenge",
+    organizer: "Đoàn Trường ĐH Khoa học Tự nhiên",
+    category: "Cuộc thi Học thuật",
+    drlSection: "Mục 1 (Cộng tối đa khung điểm học thuật)",
+    drlPoints: 10,
+    location: "Khu phòng máy Dãy E (E301 - E305) — Cơ sở 1",
+    registrationDeadline: getFutureIso(36, 45),
+    eventEndTime: getFutureIso(72, 0),
+    maxSlots: 200,
+    registeredCount: 158,
+    registrationRequirements:
+      "Đăng ký cá nhân hoặc đội 3 người. Giải quyết tối thiểu 1 bài trên hệ thống chấm tự động để được tính ĐRL tham gia.",
+    importantNotes: [
+      "Cộng ngay 6 điểm khi tham gia hoàn thành tối thiểu 1 bài, cộng 10 điểm nếu vào vòng Chung kết",
+      "Được phép mang tài liệu giấy và bộ Flashcard công thức vào phòng thi",
+    ],
+  },
+];
+
+export const DISCOUNT_CODES: Record<
+  string,
+  { code: string; discountAmount: number; minOrder: number; desc: string }
+> = {
+  FORUSKHTN: {
+    code: "FORUSKHTN",
+    discountAmount: 10000,
+    minOrder: 30000,
+    desc: "Giảm 10.000đ cho sinh viên ĐH KHTN Cơ sở 1 (Đơn từ 30k)",
+  },
+  CSC00006: {
+    code: "CSC00006",
+    discountAmount: 15000,
+    minOrder: 50000,
+    desc: "Ưu đãi đặc biệt buổi trình bày Poster Đồ án 1 ngành AI (-15.000đ)",
+  },
+  TANSV2026: {
+    code: "TANSV2026",
+    discountAmount: 20000,
+    minOrder: 100000,
+    desc: "Giảm 20.000đ cho đơn thuê/mua Combo thiết bị học tập từ 100k",
+  },
+};
