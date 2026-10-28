@@ -17,12 +17,16 @@ import {
 } from "lucide-react";
 import { StudentProfile, TrainingPointEvent } from "../types";
 import { VIP_TRAINING_POINT_EVENTS } from "../data/forusData";
+import { FormattedAiMessage } from "./FormattedAiMessage";
 
 interface VipHubProps {
   student: StudentProfile;
   onUnlockDemoVip: () => void;
   onRedeemPoints: (cost: number, title: string, voucherId: string) => boolean;
   redeemedVoucherIds: string[];
+  aiQuestionsUsed: number;
+  maxFreeAiQuestions: number;
+  onIncrementAiUsage: () => void;
   onToggleReminder: (eventId: string, eventTitle: string) => void;
   onSaveEventNote: (eventId: string, note: string) => void;
   onNavigateToShop: () => void;
@@ -59,12 +63,22 @@ export const VipHub: React.FC<VipHubProps> = ({
   onUnlockDemoVip,
   onRedeemPoints,
   redeemedVoucherIds,
+  aiQuestionsUsed,
+  maxFreeAiQuestions,
+  onIncrementAiUsage,
   onToggleReminder,
   onSaveEventNote,
   onNavigateToShop,
   initialSection = "chatbot",
 }) => {
   const isVipUnlocked = student.points >= 100;
+  const remainingFreeQuestions = Math.max(
+    0,
+    maxFreeAiQuestions - aiQuestionsUsed
+  );
+  const isAiLimitReached =
+    !isVipUnlocked && aiQuestionsUsed >= maxFreeAiQuestions;
+
   const membershipTierLabel =
     student.points >= 100
       ? "Hạng VIP FORUS (Đã mở khóa)"
@@ -136,6 +150,22 @@ export const VipHub: React.FC<VipHubProps> = ({
     const textToSend = (customPrompt ?? chatInput).trim();
     if (!textToSend || isSending) return;
 
+    if (!isVipUnlocked && aiQuestionsUsed >= maxFreeAiQuestions) {
+      showToast(
+        `🔒 Bạn đã dùng hết ${maxFreeAiQuestions}/${maxFreeAiQuestions} câu hỏi miễn phí! Hãy kích hoạt VIP (100 điểm) để hỏi Trợ lý AI không giới hạn.`
+      );
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: `limit-${Date.now()}`,
+          role: "model",
+          text: `🔒 **Đã hết lượt hỏi thử (${maxFreeAiQuestions}/${maxFreeAiQuestions} câu):** Tài khoản của bạn hiện đang ở **${membershipTierLabel} (${student.points}/100 điểm VIP)**.\n\nKhi chưa kích hoạt VIP, bạn chỉ được hỏi tối đa ${maxFreeAiQuestions} câu. Hãy **mua hàng tích đủ 100 điểm VIP** hoặc bấm nút **Kích hoạt nhanh 100đ** để mở khóa hỏi đáp AI không giới hạn nhé!`,
+          timestamp: "Hệ thống VIP",
+        },
+      ]);
+      return;
+    }
+
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       role: "user",
@@ -162,6 +192,7 @@ export const VipHub: React.FC<VipHubProps> = ({
             fullName: student.fullName,
             studentId: student.studentId,
             email: student.email,
+            faculty: student.faculty,
             points: student.points,
           },
         }),
@@ -173,6 +204,10 @@ export const VipHub: React.FC<VipHubProps> = ({
           ? data.reply
           : data.error ||
             "Hiện tại hệ thống đang bận, bạn vui lòng thử lại sau giây lát nhé.";
+
+      if (response.ok && data.reply) {
+        onIncrementAiUsage();
+      }
 
       setChatMessages((prev) => [
         ...prev,
@@ -213,18 +248,18 @@ export const VipHub: React.FC<VipHubProps> = ({
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-5 sm:space-y-8 w-full max-w-full overflow-x-hidden">
       {/* Top Warm Sand Banner + Policy Table (Matches Reference Web) */}
-      <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center">
-          <div className="space-y-3 lg:col-span-7">
-            <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
+      <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-4 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-12 lg:items-center">
+          <div className="space-y-3 lg:col-span-7 min-w-0">
+            <p className="font-mono text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400 break-words">
               ĐẶC QUYỀN SINH VIÊN VIP · TÍCH ĐIỂM FORUS POINT TẠI 227 NGUYỄN VĂN CỪ
             </p>
-            <h2 className="text-2xl font-extrabold tracking-tight text-[#0B2545] sm:text-4xl dark:text-white leading-[1.15]">
+            <h2 className="text-xl font-extrabold tracking-tight text-[#0B2545] sm:text-4xl dark:text-white leading-[1.2] break-words">
               Trợ Lý AI Học Tập, Săn Điểm Rèn Luyện &amp; Đổi Điểm Voucher
             </h2>
-            <p className="text-sm leading-relaxed text-[#4A5568] sm:text-base dark:text-slate-300">
+            <p className="text-xs sm:text-base leading-relaxed text-[#4A5568] dark:text-slate-300 break-words">
               Sử dụng trực tiếp{" "}
               <strong className="font-bold text-[#0B2545] dark:text-white">
                 Trợ lý AI FORUS
@@ -242,12 +277,12 @@ export const VipHub: React.FC<VipHubProps> = ({
           </div>
 
           {/* Right White Status & Policy Card */}
-          <div className="rounded-2xl border border-[#E6E0D5] bg-white p-5 shadow-2xs dark:border-slate-700 dark:bg-slate-900 lg:col-span-5">
-            <div className="flex items-center justify-between">
-              <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#64748B] dark:text-slate-400">
+          <div className="rounded-2xl border border-[#E6E0D5] bg-white p-4 sm:p-5 shadow-2xs dark:border-slate-700 dark:bg-slate-900 lg:col-span-5 min-w-0">
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
+              <p className="font-mono text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-[#64748B] dark:text-slate-400">
                 HẠNG THÀNH VIÊN: {membershipTierLabel}
               </p>
-              <span className="font-mono text-sm font-extrabold text-[#D95326] dark:text-amber-400">
+              <span className="font-mono text-xs sm:text-sm font-extrabold text-[#D95326] dark:text-amber-400">
                 {student.points} / 100 điểm VIP
               </span>
             </div>
@@ -260,7 +295,7 @@ export const VipHub: React.FC<VipHubProps> = ({
             </div>
 
             <div className="mt-3.5 divide-y divide-[#EAE5DC] text-xs dark:divide-slate-800">
-              <div className="flex items-center justify-between py-2">
+              <div className="flex flex-wrap items-center justify-between gap-1 py-2">
                 <span className="text-[#4A5568] dark:text-slate-300">
                   Khi mua hàng (Ăn sáng / In ấn / Thuê đồ):
                 </span>
@@ -268,7 +303,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                   Cộng +5 đến +10 điểm VIP
                 </span>
               </div>
-              <div className="flex items-center justify-between py-2">
+              <div className="flex flex-wrap items-center justify-between gap-1 py-2">
                 <span className="text-[#4A5568] dark:text-slate-300">
                   Khi đổi điểm lấy Voucher ưu đãi:
                 </span>
@@ -276,7 +311,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                   Trừ trực tiếp điểm VIP
                 </span>
               </div>
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex flex-wrap items-center justify-between gap-1.5 pt-2">
                 <span className="text-[#4A5568] dark:text-slate-300">
                   Trạng thái VIP 100 điểm:
                 </span>
@@ -290,8 +325,8 @@ export const VipHub: React.FC<VipHubProps> = ({
                     onClick={onUnlockDemoVip}
                     className="inline-flex items-center gap-1 rounded-lg bg-[#D95326] px-2.5 py-1 font-mono text-[11px] font-bold text-white hover:bg-[#C0441B] transition cursor-pointer"
                   >
-                    <Zap className="h-3 w-3" />
-                    Kích hoạt nhanh 100đ
+                    <Zap className="h-3 w-3 shrink-0" />
+                    <span>Kích hoạt nhanh 100đ</span>
                   </button>
                 )}
               </div>
@@ -301,15 +336,17 @@ export const VipHub: React.FC<VipHubProps> = ({
       </div>
 
       {/* Voucher Redemption & Group Lab Order Box (Matches Screenshot 3) */}
-      <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-7 dark:border-slate-700/80 dark:bg-slate-800/90">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-stretch">
+      <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-4 sm:p-7 dark:border-slate-700/80 dark:bg-slate-800/90">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-12 lg:items-stretch">
           {/* Left 7 Cols: 3 Voucher Cards */}
-          <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-6 dark:border-slate-700 dark:bg-slate-900 lg:col-span-7">
+          <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-900 lg:col-span-7 min-w-0">
             <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0B2545] px-3 py-1 font-mono text-xs font-bold text-white">
-                  <Gift className="h-3.5 w-3.5 text-amber-300" />
-                  Đổi Điểm VIP FORUS ({student.points} điểm khả dụng)
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-2xl sm:rounded-full bg-[#0B2545] px-3 py-1.5 font-mono text-[11px] sm:text-xs font-bold text-white max-w-full">
+                  <Gift className="h-3.5 w-3.5 text-amber-300 shrink-0" />
+                  <span className="truncate">
+                    Đổi Điểm VIP FORUS ({student.points} điểm khả dụng)
+                  </span>
                 </span>
                 <button
                   type="button"
@@ -413,10 +450,10 @@ export const VipHub: React.FC<VipHubProps> = ({
           </div>
 
           {/* Right 5 Cols: Gom Đơn Nhóm Phòng Lab (Matches Screenshot 3 Right Box) */}
-          <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-6 dark:border-slate-700 dark:bg-slate-900 lg:col-span-5">
+          <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-900 lg:col-span-5 min-w-0">
             <div className="space-y-3.5">
               <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-[#D95326]" />
+                <Users className="h-5 w-5 text-[#D95326] shrink-0" />
                 <h3 className="text-base sm:text-lg font-extrabold text-[#0B2545] dark:text-white">
                   Gom Đơn Nhóm Phòng Lab &amp; Đồ Án
                 </h3>
@@ -438,7 +475,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                 cho toàn bộ đơn hàng!
               </p>
 
-              <div className="rounded-2xl border border-[#E5DEC9] bg-[#F5F2EB] p-4 dark:border-slate-700 dark:bg-slate-800">
+              <div className="rounded-2xl border border-[#E5DEC9] bg-[#F5F2EB] p-3.5 sm:p-4 dark:border-slate-700 dark:bg-slate-800">
                 <label className="block text-xs font-bold text-[#0B2545] dark:text-white mb-2">
                   Mã phòng học / Nhóm đồ án của bạn:
                 </label>
@@ -446,9 +483,9 @@ export const VipHub: React.FC<VipHubProps> = ({
                   type="text"
                   value={labGroupCode}
                   onChange={(e) => setLabGroupCode(e.target.value.toUpperCase())}
-                  className="w-full rounded-xl border border-[#DDD6C7] bg-white px-3.5 py-2.5 font-mono text-xs sm:text-sm font-bold text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                  className="w-full min-w-0 rounded-xl border border-[#DDD6C7] bg-white px-3.5 py-2.5 font-mono text-xs sm:text-sm font-bold text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                 />
-                <p className="mt-2 text-[11px] leading-relaxed text-[#64748B] dark:text-slate-300">
+                <p className="mt-2 text-[11px] leading-relaxed text-[#64748B] dark:text-slate-300 break-words">
                   Khi bật gom đơn, đơn hàng của bạn sẽ gắn nhãn nhóm{" "}
                   <strong className="font-mono text-[#0B2545] dark:text-amber-300">
                     {labGroupCode || "LAB-TOA-F-09"}
@@ -468,7 +505,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                     : "Đã tắt chế độ Gom Đơn Nhóm."
                 );
               }}
-              className={`mt-4 w-full rounded-2xl py-3.5 px-4 text-xs sm:text-sm font-extrabold text-white transition cursor-pointer shadow-xs ${
+              className={`mt-4 w-full rounded-2xl py-3 px-3 sm:px-4 text-xs sm:text-sm font-extrabold text-white transition cursor-pointer shadow-xs leading-snug break-words ${
                 isGroupOrderActive
                   ? "bg-emerald-600 hover:bg-emerald-500"
                   : "bg-[#D95326] hover:bg-[#C0441B]"
@@ -483,36 +520,38 @@ export const VipHub: React.FC<VipHubProps> = ({
       </div>
 
       {/* Section Switcher: Chatbot vs DRL Events */}
-      <div className="flex flex-col justify-between gap-4 border-b border-[#E5DEC9] pb-4 dark:border-slate-700/80 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-1.5 rounded-2xl border border-[#E5E0D5] bg-[#F2EFE9] p-1.5 dark:border-slate-700 dark:bg-slate-800">
+      <div className="flex flex-col justify-between gap-3 border-b border-[#E5DEC9] pb-4 dark:border-slate-700/80 sm:flex-row sm:items-center">
+        <div className="grid grid-cols-2 sm:inline-flex items-center gap-1.5 w-full sm:w-auto rounded-2xl border border-[#E5E0D5] bg-[#F2EFE9] p-1.5 dark:border-slate-700 dark:bg-slate-800">
           <button
             type="button"
             onClick={() => setActiveVipSection("chatbot")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-extrabold transition whitespace-nowrap cursor-pointer ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-2.5 sm:px-4 py-2 text-[11px] sm:text-xs font-extrabold transition cursor-pointer min-w-0 ${
               activeVipSection === "chatbot"
                 ? "bg-white text-[#0B2545] shadow-2xs dark:bg-slate-900 dark:text-white"
                 : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-300"
             }`}
           >
-            <Bot className="h-4 w-4 text-[#D95326]" />
-            <span>Trợ Lý AI FORUS (Gemini)</span>
+            <Bot className="h-4 w-4 text-[#D95326] shrink-0" />
+            <span className="truncate">Trợ Lý AI FORUS</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveVipSection("events")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-extrabold transition whitespace-nowrap cursor-pointer ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-2.5 sm:px-4 py-2 text-[11px] sm:text-xs font-extrabold transition cursor-pointer min-w-0 ${
               activeVipSection === "events"
                 ? "bg-white text-[#0B2545] shadow-2xs dark:bg-slate-900 dark:text-white"
                 : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-300"
             }`}
           >
-            <CalendarCheck className="h-4 w-4 text-[#D95326]" />
-            <span>Săn Điểm Rèn Luyện ({VIP_TRAINING_POINT_EVENTS.length})</span>
+            <CalendarCheck className="h-4 w-4 text-[#D95326] shrink-0" />
+            <span className="truncate">
+              Săn Điểm Rèn Luyện ({VIP_TRAINING_POINT_EVENTS.length})
+            </span>
           </button>
         </div>
 
-        <span className="font-mono text-xs text-[#64748B] dark:text-slate-300">
+        <span className="font-mono text-[11px] sm:text-xs text-[#64748B] dark:text-slate-300">
           Hỗ trợ trực tuyến 24/7 cho sinh viên Cơ sở 1 ·{" "}
           <strong className="text-[#D95326] dark:text-amber-400">
             Miễn phí trải nghiệm
@@ -546,7 +585,7 @@ export const VipHub: React.FC<VipHubProps> = ({
               return (
                 <div
                   key={ev.id}
-                  className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-6 transition hover:border-[#C8C0B0] dark:border-slate-700/80 dark:bg-slate-800/90"
+                  className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-4 sm:p-6 transition hover:border-[#C8C0B0] dark:border-slate-700/80 dark:bg-slate-800/90 min-w-0"
                 >
                   <div>
                     {/* Clean Metadata Line */}
@@ -559,11 +598,11 @@ export const VipHub: React.FC<VipHubProps> = ({
                       </span>
                     </div>
 
-                    <h3 className="mt-2 text-lg font-extrabold text-[#0B2545] dark:text-white leading-snug">
+                    <h3 className="mt-2 text-base sm:text-lg font-extrabold text-[#0B2545] dark:text-white leading-snug break-words">
                       {ev.title}
                     </h3>
 
-                    <p className="mt-1 text-xs text-[#64748B] dark:text-slate-300">
+                    <p className="mt-1 text-xs text-[#64748B] dark:text-slate-300 break-words">
                       Đơn vị tổ chức:{" "}
                       <strong className="text-[#0B2545] dark:text-slate-100">
                         {ev.organizer}
@@ -575,28 +614,28 @@ export const VipHub: React.FC<VipHubProps> = ({
                     <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                       <div className="rounded-2xl border border-[#E5DEC9] bg-[#F3EFE6] p-3 dark:border-slate-700 dark:bg-slate-900">
                         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#4A5568] dark:text-slate-300">
-                          <Clock className="h-3.5 w-3.5 text-[#D95326]" />
+                          <Clock className="h-3.5 w-3.5 text-[#D95326] shrink-0" />
                           <span>Đếm ngược đóng đăng ký:</span>
                         </div>
-                        <div className="mt-1 font-mono text-base font-extrabold tabular-nums text-[#0B2545] dark:text-white">
+                        <div className="mt-1 font-mono text-sm sm:text-base font-extrabold tabular-nums text-[#0B2545] dark:text-white">
                           {regCountdown.label}
                         </div>
                       </div>
 
                       <div className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] p-3 dark:border-slate-700 dark:bg-slate-900">
                         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#4A5568] dark:text-slate-300">
-                          <Clock className="h-3.5 w-3.5 text-[#0B2545] dark:text-sky-400" />
+                          <Clock className="h-3.5 w-3.5 text-[#0B2545] dark:text-sky-400 shrink-0" />
                           <span>Đếm ngược kết thúc sự kiện:</span>
                         </div>
-                        <div className="mt-1 font-mono text-base font-extrabold tabular-nums text-[#0B2545] dark:text-white">
+                        <div className="mt-1 font-mono text-sm sm:text-base font-extrabold tabular-nums text-[#0B2545] dark:text-white">
                           {endCountdown.label}
                         </div>
                       </div>
                     </div>
 
                     {/* Important Notes */}
-                    <div className="mt-4 space-y-2 rounded-2xl bg-[#F3EFE6] p-4 text-xs dark:bg-slate-900">
-                      <div className="flex items-center justify-between font-extrabold text-[#0B2545] dark:text-white">
+                    <div className="mt-4 space-y-2 rounded-2xl bg-[#F3EFE6] p-3.5 sm:p-4 text-xs dark:bg-slate-900">
+                      <div className="flex flex-wrap items-center justify-between gap-1.5 font-extrabold text-[#0B2545] dark:text-white">
                         <span className="flex items-center gap-1.5">
                           <AlertCircle className="h-4 w-4 shrink-0 text-[#D95326]" />
                           <span>Lưu ý bắt buộc để được công nhận ĐRL:</span>
@@ -605,10 +644,10 @@ export const VipHub: React.FC<VipHubProps> = ({
                           Còn {slotsRemaining}/{ev.maxSlots} chỗ
                         </span>
                       </div>
-                      <p className="text-[#4A5568] dark:text-slate-200">
+                      <p className="text-[#4A5568] dark:text-slate-200 break-words">
                         {ev.registrationRequirements}
                       </p>
-                      <ul className="space-y-1 text-[#4A5568] dark:text-slate-300">
+                      <ul className="space-y-1 text-[#4A5568] dark:text-slate-300 break-words">
                         {ev.importantNotes.map((note, idx) => (
                           <li key={idx}>• {note}</li>
                         ))}
@@ -618,13 +657,13 @@ export const VipHub: React.FC<VipHubProps> = ({
                     {/* Personal Note Box */}
                     <div className="mt-3">
                       {editingNoteId === ev.id ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
                           <input
                             type="text"
                             value={noteDraft}
                             onChange={(e) => setNoteDraft(e.target.value)}
-                            placeholder="Nhập ghi chú cá nhân (VD: Rủ bạn Khôi đi cùng lúc 7h45)..."
-                            className="flex-1 rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3 py-1.5 text-xs text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                            placeholder="Nhập ghi chú cá nhân..."
+                            className="flex-1 min-w-0 rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3 py-1.5 text-xs text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                           />
                           <button
                             type="button"
@@ -639,8 +678,8 @@ export const VipHub: React.FC<VipHubProps> = ({
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-between text-xs text-[#64748B] dark:text-slate-300">
-                          <span className="truncate">
+                        <div className="flex items-center justify-between gap-2 text-xs text-[#64748B] dark:text-slate-300 min-w-0">
+                          <span className="truncate min-w-0">
                             {personalNote
                               ? `Ghi chú của bạn: "${personalNote}"`
                               : "Chưa có ghi chú cá nhân cho sự kiện này."}
@@ -651,7 +690,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                               setEditingNoteId(ev.id);
                               setNoteDraft(personalNote);
                             }}
-                            className="ml-2 flex items-center gap-1 font-bold text-[#D95326] hover:underline whitespace-nowrap shrink-0 cursor-pointer"
+                            className="flex items-center gap-1 font-bold text-[#D95326] hover:underline whitespace-nowrap shrink-0 cursor-pointer"
                           >
                             <Bookmark className="h-3.5 w-3.5" />
                             <span>
@@ -664,7 +703,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-5 flex flex-wrap items-center justify-between gap-2.5 border-t border-[#EAE5DC] pt-4 dark:border-slate-700">
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-[#EAE5DC] pt-4 dark:border-slate-700">
                     <button
                       type="button"
                       onClick={() => {
@@ -675,7 +714,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             : `Đã bật thông báo nhắc tham gia "${ev.title}" trước 30 phút!`
                         );
                       }}
-                      className={`flex items-center gap-1.5 rounded-xl border px-3.5 py-2.5 text-xs font-bold transition whitespace-nowrap shrink-0 cursor-pointer ${
+                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold transition cursor-pointer ${
                         isReminded
                           ? "border-[#D95326]/40 bg-[#FFF5F0] text-[#D95326] dark:bg-amber-500/15 dark:text-amber-300"
                           : "border-[#E5E0D5] bg-white text-[#0B2545] hover:bg-[#F5F2EB] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
@@ -683,13 +722,13 @@ export const VipHub: React.FC<VipHubProps> = ({
                     >
                       {isReminded ? (
                         <>
-                          <BellRing className="h-4 w-4 text-[#D95326]" />
-                          <span>Đã Bật Nhắc Hẹn (Trước 30p)</span>
+                          <BellRing className="h-4 w-4 text-[#D95326] shrink-0" />
+                          <span className="truncate">Đã Bật Nhắc Hẹn</span>
                         </>
                       ) : (
                         <>
-                          <Bell className="h-4 w-4" />
-                          <span>Nhắc Tôi Tham Gia</span>
+                          <Bell className="h-4 w-4 shrink-0" />
+                          <span className="truncate">Nhắc Tôi Tham Gia</span>
                         </>
                       )}
                     </button>
@@ -698,15 +737,15 @@ export const VipHub: React.FC<VipHubProps> = ({
                       type="button"
                       onClick={() => handleRegisterEvent(ev)}
                       disabled={isRegistered}
-                      className={`rounded-xl px-4 py-2.5 text-xs font-extrabold transition whitespace-nowrap shrink-0 cursor-pointer ${
+                      className={`flex-1 sm:flex-initial rounded-xl px-3.5 py-2.5 text-xs font-extrabold transition text-center cursor-pointer ${
                         isRegistered
                           ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
                           : "bg-[#D95326] text-white hover:bg-[#C0441B]"
                       }`}
                     >
                       {isRegistered
-                        ? "Đã Đăng Ký Tham Gia (✓)"
-                        : "Đăng Ký Giữ Chỗ Ngay"}
+                        ? "Đã Đăng Ký (✓)"
+                        : "Đăng Ký Giữ Chỗ"}
                     </button>
                   </div>
                 </div>
@@ -716,19 +755,19 @@ export const VipHub: React.FC<VipHubProps> = ({
         </div>
       ) : (
         /* SECTION 2: VIP AI CHATBOT INTERFACE */
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-6 dark:border-slate-700/80 dark:bg-slate-800/95 lg:col-span-4 shadow-2xs">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-12">
+          <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-4 sm:p-6 dark:border-slate-700/80 dark:bg-slate-800/95 lg:col-span-4 shadow-2xs min-w-0">
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0B2545] text-white shadow-xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-2xl bg-[#0B2545] text-white shadow-xs">
                     <Bot className="h-5 w-5 text-amber-300" />
                   </div>
-                  <div>
-                    <h3 className="text-sm font-extrabold text-[#0B2545] dark:text-white">
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-extrabold text-[#0B2545] dark:text-white truncate">
                       Trợ Lý AI FORUS (Gemini)
                     </h3>
-                    <p className="text-xs text-[#D95326] dark:text-amber-400 font-bold">
+                    <p className="text-xs text-[#D95326] dark:text-amber-400 font-bold truncate">
                       Học vụ · Công thức LaTeX · Tiện ích CS1
                     </p>
                   </div>
@@ -737,7 +776,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                   type="button"
                   onClick={handleResetChat}
                   title="Làm mới đoạn chat"
-                  className="p-2 rounded-xl border border-[#E5E0D5] dark:border-slate-700 text-[#64748B] hover:text-[#D95326] dark:text-slate-300 transition cursor-pointer"
+                  className="p-2 rounded-xl border border-[#E5E0D5] dark:border-slate-700 text-[#64748B] hover:text-[#D95326] dark:text-slate-300 transition shrink-0 cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -758,8 +797,8 @@ export const VipHub: React.FC<VipHubProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleSendChat(sample)}
-                    disabled={isSending}
-                    className="w-full rounded-2xl border border-[#E5DEC9] bg-[#FAF8F5] p-3.5 text-left text-xs font-semibold text-[#0B2545] transition hover:border-[#0B2545] hover:bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-700/70 dark:text-slate-200 cursor-pointer"
+                    disabled={isSending || isAiLimitReached}
+                    className="w-full rounded-2xl border border-[#E5DEC9] bg-[#FAF8F5] p-3 text-left text-xs font-semibold text-[#0B2545] transition hover:border-[#0B2545] hover:bg-[#F3EFE6] disabled:opacity-50 dark:border-slate-700 dark:bg-slate-700/70 dark:text-slate-200 cursor-pointer break-words"
                   >
                     “{sample}”
                   </button>
@@ -767,37 +806,97 @@ export const VipHub: React.FC<VipHubProps> = ({
               </div>
             </div>
 
-            <div className="mt-6 rounded-2xl bg-[#F3EFE6] dark:bg-slate-900 p-3.5 text-[11px] text-[#0B2545] dark:text-slate-200 font-medium">
-              💡 Hỗ trợ hội thoại nhiều lượt (Multi-turn Gemini Chat) — AI ghi nhớ mạch câu hỏi trước đó của bạn.
+            <div className="mt-5 space-y-2 rounded-2xl bg-[#F3EFE6] dark:bg-slate-900 p-3.5 text-[11px] text-[#0B2545] dark:text-slate-200 font-medium">
+              <div className="flex flex-wrap items-center justify-between gap-1 font-mono font-bold">
+                <span>Lượt hỏi AI hiện tại:</span>
+                {isVipUnlocked ? (
+                  <span className="text-emerald-600 dark:text-emerald-400">
+                    VIP: Không giới hạn (∞)
+                  </span>
+                ) : (
+                  <span
+                    className={
+                      isAiLimitReached
+                        ? "text-rose-600 dark:text-rose-400"
+                        : "text-[#D95326] dark:text-amber-400"
+                    }
+                  >
+                    Đã dùng {aiQuestionsUsed}/{maxFreeAiQuestions} câu (Còn{" "}
+                    {remainingFreeQuestions})
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-[#4A5568] dark:text-slate-300 break-words">
+                {isVipUnlocked
+                  ? "👑 Tài khoản đã đạt chuẩn VIP (≥ 100 điểm): Bạn được hỏi Trợ lý AI FORUS không giới hạn."
+                  : `🔒 Khi chưa kích hoạt VIP (< 100 điểm), bạn được hỏi tối đa ${maxFreeAiQuestions} câu. Kích hoạt VIP 100đ để mở khóa không giới hạn.`}
+              </p>
             </div>
           </div>
 
           {/* Chat Conversation Window */}
-          <div className="flex h-[520px] sm:h-[560px] flex-col rounded-3xl border border-[#E6E0D5] bg-white dark:border-slate-700/80 dark:bg-slate-800/95 lg:col-span-8 shadow-2xs overflow-hidden">
+          <div className="flex h-[500px] sm:h-[560px] flex-col rounded-3xl border border-[#E6E0D5] bg-white dark:border-slate-700/80 dark:bg-slate-800/95 lg:col-span-8 shadow-2xs overflow-hidden min-w-0">
+            {/* Top Quota Status Bar inside Chat Window */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE5DC] bg-[#F3EFE6]/80 px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs dark:border-slate-700 dark:bg-slate-900">
+              {isVipUnlocked ? (
+                <span className="font-mono font-extrabold text-emerald-700 dark:text-emerald-400 break-words">
+                  👑 Đặc quyền VIP FORUS ({student.points}/100đ): Trò chuyện AI không giới hạn (∞)
+                </span>
+              ) : (
+                <span className="font-mono font-bold text-[#0B2545] dark:text-slate-200">
+                  Lượt hỏi miễn phí (Chưa VIP):{" "}
+                  <strong
+                    className={
+                      isAiLimitReached
+                        ? "text-rose-600 dark:text-rose-400"
+                        : "text-[#D95326] dark:text-amber-400"
+                    }
+                  >
+                    {aiQuestionsUsed}/{maxFreeAiQuestions} câu
+                  </strong>{" "}
+                  (Còn {remainingFreeQuestions} câu)
+                </span>
+              )}
+
+              {!isVipUnlocked && (
+                <button
+                  type="button"
+                  onClick={onUnlockDemoVip}
+                  className="inline-flex items-center gap-1 rounded-lg bg-[#D95326] hover:bg-[#C0441B] px-2.5 py-1 font-mono text-[11px] font-extrabold text-white transition cursor-pointer"
+                >
+                  <Zap className="h-3 w-3 shrink-0" />
+                  <span>Kích hoạt VIP (Không giới hạn)</span>
+                </button>
+              )}
+            </div>
+
             <div
               ref={chatScrollContainerRef}
-              className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6 bg-[#FAF8F5]/60 dark:bg-slate-900/40"
+              className="flex-1 space-y-4 overflow-y-auto p-3.5 sm:p-6 bg-[#FAF8F5]/60 dark:bg-slate-900/40"
             >
               {chatMessages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex gap-2.5 sm:gap-3 ${
+                  className={`flex gap-2 sm:gap-3 min-w-0 ${
                     msg.role === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
                   {msg.role === "model" && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#0B2545] text-white shadow-xs">
-                      <Bot className="h-4 w-4 text-amber-300" />
+                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl bg-[#0B2545] text-white shadow-xs">
+                      <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-300" />
                     </div>
                   )}
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap ${
+                    className={`max-w-[85%] min-w-0 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm leading-relaxed break-words [overflow-wrap:anywhere] ${
                       msg.role === "user"
                         ? "bg-[#0B2545] text-white shadow-xs"
                         : "border border-[#E6E0D5] bg-white text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     }`}
                   >
-                    <div>{msg.text}</div>
+                    <FormattedAiMessage
+                      text={msg.text}
+                      isUser={msg.role === "user"}
+                    />
                     <span
                       className={`mt-1.5 block text-[10px] ${
                         msg.role === "user"
@@ -809,43 +908,66 @@ export const VipHub: React.FC<VipHubProps> = ({
                     </span>
                   </div>
                   {msg.role === "user" && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#D95326] text-white">
-                      <User className="h-4 w-4" />
+                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl bg-[#D95326] text-white">
+                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </div>
                   )}
                 </div>
               ))}
               {isSending && (
                 <div className="flex items-center gap-2 text-xs font-bold text-[#D95326] dark:text-amber-300">
-                  <Bot className="h-4 w-4 animate-bounce" />
+                  <Bot className="h-4 w-4 animate-bounce shrink-0" />
                   <span>Trợ lý AI FORUS đang soạn câu trả lời...</span>
                 </div>
               )}
             </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendChat();
-              }}
-              className="flex items-center gap-2 border-t border-[#E6E0D5] bg-[#F3EFE6]/70 dark:bg-slate-900/50 p-3 sm:p-4 dark:border-slate-700"
-            >
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Hỏi về công thức LaTeX, bài tập Giải tích, C++ hoặc dịch vụ FORUS..."
-                className="flex-1 rounded-2xl border border-[#DDD6C7] bg-white px-4 py-2.5 text-xs sm:text-sm text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-              />
-              <button
-                type="submit"
-                disabled={isSending || !chatInput.trim()}
-                className="flex items-center gap-1.5 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white transition disabled:opacity-40 whitespace-nowrap shrink-0 cursor-pointer shadow-xs"
+            {isAiLimitReached ? (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-t border-rose-500/30 bg-rose-50/90 dark:bg-rose-950/30 p-3 sm:p-4">
+                <div className="text-xs text-rose-800 dark:text-rose-200 break-words">
+                  <strong className="font-extrabold">
+                    🔒 Đã đạt giới hạn {maxFreeAiQuestions}/{maxFreeAiQuestions} câu hỏi (Chưa kích hoạt VIP):
+                  </strong>{" "}
+                  Tích đủ 100 điểm VIP hoặc kích hoạt VIP ngay để hỏi AI không giới hạn!
+                </div>
+                <button
+                  type="button"
+                  onClick={onUnlockDemoVip}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#D95326] hover:bg-[#C0441B] px-4 py-2.5 text-xs font-extrabold text-white transition shrink-0 cursor-pointer shadow-xs"
+                >
+                  <Zap className="h-3.5 w-3.5 shrink-0" />
+                  <span>Kích Hoạt VIP 100đ Ngay</span>
+                </button>
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendChat();
+                }}
+                className="flex items-center gap-2 border-t border-[#E6E0D5] bg-[#F3EFE6]/70 dark:bg-slate-900/50 p-2.5 sm:p-4 dark:border-slate-700 min-w-0"
               >
-                <Send className="h-4 w-4" />
-                <span>Gửi</span>
-              </button>
-            </form>
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder={`Hỏi LaTeX, Giải tích, C++... (${
+                    isVipUnlocked
+                      ? "VIP: ∞"
+                      : `Còn ${remainingFreeQuestions}/${maxFreeAiQuestions} câu`
+                  })`}
+                  className="flex-1 min-w-0 rounded-2xl border border-[#DDD6C7] bg-white px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  disabled={isSending || !chatInput.trim()}
+                  className="flex items-center gap-1.5 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] px-3.5 sm:px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white transition disabled:opacity-40 whitespace-nowrap shrink-0 cursor-pointer shadow-xs"
+                >
+                  <Send className="h-4 w-4 shrink-0" />
+                  <span>Gửi</span>
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}

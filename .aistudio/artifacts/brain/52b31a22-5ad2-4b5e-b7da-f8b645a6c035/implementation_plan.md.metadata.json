@@ -1,6 +1,6 @@
 {
-  "summary":  "Kế hoạch nâng cấp thẩm mỹ (Aesthetic Redesign) cho FORUS theo phong cách Bento Grid hiện đại, bổ sung hệ màu phụ (Cam Coral, Vàng Amber, Tím Pastel) kết hợp Xanh KHTN, và hoán đổi logo nền sáng - nền tối để đạt độ tương phản tối ưu.",
-  "updatedAt":  "2026-10-27T15:58:11.477240977Z",
+  "summary":  "Kế hoạch tạo tài liệu giải thích chi tiết toàn bộ luồng hoạt động của hệ sinh thái web FORUS (luồng người dùng qua 6 phân hệ + trang giới thiệu, cơ chế cộng/trừ điểm VIP, giới hạn & mở khóa Trợ lý AI Gemini, và kiến trúc hệ thống Đồ án 1).",
+  "updatedAt":  "2026-10-28T15:01:25.010359072Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

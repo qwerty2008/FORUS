@@ -55,10 +55,12 @@ Dự án được xây dựng theo tiêu chí **Đồ án 1 — Học phần CSC
 │   ├── main.tsx                 # Điểm khởi chạy React
 │   └── types.ts                 # Định nghĩa kiểu dữ liệu TypeScript
 ├── docs/
-│   └── do-an-1/                 # Tài liệu tách rời phục vụ nộp Moodle (Poster A1, Bảng phân công, Links)
+│   └── do-an-1/                 # Tài liệu tách rời phục vụ nộp Moodle (Poster A1, Bảng phân công, Luồng hoạt động, Links)
+│       ├── LUONG_HOAT_DONG_WEB_FORUS.md
 │       ├── POSTER_A1_FORUS.md
 │       ├── PHAN_CONG_NHOM.md
 │       └── links.txt
+├── LUONG_HOAT_DONG_WEB_FORUS.md # Tài liệu giải thích chi tiết luồng hoạt động của hệ sinh thái Web FORUS
 ├── server.ts                    # Backend Express + Vite & Route API Chatbot Gemini
 ├── package.json
 ├── tsconfig.json

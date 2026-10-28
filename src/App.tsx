@@ -63,6 +63,7 @@ import { PrintConfigurator } from "./components/PrintConfigurator";
 import { TutorHub } from "./components/TutorHub";
 import { VipHub } from "./components/VipHub";
 import { AboutAndContactView } from "./components/AboutAndContactView";
+import { FormattedAiMessage } from "./components/FormattedAiMessage";
 
 const DELIVERY_TIME_SLOTS = [
   "07:00 - 07:25 (Trước tiết 1)",
@@ -348,6 +349,20 @@ export default function App() {
   const [vipInitialSection, setVipInitialSection] = useState<
     "events" | "chatbot"
   >("chatbot");
+  const FREE_AI_QUESTION_LIMIT = 5;
+  const [aiQuestionsUsed, setAiQuestionsUsed] = useState<number>(() => {
+    const saved = localStorage.getItem("forus_ai_questions_used_v2");
+    return saved ? Math.max(0, parseInt(saved, 10) || 0) : 0;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("forus_ai_questions_used_v2", String(aiQuestionsUsed));
+  }, [aiQuestionsUsed]);
+
+  const incrementAiUsage = () => {
+    setAiQuestionsUsed((prev) => prev + 1);
+  };
+
   const [isFloatingAiOpen, setIsFloatingAiOpen] = useState(false);
   const [floatingChatMessages, setFloatingChatMessages] = useState<
     { role: "user" | "model"; text: string }[]
@@ -373,6 +388,21 @@ export default function App() {
   const handleSendFloatingChat = async (customPrompt?: string) => {
     const promptText = (customPrompt ?? floatingChatInput).trim();
     if (!promptText || isFloatingSending) return;
+
+    const isVipMember = student.points >= 100;
+    if (!isVipMember && aiQuestionsUsed >= FREE_AI_QUESTION_LIMIT) {
+      setFloatingChatMessages((prev) => [
+        ...prev,
+        {
+          role: "model",
+          text: `🔒 **Bạn đã sử dụng hết ${FREE_AI_QUESTION_LIMIT}/${FREE_AI_QUESTION_LIMIT} câu hỏi miễn phí** khi chưa kích hoạt VIP 100đ.\n\nHãy **kích hoạt VIP 100 điểm** (tích điểm qua đơn mua hàng/thuê đồ hoặc bấm nút Kích hoạt VIP ngay bên dưới) để hỏi **Trợ lý AI FORUS không giới hạn (∞)** 24/7 nhé!`,
+        },
+      ]);
+      showToast(
+        `Đã hết ${FREE_AI_QUESTION_LIMIT}/${FREE_AI_QUESTION_LIMIT} lượt hỏi miễn phí! Kích hoạt VIP 100đ để hỏi không giới hạn.`
+      );
+      return;
+    }
 
     const currentHistory = [...floatingChatMessages];
     const updatedMessages: { role: "user" | "model"; text: string }[] = [
@@ -404,6 +434,7 @@ export default function App() {
       if (!response.ok || !data.reply) {
         throw new Error(data.error || "Lỗi kết nối với máy chủ AI.");
       }
+      incrementAiUsage();
       setFloatingChatMessages((prev) => [
         ...prev,
         { role: "model", text: data.reply },
@@ -955,7 +986,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-300 ${
+      className={`min-h-screen w-full max-w-[100vw] overflow-x-clip transition-colors duration-300 ${
         isDark
           ? "dark bg-[#0B1320] text-slate-100"
           : "bg-[#FAF8F5] text-[#0B2545]"
@@ -971,8 +1002,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Sticky Top Header: Swapped Logo + Segmented Service Tabs on Top Bar + [Sun/Moon Icon | Cart | Menu] */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#FAF8F5]/95 dark:bg-[#0D1525]/95 border-b border-[#E5DEC9] dark:border-slate-800 transition-colors">
+      {/* Fixed Top Header: Stays pinned at the top of the viewport when scrolling on desktop & mobile */}
+      <header className="fixed top-0 left-0 right-0 z-40 backdrop-blur-xl bg-[#FAF8F5]/95 dark:bg-[#0D1525]/95 border-b border-[#E5DEC9] dark:border-slate-800 shadow-2xs transition-colors">
         <div className="max-w-[1360px] mx-auto px-3 sm:px-6">
           <div className="h-20 sm:h-24 flex items-center justify-between gap-2 sm:gap-4">
             {/* Left: FORUS Brand Logo (Enlarged as requested) */}
@@ -1079,6 +1110,7 @@ export default function App() {
           </div>
         </div>
       </header>
+      <div className="h-20 sm:h-24 shrink-0" aria-hidden="true" />
 
       {/* ================= SLIDE-OVER MENU DRAWER (Next to Cart) ================= */}
       {isMenuOpen && (
@@ -1453,7 +1485,7 @@ export default function App() {
       )}
 
       {/* Main Content Container */}
-      <main className="relative z-10 max-w-[1320px] mx-auto px-3 sm:px-6 py-6 sm:py-9 pb-24 lg:pb-16">
+      <main className="relative z-10 w-full max-w-[1320px] mx-auto px-3 sm:px-6 py-6 sm:py-9 pb-24 lg:pb-16 overflow-x-clip">
         {/* ================= HOME TAB (REFERENCE EDITORIAL THEME & LAYOUT) ================= */}
         {activeTab === "home" && (
           <div className="space-y-10 sm:space-y-14">
@@ -1481,6 +1513,19 @@ export default function App() {
                     </strong>{" "}
                     ra đời như một trạm tiện ích khép kín ngay tại khuôn viên Cơ sở 1: cung cấp thiết bị ghi chép số giá sinh viên (Combo Bảng vẽ iPad Sinh Viên, Bàn phím MacroPad OneTap LaTeX, Flashcard chống nước), cho thuê &amp; bán máy tính cầm tay / giáo trình / áo blouse (mới 100%, 90%, 80%), giao đồ ăn sáng và bản in A1–A5 tận cửa phòng học, kết nối gia sư uy tín và thưởng điểm mở khóa công cụ Săn Điểm Rèn Luyện + Trợ lý AI.
                   </p>
+
+                  {/* Nút Giới thiệu nằm dưới đoạn văn và ngay trên ô 35.000đ */}
+                  <div className="pt-1 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => switchTab("about")}
+                      className="inline-flex items-center gap-2 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-xs transition hover:-translate-y-0.5 cursor-pointer"
+                    >
+                      <Sparkles className="h-4 w-4 text-amber-200 shrink-0" />
+                      <span>Giới thiệu chi tiết về FORUS</span>
+                      <ArrowRight className="h-4 w-4 shrink-0" />
+                    </button>
+                  </div>
 
                   {/* 3 Highlight Metric Cards (Matches Screenshot) */}
                   <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3 sm:gap-4">
@@ -2297,33 +2342,33 @@ export default function App() {
 
         {/* ================= BREAKFAST & DRINKS TAB ================= */}
         {activeTab === "food" && (
-          <div className="space-y-6 sm:space-y-8">
-            <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                <div className="space-y-2 max-w-xl">
-                  <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
+          <div className="space-y-5 sm:space-y-8 w-full max-w-full overflow-x-hidden">
+            <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-4 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
+                <div className="space-y-2 max-w-xl min-w-0">
+                  <p className="font-mono text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400 break-words">
                     FORUS 227 EXPRESS · GIAO TẬN PHÒNG HỌC CƠ SỞ 1 NGUYỄN VĂN CỪ
                   </p>
-                  <h2 className="text-2xl sm:text-4xl font-extrabold text-[#0B2545] dark:text-white leading-[1.15]">
+                  <h2 className="text-xl sm:text-4xl font-extrabold text-[#0B2545] dark:text-white leading-[1.2] break-words">
                     Thực Đơn Ăn Sáng &amp; Cà Phê Tỉnh Táo Giảng Đường
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#4A5568] dark:text-slate-300 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#4A5568] dark:text-slate-300 leading-relaxed break-words">
                     Chọn tòa nhà, số phòng và khung giờ bên dưới — Shipper sinh
                     viên FORUS giao tận bàn trước khi giảng viên vào lớp.
                   </p>
                 </div>
 
                 {/* Room & Time Pickers */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-[#E6E0D5] dark:border-slate-700 shadow-2xs">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white dark:bg-slate-900 p-3.5 sm:p-4 rounded-2xl border border-[#E6E0D5] dark:border-slate-700 shadow-2xs w-full lg:w-auto min-w-0">
+                  <div className="min-w-0">
                     <label className="block text-[11px] font-bold text-[#64748B] dark:text-slate-300 mb-1 flex items-center gap-1">
-                      <Building2 className="w-3.5 h-3.5 text-[#D95326]" /> Tòa
-                      nhà CS1:
+                      <Building2 className="w-3.5 h-3.5 text-[#D95326] shrink-0" />{" "}
+                      Tòa nhà CS1:
                     </label>
                     <select
                       value={selectedBuilding}
                       onChange={(e) => setSelectedBuilding(e.target.value)}
-                      className="w-full px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-xs font-bold text-[#0B2545] dark:text-slate-100"
+                      className="w-full max-w-full min-w-0 truncate px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-xs font-bold text-[#0B2545] dark:text-slate-100"
                     >
                       {CAMPUS_BUILDINGS_CS1.map((b) => (
                         <option key={b} value={b}>
@@ -2332,7 +2377,7 @@ export default function App() {
                       ))}
                     </select>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <label className="block text-[11px] font-bold text-[#64748B] dark:text-slate-300 mb-1">
                       Số phòng cụ thể:
                     </label>
@@ -2341,18 +2386,18 @@ export default function App() {
                       value={selectedRoomCode}
                       onChange={(e) => setSelectedRoomCode(e.target.value)}
                       placeholder="VD: Phòng I.42, E.302..."
-                      className="w-full px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-xs font-bold text-[#0B2545] dark:text-slate-100"
+                      className="w-full max-w-full min-w-0 px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-xs font-bold text-[#0B2545] dark:text-slate-100"
                     />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <label className="block text-[11px] font-bold text-[#64748B] dark:text-slate-300 mb-1 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-[#0B2545] dark:text-amber-400" />{" "}
+                      <Clock className="w-3.5 h-3.5 text-[#0B2545] dark:text-amber-400 shrink-0" />{" "}
                       Khung giờ giao:
                     </label>
                     <select
                       value={selectedSlot}
                       onChange={(e) => setSelectedSlot(e.target.value)}
-                      className="w-full px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-xs font-bold text-[#0B2545] dark:text-slate-100"
+                      className="w-full max-w-full min-w-0 truncate px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-xs font-bold text-[#0B2545] dark:text-slate-100"
                     >
                       {DELIVERY_TIME_SLOTS.map((slot) => (
                         <option key={slot} value={slot}>
@@ -2365,8 +2410,8 @@ export default function App() {
               </div>
 
               {/* Interactive Segmented Filter Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4 border-t border-[#E5DEC9] dark:border-slate-700/80">
-                <div className="inline-flex items-center gap-1 rounded-2xl border border-[#E5E0D5] bg-white/70 p-1.5 dark:border-slate-700 dark:bg-slate-900">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-3 mt-5 sm:mt-6 pt-4 border-t border-[#E5DEC9] dark:border-slate-700/80">
+                <div className="flex flex-wrap sm:inline-flex items-center gap-1.5 w-full sm:w-auto rounded-2xl border border-[#E5E0D5] bg-white/70 p-1.5 dark:border-slate-700 dark:bg-slate-900">
                   {[
                     {
                       id: "all",
@@ -2378,7 +2423,7 @@ export default function App() {
                     <button
                       key={cat.id}
                       onClick={() => setFoodFilter(cat.id as typeof foodFilter)}
-                      className={`px-4 py-2 rounded-xl text-xs font-extrabold transition whitespace-nowrap cursor-pointer ${
+                      className={`flex-1 sm:flex-initial text-center px-3 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-extrabold transition cursor-pointer ${
                         foodFilter === cat.id
                           ? "bg-[#0B2545] text-white shadow-2xs dark:bg-amber-400 dark:text-slate-950"
                           : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-300"
@@ -2389,7 +2434,7 @@ export default function App() {
                   ))}
                 </div>
 
-                <span className="font-mono text-xs text-[#64748B] dark:text-slate-300">
+                <span className="font-mono text-[11px] sm:text-xs text-[#64748B] dark:text-slate-300 break-words">
                   Điểm giao đang chọn:{" "}
                   <strong className="text-[#D95326] dark:text-amber-400">
                     {selectedRoomCode} · {selectedBuilding.split(" (")[0]}
@@ -2399,7 +2444,7 @@ export default function App() {
             </div>
 
             {/* 3-Column Editorial Food Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
               {filteredFoodList.map((food, idx) => {
                 const chosenVariant =
                   food.variants.find(
@@ -2410,10 +2455,10 @@ export default function App() {
                 return (
                   <div
                     key={food.id}
-                    className="bg-white dark:bg-slate-800/95 rounded-3xl border border-[#E6E0D5] dark:border-slate-700/80 hover:border-[#C8C0B0] overflow-hidden flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group"
+                    className="min-w-0 bg-white dark:bg-slate-800/95 rounded-3xl border border-[#E6E0D5] dark:border-slate-700/80 hover:border-[#C8C0B0] overflow-hidden flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group"
                   >
                     <div>
-                      <div className="relative h-52 overflow-hidden bg-[#F3EFE6] dark:bg-slate-900">
+                      <div className="relative h-48 sm:h-52 overflow-hidden bg-[#F3EFE6] dark:bg-slate-900">
                         <ProductVisual
                           imageUrl={food.imageUrl}
                           alt={food.name}
@@ -2424,13 +2469,13 @@ export default function App() {
                         />
                       </div>
 
-                      <div className="p-5 sm:p-6 space-y-2.5">
-                        <p className="text-xs text-[#64748B] dark:text-slate-400">
+                      <div className="p-4 sm:p-6 space-y-2.5">
+                        <p className="text-xs text-[#64748B] dark:text-slate-400 truncate">
                           FORUS 227 Express · Ăn sáng · Giao{" "}
                           {selectedBuilding.split(" (")[0]}
                         </p>
 
-                        <h3 className="font-extrabold text-lg text-[#0B2545] dark:text-white leading-snug">
+                        <h3 className="font-extrabold text-base sm:text-lg text-[#0B2545] dark:text-white leading-snug break-words">
                           {food.name}
                         </h3>
 
@@ -2438,8 +2483,8 @@ export default function App() {
                           {food.subtitle}
                         </p>
 
-                        <div className="pt-1 flex items-center gap-1.5 text-xs">
-                          <Star className="h-3.5 w-3.5 fill-[#D95326] text-[#D95326]" />
+                        <div className="pt-1 flex flex-wrap items-center gap-1.5 text-xs">
+                          <Star className="h-3.5 w-3.5 fill-[#D95326] text-[#D95326] shrink-0" />
                           <span className="font-mono font-bold text-[#D95326]">
                             {ratingStats.avg}
                           </span>
@@ -2462,7 +2507,7 @@ export default function App() {
                                   [food.id]: e.target.value,
                                 }))
                               }
-                              className="w-full px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-900 border border-[#DDD6C7] dark:border-slate-700 text-xs font-bold text-[#0B2545] dark:text-slate-200"
+                              className="w-full max-w-full min-w-0 truncate px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-900 border border-[#DDD6C7] dark:border-slate-700 text-xs font-bold text-[#0B2545] dark:text-slate-200"
                             >
                               {food.variants.map((v) => (
                                 <option key={v.id} value={v.id}>
@@ -2475,15 +2520,15 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="px-5 sm:px-6 pb-5 pt-3 border-t border-[#EAE5DC] dark:border-slate-700 flex items-center justify-between gap-2">
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-5 pt-3 border-t border-[#EAE5DC] dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 min-w-0">
                       <span className="font-mono font-extrabold text-[#0B2545] dark:text-white text-base sm:text-lg tabular-nums">
                         {chosenVariant.price.toLocaleString("vi-VN")}đ
                       </span>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
                         <button
                           onClick={() => setSelectedProduct(food)}
-                          className="px-3 py-2 rounded-xl border border-[#E5E0D5] dark:border-slate-600 text-[#0B2545] dark:text-slate-200 hover:bg-[#F5F2EB] font-bold text-xs transition cursor-pointer"
+                          className="px-3 py-2 rounded-xl border border-[#E5E0D5] dark:border-slate-600 text-[#0B2545] dark:text-slate-200 hover:bg-[#F5F2EB] font-bold text-xs transition shrink-0 cursor-pointer"
                         >
                           Chi tiết
                         </button>
@@ -2497,10 +2542,12 @@ export default function App() {
                               }) • ${selectedSlot.split(" (")[0]}`
                             )
                           }
-                          className="px-4 py-2 rounded-xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          className="px-3.5 sm:px-4 py-2 rounded-xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition min-w-0 cursor-pointer"
                         >
-                          <Plus className="w-3.5 h-3.5" />
-                          <span>Giao {selectedRoomCode}</span>
+                          <Plus className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate max-w-[130px] sm:max-w-none">
+                            Giao {selectedRoomCode}
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -2891,7 +2938,306 @@ export default function App() {
             onSaveEventNote={handleSaveEventNote}
             onNavigateToShop={() => setActiveTab("gear")}
             initialSection={vipInitialSection}
+            aiQuestionsUsed={aiQuestionsUsed}
+            maxFreeAiQuestions={FREE_AI_QUESTION_LIMIT}
+            onIncrementAiUsage={incrementAiUsage}
           />
+        )}
+
+        {/* ================= DEDICATED INTRODUCTION PAGE (NOT IN SERVICE BAR) ================= */}
+        {activeTab === "about" && (
+          <div className="space-y-6 sm:space-y-8 max-w-4xl mx-auto w-full">
+            {/* Top Back Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => switchTab("home")}
+                className="inline-flex items-center gap-2 rounded-2xl border border-[#E5DEC9] bg-white hover:bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 px-4 py-2.5 text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white transition cursor-pointer shadow-2xs"
+              >
+                <span>← Quay lại Trang chủ</span>
+              </button>
+              <span className="font-mono text-xs font-semibold uppercase tracking-wider text-[#D95326] dark:text-amber-400">
+                BÀI GIỚI THIỆU HỆ SINH THÁI SINH VIÊN FORUS · HCMUS
+              </span>
+            </div>
+
+            {/* Hero Article Header */}
+            <article className="rounded-3xl border border-[#E5DEC9] bg-white dark:border-slate-700/80 dark:bg-slate-800/95 shadow-2xs overflow-hidden">
+              <div className="bg-[#F3EFE6] dark:bg-slate-900/90 border-b border-[#E5DEC9] dark:border-slate-700 p-6 sm:p-10 space-y-4">
+                <p className="font-mono text-xs font-bold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
+                  GIỚI THIỆU DỰ ÁN · TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN, ĐHQG-HCM (HCMUS)
+                </p>
+                <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0B2545] dark:text-white leading-tight">
+                  FORUS – TIỆN ÍCH TRONG TAY, HỌC HAY MỖI NGÀY
+                </h1>
+                <p className="text-base sm:text-xl font-bold text-[#D95326] dark:text-amber-300 leading-snug">
+                  Hệ sinh thái hỗ trợ học tập và phát triển toàn diện dành cho sinh viên
+                </p>
+
+                <div className="pt-2 space-y-3.5 text-sm sm:text-base leading-relaxed text-[#334155] dark:text-slate-200">
+                  <p>
+                    Trong môi trường đại học, hành trình của mỗi sinh viên không chỉ gói gọn trong những giờ học trên giảng đường mà còn bao gồm việc tự học, nghiên cứu, tham gia hoạt động ngoại khóa và phát triển các kỹ năng cần thiết. Tuy nhiên, việc tìm kiếm công cụ học tập phù hợp, quản lý chi phí và cập nhật thông tin về các hoạt động sinh viên đôi khi vẫn còn nhiều bất tiện.
+                  </p>
+                  <p>
+                    Xuất phát từ những nhu cầu thực tế đó, <strong className="font-extrabold text-[#0B2545] dark:text-white">FORUS</strong> được xây dựng với định hướng trở thành một hệ sinh thái tiện ích dành cho sinh viên, kết hợp giữa nền tảng mua bán, cho thuê dụng cụ học tập và kênh tổng hợp thông tin về các hoạt động ngoại khóa, đặc biệt hướng đến sinh viên <strong className="font-extrabold text-[#0B2545] dark:text-white">Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM (HCMUS)</strong>.
+                  </p>
+                  <p>
+                    Với phương châm <strong className="font-extrabold text-[#D95326] dark:text-amber-300">“Tiện ích trong tay, học hay mỗi ngày”</strong>, FORUS mong muốn đồng hành cùng sinh viên trong cả học tập lẫn các hoạt động phát triển bản thân, mang đến những giải pháp tiện lợi, tiết kiệm và dễ tiếp cận.
+                  </p>
+                </div>
+              </div>
+
+              {/* Article Body Content */}
+              <div className="p-6 sm:p-10 space-y-8 sm:space-y-10 text-sm sm:text-base leading-relaxed text-[#334155] dark:text-slate-200">
+                {/* Section 1 */}
+                <section className="space-y-4">
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
+                    1. Hệ sinh thái sản phẩm hỗ trợ học tập
+                  </h2>
+                  <p>
+                    Một trong những chức năng trọng tâm của FORUS là cung cấp các sản phẩm và thiết bị hỗ trợ học tập thông qua hai hình thức mua và thuê linh hoạt.
+                  </p>
+                  <p>
+                    Thay vì phải bỏ ra một khoản chi phí lớn để sở hữu những thiết bị chỉ sử dụng trong một học phần hoặc một khoảng thời gian ngắn, sinh viên có thể lựa chọn phương án phù hợp với nhu cầu và khả năng tài chính của mình.
+                  </p>
+                  <p className="font-bold text-[#0B2545] dark:text-white">
+                    Các sản phẩm tiêu biểu tại FORUS bao gồm:
+                  </p>
+                  <ul className="space-y-3 rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-6">
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Máy tính cầm tay:</strong> Hỗ trợ tính toán trong các môn Toán học, Vật lý, Thống kê và nhiều học phần chuyên ngành.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Bảng vẽ điện tử:</strong> Giúp sinh viên ghi chú, giải bài tập, vẽ sơ đồ và trình bày ý tưởng trực tiếp trên máy tính.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Bộ Flash Card ghi nhớ công thức:</strong> Tổng hợp các công thức, định lý và kiến thức quan trọng thành những tấm thẻ nhỏ gọn, hỗ trợ ghi nhớ và ôn tập hiệu quả.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Bàn phím MacroPad:</strong> Tích hợp các phím tắt có thể lập trình, giúp nhập nhanh ký hiệu toán học, công thức LaTeX và các mẫu code C++ hoặc Python.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Giá đỡ laptop:</strong> Hỗ trợ điều chỉnh góc nhìn, cải thiện sự thoải mái khi học tập và tối ưu không gian làm việc.
+                      </span>
+                    </li>
+                  </ul>
+                  <p>
+                    Thông qua việc lựa chọn những sản phẩm thiết thực, FORUS hướng đến mục tiêu giúp sinh viên tiếp cận các công cụ học tập hiện đại với chi phí hợp lý, đồng thời khuyến khích việc ứng dụng công nghệ để nâng cao hiệu suất học tập.
+                  </p>
+                </section>
+
+                {/* Section 2 */}
+                <section className="space-y-4">
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
+                    2. Cập nhật hoạt động sinh viên và cơ hội tích lũy điểm rèn luyện
+                  </h2>
+                  <p>
+                    Bên cạnh việc cung cấp các sản phẩm học tập, FORUS còn đóng vai trò là kênh thông tin tổng hợp những hoạt động dành cho sinh viên HCMUS, đặc biệt chú trọng đến các chương trình có thể giúp sinh viên tích lũy điểm rèn luyện.
+                  </p>
+                  <p>
+                    Điểm rèn luyện là một trong những nội dung đánh giá quá trình tham gia học tập, sinh hoạt và hoạt động tập thể của sinh viên tại trường đại học. Tuy nhiên, với số lượng chương trình được tổ chức bởi nhiều đơn vị khác nhau, sinh viên có thể gặp khó khăn trong việc theo dõi thông tin, nắm bắt thời hạn đăng ký hoặc lựa chọn hoạt động phù hợp với lịch học cá nhân.
+                  </p>
+                  <p className="font-bold text-[#0B2545] dark:text-white">
+                    Nhằm giải quyết vấn đề này, FORUS hướng đến việc tổng hợp và giới thiệu các hoạt động như:
+                  </p>
+                  <ul className="space-y-3 rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-6">
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động học thuật:</strong> Hội thảo chuyên đề, seminar, cuộc thi học thuật, chương trình nghiên cứu khoa học và các buổi chia sẻ kiến thức.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động tình nguyện và cộng đồng:</strong> Các chương trình thiện nguyện, hoạt động vì môi trường và những chiến dịch hỗ trợ cộng đồng.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động văn hóa, thể thao:</strong> Các cuộc thi, sự kiện giao lưu, hoạt động thể chất và chương trình văn nghệ dành cho sinh viên.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động phát triển kỹ năng:</strong> Workshop, chương trình hướng nghiệp, tập huấn kỹ năng mềm và các buổi giao lưu với doanh nghiệp.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
+                      <span>
+                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động Đoàn – Hội và câu lạc bộ:</strong> Những chương trình do các tổ chức, câu lạc bộ và đội nhóm sinh viên triển khai.
+                      </span>
+                    </li>
+                  </ul>
+                  <p>
+                    Thông qua FORUS, sinh viên có thể thuận tiện tìm kiếm thông tin về nội dung, thời gian, địa điểm, hình thức đăng ký và các điều kiện tham gia hoạt động.
+                  </p>
+                  <p>
+                    Đối với những chương trình có liên quan đến điểm rèn luyện, FORUS hướng đến việc cung cấp thông tin về khả năng được ghi nhận điểm theo thông báo của đơn vị tổ chức và quy định hiện hành của nhà trường.
+                  </p>
+                  <p>
+                    Quan trọng hơn, việc cập nhật các chương trình này không chỉ nhằm hỗ trợ sinh viên tích lũy điểm rèn luyện mà còn khuyến khích tinh thần chủ động, mở rộng mối quan hệ, phát triển kỹ năng và tích lũy những trải nghiệm ý nghĩa trong quãng đời đại học.
+                  </p>
+                </section>
+
+                {/* Section 3 */}
+                <section className="space-y-4">
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
+                    3. Vì sao nên lựa chọn FORUS?
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
+                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
+                        Tiết kiệm chi phí
+                      </h3>
+                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
+                        Với hình thức mua và thuê linh hoạt, FORUS giúp sinh viên lựa chọn phương án sử dụng thiết bị phù hợp mà không nhất thiết phải đầu tư toàn bộ chi phí sở hữu sản phẩm.
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
+                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
+                        Tiện lợi và dễ tiếp cận
+                      </h3>
+                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
+                        Thay vì phải tìm kiếm công cụ học tập và thông tin hoạt động trên nhiều nền tảng khác nhau, sinh viên có thể tiếp cận cả hai nhóm tiện ích thông qua một website thống nhất.
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
+                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
+                        Hỗ trợ học tập hiệu quả
+                      </h3>
+                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
+                        Các sản phẩm được định hướng lựa chọn dựa trên nhu cầu thực tế của sinh viên, hỗ trợ quá trình ghi chú, tính toán, lập trình, ôn tập và nghiên cứu.
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
+                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
+                        Không bỏ lỡ hoạt động bổ ích
+                      </h3>
+                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
+                        Việc tổng hợp thông tin về các hoạt động học thuật, ngoại khóa và chương trình có khả năng được ghi nhận điểm rèn luyện giúp sinh viên thuận tiện theo dõi, chủ động sắp xếp thời gian và nắm bắt những cơ hội phù hợp.
+                      </p>
+                    </div>
+
+                    <div className="sm:col-span-2 rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
+                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
+                        Đồng hành cùng sự phát triển toàn diện
+                      </h3>
+                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
+                        FORUS hướng đến việc hỗ trợ sinh viên trên cả hai phương diện: nâng cao chất lượng học tập và phát triển kỹ năng thông qua hoạt động thực tiễn, qua đó tạo nên trải nghiệm đại học phong phú và ý nghĩa hơn.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Section 4 */}
+                <section className="space-y-4">
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
+                    4. Sứ mệnh và tầm nhìn
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="rounded-2xl border border-[#E5DEC9] bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-900 p-5 space-y-2.5">
+                      <h3 className="text-lg font-extrabold text-[#D95326] dark:text-amber-400">
+                        Sứ mệnh
+                      </h3>
+                      <p className="text-xs sm:text-sm leading-relaxed">
+                        FORUS mang trong mình sứ mệnh xây dựng một hệ sinh thái tiện ích thân thiện, dễ tiếp cận và phù hợp với nhu cầu thực tế của sinh viên.
+                      </p>
+                      <p className="text-xs sm:text-sm leading-relaxed">
+                        Thông qua việc kết hợp các giải pháp học tập và hệ thống thông tin hoạt động ngoại khóa, FORUS mong muốn góp phần giảm bớt những bất tiện trong đời sống sinh viên, tối ưu chi phí học tập và tạo điều kiện để mỗi cá nhân chủ động phát triển bản thân.
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#E5DEC9] bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-900 p-5 space-y-2.5">
+                      <h3 className="text-lg font-extrabold text-[#0B2545] dark:text-white">
+                        Tầm nhìn
+                      </h3>
+                      <p className="text-xs sm:text-sm leading-relaxed">
+                        FORUS hướng đến việc trở thành một nền tảng đồng hành đáng tin cậy của cộng đồng sinh viên HCMUS, từng bước mở rộng các dịch vụ và tiện ích nhằm đáp ứng đa dạng nhu cầu trong môi trường đại học.
+                      </p>
+                      <p className="text-xs sm:text-sm leading-relaxed">
+                        Về lâu dài, FORUS kỳ vọng phát triển thành một hệ sinh thái sinh viên toàn diện, nơi các công cụ hỗ trợ học tập, thông tin hoạt động, cơ hội phát triển kỹ năng và những tiện ích thiết thực được kết nối trên cùng một nền tảng.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Section 5 */}
+                <section className="space-y-4">
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
+                    5. FORUS – Hơn cả một website mua sắm
+                  </h2>
+                  <p>
+                    FORUS không chỉ là nơi sinh viên tìm kiếm một chiếc máy tính cầm tay, một bảng vẽ điện tử hay một bộ Flash Card phục vụ ôn thi. Đây còn là không gian giúp sinh viên khám phá những hoạt động bổ ích, tìm kiếm cơ hội tích lũy điểm rèn luyện, kết nối với môi trường đại học và phát triển các kỹ năng ngoài giảng đường.
+                  </p>
+                  <p>
+                    Chúng tôi tin rằng hành trình đại học sẽ trở nên thuận tiện và ý nghĩa hơn khi sinh viên được tiếp cận đúng công cụ, đúng thông tin và đúng cơ hội vào thời điểm cần thiết.
+                  </p>
+                  <p>
+                    Với định hướng lấy sinh viên làm trung tâm, FORUS mong muốn không ngừng hoàn thiện và mở rộng các tiện ích, để mỗi sinh viên có thể học tập hiệu quả hơn, tiết kiệm hơn và tận dụng tốt hơn những cơ hội mà môi trường đại học mang lại.
+                  </p>
+
+                  {/* Closing Tagline Banner */}
+                  <div className="mt-6 rounded-2xl bg-[#0B2545] text-white p-6 text-center space-y-2">
+                    <p className="text-base sm:text-xl font-extrabold text-amber-300">
+                      FORUS – Tiện ích trong tay, học hay mỗi ngày.
+                    </p>
+                    <p className="text-xs sm:text-sm font-semibold text-slate-200">
+                      Học tập thông minh – Kết nối hoạt động – Phát triển toàn diện.
+                    </p>
+                  </div>
+                </section>
+
+                {/* Bottom Navigation Actions */}
+                <div className="pt-4 border-t border-[#EAE5DC] dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => switchTab("home")}
+                    className="px-5 py-2.5 rounded-2xl border border-[#E5E0D5] bg-[#FAF8F5] hover:bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-900 text-[#0B2545] dark:text-white text-xs sm:text-sm font-extrabold transition cursor-pointer"
+                  >
+                    ← Quay về Trang chủ
+                  </button>
+
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => switchTab("gear")}
+                      className="px-4 py-2.5 rounded-2xl bg-[#0B2545] hover:bg-[#163A66] text-white text-xs sm:text-sm font-extrabold transition cursor-pointer"
+                    >
+                      Khám phá Thuê &amp; Bán Thiết Bị →
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => switchTab("vip")}
+                      className="px-4 py-2.5 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] text-white text-xs sm:text-sm font-extrabold transition cursor-pointer"
+                    >
+                      Săn Điểm Rèn Luyện &amp; AI →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
         )}
       </main>
 
@@ -3094,6 +3440,35 @@ export default function App() {
               </div>
             </div>
 
+            {/* VIP Quota Banner */}
+            <div
+              className={`px-3.5 py-2 border-b flex items-center justify-between gap-2 text-[11px] font-bold ${
+                student.points >= 100
+                  ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300"
+                  : aiQuestionsUsed >= FREE_AI_QUESTION_LIMIT
+                  ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300"
+                  : "bg-amber-50/90 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800/60 text-[#B8431B] dark:text-amber-300"
+              }`}
+            >
+              <span className="truncate">
+                {student.points >= 100
+                  ? "👑 Đã kích hoạt VIP: Hỏi AI Không giới hạn (∞)"
+                  : `Chưa VIP: Đã dùng ${Math.min(
+                      aiQuestionsUsed,
+                      FREE_AI_QUESTION_LIMIT
+                    )}/${FREE_AI_QUESTION_LIMIT} câu miễn phí`}
+              </span>
+              {student.points < 100 && (
+                <button
+                  type="button"
+                  onClick={handleActivateDemoVip}
+                  className="px-2 py-0.5 rounded-md bg-[#D95326] hover:bg-[#C0441B] text-white text-[10px] font-extrabold shrink-0 transition cursor-pointer"
+                >
+                  Kích hoạt VIP 100đ
+                </button>
+              )}
+            </div>
+
             {/* Quick Prompt Chips */}
             <div className="px-3 py-2 bg-[#F3EFE6] dark:bg-slate-800 border-b border-[#E5DEC9] dark:border-slate-700 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
               {[
@@ -3104,7 +3479,11 @@ export default function App() {
                 <button
                   key={idx}
                   onClick={() => handleSendFloatingChat(chip)}
-                  disabled={isFloatingSending}
+                  disabled={
+                    isFloatingSending ||
+                    (student.points < 100 &&
+                      aiQuestionsUsed >= FREE_AI_QUESTION_LIMIT)
+                  }
                   className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-[#E5E0D5] dark:border-slate-700 text-[11px] font-bold text-[#0B2545] dark:text-slate-200 hover:bg-[#0B2545] hover:text-white transition whitespace-nowrap shrink-0 cursor-pointer disabled:opacity-50"
                 >
                   {chip}
@@ -3125,13 +3504,16 @@ export default function App() {
                   }`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs sm:text-[13px] leading-relaxed whitespace-pre-wrap ${
+                    className={`max-w-[85%] min-w-0 rounded-2xl px-3.5 py-2.5 text-xs sm:text-[13px] leading-relaxed break-words [overflow-wrap:anywhere] ${
                       msg.role === "user"
                         ? "bg-[#0B2545] text-white font-medium rounded-br-xs shadow-xs"
                         : "bg-white dark:bg-slate-800 text-[#0B2545] dark:text-slate-100 border border-[#E6E0D5] dark:border-slate-700 rounded-bl-xs shadow-2xs"
                     }`}
                   >
-                    {msg.text}
+                    <FormattedAiMessage
+                      text={msg.text}
+                      isUser={msg.role === "user"}
+                    />
                   </div>
                 </div>
               ))}
@@ -3145,30 +3527,54 @@ export default function App() {
               )}
             </div>
 
-            {/* Input Form */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendFloatingChat();
-              }}
-              className="p-2.5 bg-white dark:bg-slate-900 border-t border-[#E6E0D5] dark:border-slate-800 flex items-center gap-2"
-            >
-              <input
-                type="text"
-                value={floatingChatInput}
-                onChange={(e) => setFloatingChatInput(e.target.value)}
-                placeholder="Hỏi bài tập, LaTeX, phòng học CS1..."
-                disabled={isFloatingSending}
-                className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 focus:border-[#0B2545] focus:bg-white text-xs sm:text-sm text-[#0B2545] dark:text-white focus:outline-none"
-              />
-              <button
-                type="submit"
-                disabled={!floatingChatInput.trim() || isFloatingSending}
-                className="w-10 h-10 rounded-xl bg-[#D95326] hover:bg-[#C0441B] disabled:opacity-50 text-white flex items-center justify-center transition cursor-pointer shrink-0 shadow-xs"
+            {/* Input Form or VIP Lock Prompt */}
+            {student.points < 100 &&
+            aiQuestionsUsed >= FREE_AI_QUESTION_LIMIT ? (
+              <div className="p-3 bg-rose-50/90 dark:bg-slate-900 border-t border-rose-200 dark:border-slate-800 flex flex-col gap-2">
+                <p className="text-[11px] font-bold text-rose-700 dark:text-rose-300 leading-snug">
+                  🔒 Bạn đã hỏi hết {FREE_AI_QUESTION_LIMIT}/
+                  {FREE_AI_QUESTION_LIMIT} câu miễn phí. Kích hoạt VIP 100đ để
+                  mở khóa hỏi AI không giới hạn!
+                </p>
+                <button
+                  type="button"
+                  onClick={handleActivateDemoVip}
+                  className="w-full py-2 rounded-xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs transition cursor-pointer shadow-xs"
+                >
+                  Kích Hoạt VIP 100đ Ngay (Không giới hạn ∞)
+                </button>
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendFloatingChat();
+                }}
+                className="p-2.5 bg-white dark:bg-slate-900 border-t border-[#E6E0D5] dark:border-slate-800 flex items-center gap-2"
               >
-                <Send className="w-4 h-4" />
-              </button>
-            </form>
+                <input
+                  type="text"
+                  value={floatingChatInput}
+                  onChange={(e) => setFloatingChatInput(e.target.value)}
+                  placeholder={
+                    student.points >= 100
+                      ? "Hỏi AI không giới hạn (VIP 100đ)..."
+                      : `Còn ${
+                          FREE_AI_QUESTION_LIMIT - aiQuestionsUsed
+                        }/${FREE_AI_QUESTION_LIMIT} câu hỏi miễn phí...`
+                  }
+                  disabled={isFloatingSending}
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 focus:border-[#0B2545] focus:bg-white text-xs sm:text-sm text-[#0B2545] dark:text-white focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={!floatingChatInput.trim() || isFloatingSending}
+                  className="w-10 h-10 rounded-xl bg-[#D95326] hover:bg-[#C0441B] disabled:opacity-50 text-white flex items-center justify-center transition cursor-pointer shrink-0 shadow-xs"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </form>
+            )}
           </div>
         )}
 

@@ -1,99 +1,121 @@
-# Nâng Cấp Giao Diện Aesthetic & Hệ Màu Phụ FORUS (Bento Grid Edition)
+# Tài Liệu Giải Thích Luồng Hoạt Động Hệ Sinh Thái Web FORUS (Đồ Án 1 — CSC00006)
 
-Bản kế hoạch này nâng cấp toàn diện diện mạo của **FORUS** theo phong cách **Bento Grid hiện đại**, bổ sung hệ màu phụ (**Cam Coral, Vàng Amber, Tím Pastel**) phối hợp cùng **Xanh KHTN & Xanh Lá** của bộ nhận diện, đồng thời **hoán đổi Logo nền sáng và nền tối** để chữ `FORUS` luôn nổi bật rõ nét trên cả hai chế độ giao diện.
+Xây dựng tài liệu giải thích toàn diện luồng vận hành của ứng dụng web **FORUS — “Tiện ích trong tay, học hay mỗi ngày”**, giúp nhóm sinh viên và giảng viên nắm rõ hành trình người dùng qua từng phân hệ dịch vụ, cơ chế tích/đổi điểm VIP, luồng xử lý Trợ lý AI học tập 24/7 và kiến trúc kỹ thuật phục vụ báo cáo & thuyết trình Đồ án 1.
 
-## User Review & Critical Decisions
+### User Review & Critical Decisions
 
 > [!IMPORTANT]
-> Các quyết định thiết kế dưới đây đã được xác nhận theo lựa chọn của bạn và sẵn sàng để triển khai ngay khi bạn bấm **Proceed**:
+> Dưới đây là các lựa chọn đã được xác nhận từ phản hồi của bạn trước khi tiến hành tạo tài liệu trong dự án:
 
-- **Quyết định 1 — Hoán đổi Logo Sáng & Tối**:
-  - **Chế độ Sáng (Light Mode)** sẽ hiển thị logo chữ xanh navy đậm (`logo_toi_xoa_nen`) để nổi bật sắc nét trên nền trắng sáng.
-  - **Chế độ Tối (Dark Mode)** sẽ hiển thị logo chữ xanh cyan phát sáng (`logo_sang_xoa_nen`) để rực rỡ trên nền tối.
-- **Quyết định 2 — Hệ màu phụ (Secondary Accent Palette)**: Phối hợp màu chủ đạo **Xanh KHTN (`#1D4ED8`) & Xanh Lá (`#10B981`)** cùng 3 tông màu phụ theo từng phân khu dịch vụ:
-  - **Cam Coral (`#FF6B4A` / `orange-500` - `rose-500`)**: Dành cho khu vực *Ăn sáng & Nước uống giao tận phòng*.
-  - **Vàng Amber (`#F59E0B` / `amber-400`)**: Dành cho khu vực *Đặc quyền VIP 100 điểm, Săn Điểm Rèn Luyện & Hạng thành viên*.
-  - **Tím Pastel / Violet (`#8B5CF6` / `violet-500` - `fuchsia-500`)**: Dành cho khu vực *Thuê & Bán 7 gói thiết bị công nghệ & In ấn A1–A5*.
-- **Quyết định 3 — Bố cục Bento Grid & Thẩm mỹ hiện đại**: Thiết kế lại trang chủ và các phân khu theo lưới **Bento Grid bất đối xứng (Asymmetric Bento)** với độ bo góc mềm mại (`rounded-3xl`), nền chuyển sắc nhẹ (soft mesh tint), kiểu chữ `Plus Jakarta Sans` kết hợp số liệu `JetBrains Mono` (`tabular-nums`), và hiệu ứng tương tác mượt mà.
+- **Hình thức lưu trữ đã xác nhận**: Chỉ tạo file tài liệu độc lập ngay trong thư mục dự án (không thay đổi hay thêm nút tải trên giao diện web hiện tại) để giữ nguyên bố cục hiển thị của sản phẩm.
+- **Phạm vi nội dung đã xác nhận**: Bao quát đầy đủ 4 trụ cột:
+  1. Luồng trải nghiệm người dùng (User Flow) xuyên suốt thanh điều hướng cố định, trang Giới thiệu chi tiết và 6 mục dịch vụ chính.
+  2. Luồng vận hành Điểm thưởng & Hạng thành viên VIP (cộng điểm tức thì khi mua/thuê/in ấn, trừ điểm khi đổi ưu đãi hoặc giảm giá giỏ hàng).
+  3. Luồng hoạt động của Trợ lý AI Học tập 24/7 (cơ chế đếm 5 câu hỏi miễn phí cho tài khoản thường, mở khóa không giới hạn `∞` khi đạt 100 điểm VIP, và luồng xử lý Gemini tốc độ cao kèm hiển thị công thức Toán/LaTeX).
+  4. Sơ đồ kiến trúc dữ liệu & kịch bản thuyết trình thực tế trước giảng viên tại buổi chấm Poster Đồ án 1.
 
 ---
 
-## 1. Overview & Core Concept
+### 1. Overview & Core Concept
 
-- **Mục tiêu trải nghiệm**: Biến FORUS từ một trang danh mục thông thường thành một **Campus Super-App Aesthetic** mang đậm cá tính sinh viên Khoa học Tự nhiên Cơ sở 1 (227 Nguyễn Văn Cừ) — trẻ trung, trực quan, dễ nhận diện từng dịch vụ qua mã màu phụ riêng biệt.
-- **Đối tượng sử dụng**: Sinh viên ĐH KHTN ĐHQG-HCM truy cập trên cả điện thoại và máy tính để đặt đồ ăn sáng giao lên phòng học, đặt in tài liệu A1–A5, kết nối gia sư, thuê thiết bị học tập và săn Điểm Rèn Luyện.
-- **Giá trị cốt lõi**: Tăng tính thẩm mỹ thị giác, phân cấp thông tin rõ ràng bằng hệ màu phụ và bố cục Bento Grid, đồng thời khắc phục hoàn toàn độ tương phản của Logo giữa nền Sáng và nền Tối.
-
----
-
-## 2. User Experience & Visual Design
-
-### A. Hoán đổi Logo & Đồng bộ Thương hiệu
-- Trên thanh điều hướng trên cùng (`Header`) và khu vực Giới thiệu cuối trang (`Footer / About`):
-  - Khi ở **Light Mode**: Sử dụng bản logo chữ đậm để tạo độ tương phản cao trên nền sáng.
-  - Khi ở **Dark Mode**: Sử dụng bản logo chữ sáng xanh cyan để nổi bật trên nền tối `slate-800/900`.
-
-### B. Hệ thống Màu sắc Phân vùng (Color-Coded Service Zones)
-- **60% Nền Trung Tính Sáng/Tối Dịu Mắt**:
-  - Light Mode: Nền kem lạnh tinh khiết (`#F8FAFC`) kết hợp bề mặt thẻ trắng tinh (`#FFFFFF`) và ánh sắc pastel cực nhẹ theo từng phân mục.
-  - Dark Mode: Nền xanh xám sáng dịu (`#0F172A` / `#1E293B`) kết hợp viền phát sáng nhẹ (`border-slate-700/80`).
-- **30% Bề mặt Bento Phân Vùng**:
-  - **Bento Ăn Sáng & Nước**: Ánh sắc **Cam Coral & Vàng Ấm** (`from-orange-500/10 via-amber-500/5`) tạo cảm giác năng lượng buổi sáng.
-  - **Bento In Ấn A1–A5**: Ánh sắc **Xanh KHTN & Indigo** (`from-blue-600/10 via-indigo-500/5`) thể hiện sự chuẩn xác kỹ thuật.
-  - **Bento Cò Gia Sư**: Ánh sắc **Xanh Lá Emerald & Mint** (`from-emerald-500/10 via-teal-500/5`) tạo sự tin cậy học thuật.
-  - **Bento Thuê & Bán 7 Thiết Bị**: Ánh sắc **Tím Pastel & Violet** (`from-violet-500/10 via-fuchsia-500/5`) tôn vinh công nghệ & LaTeX.
-- **10% Điểm Nhấn Hành Động (Accent Budget)**:
-  - Nút hành động chính, huy hiệu điểm thưởng (`+5đ`, `+10đ`), trạng thái VIP (`100/100đ`) và thanh điều hướng dưới đáy điện thoại sử dụng màu nhấn sắc nét (**Cam Coral, Vàng Amber, Xanh KHTN**).
-
-### C. Bố cục Bento Grid & Typography
-- **Hero Bento Showcase**: Chia thành tổ hợp Bento đa ô gồm:
-  1. Ô lớn bên trái: Thông điệp chủ đạo của FORUS với điểm nhấn gradient **Xanh KHTN – Cam Coral – Vàng Amber**, kèm cụm nút điều hướng nhanh.
-  2. Ô Bento phải trên: Thẻ thành viên tích điểm sinh viên kèm thanh tiến độ sắc màu và nút mở nhanh **Mã QR / Demo VIP 100đ**.
-  3. Hai ô Bento phải dưới: Thống kê nhanh Săn Điểm Rèn Luyện (tông Vàng Amber) và Trợ lý AI Học Tập (tông Tím Pastel).
-- **Lưới 4 Trụ Cột Dịch Vụ kiểu Bento**: Mỗi trụ cột có màu viền hover, biểu tượng đổ bóng màu phụ, và dải màu trang trí riêng giúp phân biệt tức thì.
-- **Thẻ Sản Phẩm (Ăn sáng & 7 gói Thuê/Bán)**: Hình ảnh chiếm 65–70% diện tích thẻ, thông tin giá và điểm thưởng dùng số `tabular-nums`, giảm các khung viền lồng nhau rườm rà, nâng nhẹ `translateY(-2px)` khi di chuột.
+- **What It Does**: Cung cấp một bản đặc tả luồng hoạt động (Workflow Specification) mạch lạc bằng tiếng Việt, trình bày bằng sơ đồ khối trực quan và giải thích từng bước từ lúc sinh viên truy cập qua mã QR cho đến khi hoàn tất đơn hàng hoặc sử dụng đặc quyền VIP.
+- **Target Audience / Persona**:
+  - **Thành viên nhóm Đồ án 1 (CSC00006)**: Dùng làm tài liệu tham chiếu thống nhất khi viết báo cáo, chuẩn bị kịch bản demo trực tiếp và trả lời câu hỏi phản biện của giảng viên.
+  - **Giảng viên hướng dẫn / Người chấm bài**: Đọc nhanh để hiểu logic nghiệp vụ, sự liên kết giữa các tính năng (Tích điểm $\leftrightarrow$ Mở khóa VIP $\leftrightarrow$ Trợ lý AI) và cách nhóm ứng dụng AI thực tế.
+- **Key Value**: Chuyển hóa toàn bộ logic phức tạp của ứng dụng thành các sơ đồ luồng dễ theo dõi, giải thích rõ "Đầu vào (Input) $\rightarrow$ Xử lý (Process) $\rightarrow$ Đầu ra (Output)" của từng tính năng mà không cần đọc trực tiếp mã nguồn.
 
 ---
 
-## 3. Key Product Decisions & Trade-Offs
+### 2. User Experience & Visual Design
 
-- **Quyết định 1: Phân vùng màu phụ (Cam Coral, Vàng Amber, Tím Pastel) thay vì dùng một màu xanh duy nhất**
-  - *Cách tiếp cận*: Gán mỗi nhóm dịch vụ một tông màu phụ đặc trưng nhưng cùng độ bão hòa hài hòa với Xanh KHTN.
-  - *Lý do*: Giúp sinh viên nhận diện ngay mình đang ở mục Ăn sáng (Cam Coral), Thuê thiết bị (Tím Pastel) hay VIP Điểm Rèn Luyện (Vàng Amber) mà không bị nhàm chán.
-- **Quyết định 2: Giữ nguyên toàn bộ tính năng và luồng điều hướng đã tối ưu**
-  - *Cách tiếp cận*: Giữ nguyên nút Mặt trời/Mặt trăng chỉ có icon bên trái Giỏ hàng, nút Menu bên phải Giỏ hàng (chứa Tài khoản, VIP, Điểm, Mã QR), thanh dịch vụ ở trên cùng khi xem máy tính và cố định ở đáy màn hình (6 mục) khi xem trên điện thoại, phần Liên hệ đặt cố định ở cuối trang.
-  - *Lý do*: Đảm bảo không mất bất kỳ tính năng hay bố cục điều hướng nào bạn đã ưng ý ở các bước trước.
+- **Key User Flows Documented**:
+  1. **Luồng Khởi tạo & Điều hướng Trung tâm**:
+     - Sinh viên mở web hoặc quét mã QR $\rightarrow$ Thanh điều hướng cố định phía trên (`Fixed Top Bar`) luôn giữ nguyên vị trí khi cuộn trang $\rightarrow$ Chuyển đổi mượt mà giữa **Trang chủ**, **Giới thiệu chi tiết**, **Ăn uống**, **In ấn**, **Gia sư**, **Thuê & Bán**, **VIP**, **Giỏ hàng** và **Menu Tài khoản**.
+  2. **Luồng Đặt Đồ Ăn Sáng & Thuê/Bán Thiết Bị Học Tập**:
+     - Duyệt danh mục sản phẩm $\rightarrow$ Kiểm tra huy hiệu trạng thái (`Còn hàng` hoặc `Đang cho thuê` làm mờ thẻ kèm nút `Thông báo khi có hàng`) $\rightarrow$ Tùy chọn dòng máy tính cầm tay & độ mới (`Mới 100%`, `Độ mới 90%`, `Độ mới 80%`) $\rightarrow$ Thêm vào giỏ hàng $\rightarrow$ Cộng điểm VIP tức thì vào Hạng thành viên.
+  3. **Luồng Đặt In Ấn Tài Liệu & Poster Khổ A1–A5**:
+     - Tải tệp tài liệu từ máy tính/điện thoại (hoặc chọn file mẫu) $\rightarrow$ Tự động nhận diện số trang $\rightarrow$ Cấu hình khổ giấy (`A1`–`A5`), chế độ màu, số mặt, gia công đóng cuốn $\rightarrow$ Hệ thống tự động tính tổng chi phí và số điểm VIP thưởng $\rightarrow$ Đưa vào giỏ hàng thanh toán.
+  4. **Luồng Kết Nối Cò Gia Sư HCMUS**:
+     - Lọc hồ sơ gia sư theo môn đại cương/chuyên ngành hoặc đăng ký làm gia sư mới $\rightarrow$ Gửi yêu cầu học ghép/1-kèm-1 $\rightarrow$ Nhận điểm thưởng tương tác.
+  5. **Luồng Vòng Đời Điểm VIP & Đặc Quyền Săn ĐRL + Chatbot AI**:
+     - Tích lũy điểm qua giao dịch hoặc kích hoạt nhanh `Demo VIP 100đ` $\rightarrow$ Khi `< 100 điểm`: hỏi tối đa 5 câu với Trợ lý AI; khi `>= 100 điểm`: mở khóa hỏi AI không giới hạn (`∞`) và toàn bộ bảng đếm ngược Săn Điểm Rèn Luyện.
+- **Visual Identity & Theme Documented**:
+  - *Aesthetic Direction*: Phong cách Editorial học thuật ấm áp kết hợp tính năng thương mại điện tử sinh viên hiện đại, hỗ trợ chuyển đổi tức thì giữa **Chế độ Sáng (Light Mode)** và **Chế độ Tối (Dark Mode)**.
+  - *Color Palette & Mood*: Nền giấy kem ấm (`#FAF8F5` / `#F3EFE6`), chữ xanh Navy đậm (`#0B2545`), điểm nhấn cam đất năng động (`#D95326`) và vàng hổ phách (`#F59E0B`) cho hạng VIP.
+  - *Typography & Hierarchy*: Kết hợp phông chữ tiêu đề học thuật rõ nét, phông chữ không chân hiện đại cho nội dung và phông Monospace (`tabular-nums`) cho đơn giá, thời gian đếm ngược và điểm số VIP.
+  - *Component Styling & Layout*: Thiết kế đáp ứng toàn diện (Responsive Desktop & Mobile), chống tràn chiều ngang trên di động và giữ cố định thanh công cụ trên máy tính.
+- **Interactive Feedback & Motion**:
+  - Thông báo nổi (`Toast Notification`) phản hồi ngay lập tức mỗi khi cộng/trừ điểm VIP, thêm giỏ hàng, bật nhắc hẹn sự kiện ĐRL hoặc sao chép mã LaTeX.
 
 ---
 
-## 4. Technical Architecture & Data Strategy
+### 3. Key Product Decisions & Trade-Offs
 
+- **Decision 1: Tổ chức tài liệu theo cả góc nhìn Nghiệp vụ (Product Flow) và Kỹ thuật (System Flow)**
+  - *Chosen Approach*: Chia tài liệu thành các chương rõ ràng: Tổng quan hệ sinh thái $\rightarrow$ Sơ đồ luồng tổng thể $\rightarrow$ Chi tiết từng phân hệ dịch vụ $\rightarrow$ Cơ chế Điểm VIP & AI $\rightarrow$ Kiến trúc dữ liệu & Kịch bản thuyết trình.
+  - *Why*: Giúp cả giảng viên chấm ý tưởng khởi nghiệp lẫn giảng viên đánh giá kỹ thuật/AI đều tra cứu được ngay thông tin cần thiết.
+  - *Alternatives Considered*: Chỉ viết mô tả văn bản thuần túy (khó hình dung sự liên kết giữa các trạng thái) hoặc chỉ vẽ sơ đồ kỹ thuật (thiếu bối cảnh trải nghiệm sinh viên KHTN Cơ sở 1).
+- **Decision 2: Cơ chế đồng bộ Điểm VIP & Giới hạn câu hỏi AI theo thời gian thực**
+  - *Chosen Approach*: Giải thích rõ cơ chế lưu trữ trạng thái đồng bộ trên trình duyệt (`localStorage`) kết hợp kiểm tra điều kiện điểm số (`points >= 100`) trước mỗi lượt gọi AI và chỉ trừ lượt miễn phí khi máy chủ trả về câu trả lời thành công.
+  - *Why*: Đảm bảo trải nghiệm công bằng, mượt mà cho người dùng thử nghiệm và dễ dàng kiểm chứng ngay trong buổi thuyết trình.
+
+---
+
+### 4. Technical Architecture & Data Strategy *(Technical Reference)*
+
+- **Architecture & Component Diagram**:
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                   GIAO DIỆN NGƯỜI DÙNG (CLIENT-SIDE SPA)                     │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │ Thanh Điều Hướng Cố Định (Fixed Top Header / Mobile Bottom Nav)        │  │
+│  │ [Logo FORUS]  [Trang chủ | Ăn uống | In ấn | Gia sư | Thuê&Bán | VIP]  │  │
+│  │ [Huy hiệu Điểm VIP]   [Đổi Sáng/Tối]   [Giỏ hàng (N)]   [Menu Drawer]  │  │
+│  └───────────────────────────────────┬────────────────────────────────────┘  │
+│                                      │                                       │
+│        ┌─────────────────────────────┼─────────────────────────────┐         │
+│        ▼                             ▼                             ▼         │
+│  ┌───────────────────┐     ┌───────────────────┐     ┌───────────────────┐   │
+│  │ Khối Thương Mại   │     │ Khối Dịch Vụ CS1  │     │ Khối Đặc Quyền    │   │
+│  │ • Trang chủ & QR  │     │ • Đặt In A1–A5    │     │ • Bảng Săn ĐRL    │   │
+│  │ • Bài Giới Thiệu  │     │   (Tính giá tự    │     │   (Đếm ngược)     │   │
+│  │ • Ăn uống Express │     │    động & tải tệp)│     │ • Trợ lý AI 24/7  │   │
+│  │ • Thuê & Bán Gear │     │ • Cò Gia Sư HCMUS │     │   (Mặc định 5 câu │   │
+│  │   (Chọn dòng máy  │     │   (Kết nối & Đăng │     │    / Mở khóa ∞    │   │
+│  │    & độ mới %)    │     │    ký hồ sơ mới)  │     │    khi >= 100đ)   │   │
+│  └─────────┬─────────┘     └─────────┬─────────┘     └─────────┬─────────┘   │
+│            │                         │                         │             │
+│            └─────────────────────────┼─────────────────────────┘             │
+│                                      ▼                                       │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │ Bộ Điều Phối Trạng Thái Trung Tâm (Central State & Persistence)        │  │
+│  │ • Giỏ hàng & Thanh toán (Cart & Checkout Sandbox)                      │  │
+│  │ • Ví Điểm VIP & Hạng Thành Viên (Tự động Cộng khi mua / Trừ khi đổi)   │  │
+│  │ • Bộ đếm lượt hỏi AI miễn phí (Chỉ tính khi phản hồi thành công)       │  │
+│  └───────────────────────────────────┬────────────────────────────────────┘  │
+└──────────────────────────────────────┼───────────────────────────────────────┘
+                                       │ HTTP POST (/api/chat)
+                                       ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     MÁY CHỦ PHỤ TRỢ (BACKEND API SERVER)                     │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │ Bộ Xử Lý Trợ Lý AI Học Tập FORUS                                       │  │
+│  │ 1. Nhận câu hỏi + Lịch sử hội thoại + Hồ sơ & Điểm VIP của sinh viên   │  │
+│  │ 2. Gọi mô hình Gemini tốc độ cao (ThinkingLevel.MINIMAL)               │  │
+│  │ 3. Trả về lời giải Toán/Lý/Hóa/C++/LaTeX định dạng Markdown chuẩn      │  │
+│  │ 4. Tự động chuyển sang Bộ Tri Thức Học Thuật Dự Phòng nếu nghẽn mạng   │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
-┌────────────────────────────────────────────────────────────────────────────┐
-│                   FORUS AESTHETIC BENTO ARCHITECTURE                       │
-├────────────────────────────────────────────────────────────────────────────┤
-│  HEADER BAR (Sticky Glassmorphism)                                         │
-│  ├── Brand Logo (Swapped: Dark-Text Logo on Light / Bright-Cyan on Dark)   │
-│  ├── Desktop 6-Item Service Nav (Color-coded active indicator)             │
-│  └── Action Cluster: [Sun/Moon Icon] ──> [Cart Drawer] ──> [Menu Drawer]   │
-├────────────────────────────────────────────────────────────────────────────┤
-│  BENTO WORKSPACE CANVAS (60-30-10 Palette + Secondary Accents)             │
-│  ├── Home Bento Grid:                                                      │
-│  │   ├── Asymmetric Hero Card (HCMUS Blue + Coral/Amber/Violet Mesh)       │
-│  │   ├── 4 Color-Zoned Service Bento Cards (Coral, Blue, Emerald, Violet)  │
-│  │   └── Featured 7-Gear Bento Showcase (Violet Pastel & Amber Accents)    │
-│  ├── Food & Drink Zone (Warm Coral & Amber Accent Theme)                   │
-│  ├── Print A1-A5 Studio (Cobalt & Indigo Technical Theme)                  │
-│  ├── Tutor Hub (Emerald & Mint Academic Theme)                             │
-│  ├── Gear & Rental Hub (Violet Pastel & Fuchsia Tech Theme)                │
-│  └── VIP 100pt Hub (Amber Gold DRL Countdown + Violet AI Assistant)        │
-├────────────────────────────────────────────────────────────────────────────┤
-│  PERMANENT BOTTOM SECTION & MOBILE BAR                                     │
-│  ├── About & Contact Bento Section (Swapped Logo + Campus 1 Info & Form)   │
-│  └── Mobile Fixed Bottom 6-Tab Bar (Coral/Orange Active Highlight)         │
-└────────────────────────────────────────────────────────────────────────────┘
-```
 
-### Ánh xạ Trạng thái & Tương tác
-- **Hoán đổi nguồn ảnh Logo**: Cập nhật `BRAND_ASSETS` để `logoLight` trỏ tới `/assets/aistudio/logo_toi_xoa_nen_6ce4afed.png` (chữ xanh đậm cho nền sáng) và `logoDark` trỏ tới `/assets/aistudio/logo_sang_xoa_nen_7eeca75f.png` (chữ sáng cho nền tối), áp dụng tự động trên cả Header và phần Giới thiệu cuối trang.
-- **Đồng bộ Hệ màu phụ trên các Component**: Cập nhật bảng màu và hiệu ứng Bento trên Trang chủ, Thực đơn Ăn sáng, Cấu hình In ấn, Cò Gia Sư, Thuê & Bán 7 thiết bị, Đặc quyền VIP và Giỏ hàng/Menu.
+- **Data Model & State**:
+  - **Hồ sơ Sinh viên & Điểm VIP (`StudentProfile`)**: Lưu trữ họ tên, MSSV, email `@student.hcmus.edu.vn`, khoa, tổng điểm tích lũy hiện tại (`points`), danh sách voucher đã đổi (`redeemedVouchers`), lịch sử biến động điểm (`pointHistory`), và danh sách sự kiện ĐRL đã bật nhắc hẹn.
+  - **Giỏ hàng & Đơn hàng (`CartItem` / `OrderReceipt`)**: Lưu trữ sản phẩm ăn uống, thiết bị thuê/bán (kèm biến thể dòng máy tính và tình trạng mới `100%`/`90%`/`80%`) hoặc cấu hình đặt in `A1`–`A5`, theo dõi trạng thái đã cộng điểm thưởng (`pointsAlreadyCredited`) để đồng bộ chính xác khi tăng/giảm/xóa món.
+  - **Trạng thái Trợ lý AI (`aiQuestionsUsed` & `chatMessages`)**: Theo dõi số câu hỏi đã sử dụng đối với tài khoản chưa đạt 100 điểm VIP và lưu lịch sử hội thoại được định dạng qua bộ hiển thị công thức Toán & mã nguồn.
+- **Interactive Component & State Mapping**:
+  - **Cộng điểm VIP khi mua/thuê/in**: Khi người dùng bấm thêm sản phẩm hoặc đơn in vào giỏ $\rightarrow$ Hàm `earnPoints(+N)` cộng điểm ngay lập tức vào hồ sơ, cập nhật thanh tiến trình VIP trên Header/Menu và ghi vào lịch sử giao dịch; nếu giảm số lượng hoặc xóa khỏi giỏ thì tự động hoàn trả lại số điểm tương ứng.
+  - **Trừ điểm VIP khi đổi ưu đãi**: Khi người dùng bấm đổi Voucher giảm giá hoặc áp dụng điểm trong bước thanh toán $\rightarrow$ Hàm `redeemPoints(cost)` kiểm tra số dư khả dụng, trừ trực tiếp điểm VIP, hạ/cập nhật hạng thành viên tương ứng và cấp mã ưu đãi.
+  - **Kiểm soát giới hạn 5 câu hỏi AI**: Khi gửi câu hỏi tại mục VIP hoặc cửa sổ Chat nổi $\rightarrow$ Kiểm tra `student.points >= 100`; nếu chưa đạt và `aiQuestionsUsed >= 5` thì chặn gửi kèm thông báo hướng dẫn kích hoạt VIP; nếu hợp lệ thì gửi yêu cầu tới `/api/chat` và chỉ tăng `aiQuestionsUsed` sau khi nhận phản hồi thành công.
