@@ -1,6 +1,6 @@
 {
-  "summary":  "Kế hoạch triển khai hoàn chỉnh cho website startup sinh viên FORUS (ĐH Khoa học Tự nhiên - Cơ sở 1, Nguyễn Văn Cừ) đáp ứng đầy đủ tiêu chí Đồ án 1 (CSC00006), bao gồm thiết kế sáng/tối, xác thực email sinh viên kèm chế độ Demo VIP 100 điểm, 4 phân khu tiện ích (Thuê & Bán thiết bị học tập, Đặt đồ ăn sáng giao tận phòng, In ấn tài liệu, Cò gia sư), và đặc quyền VIP (Bảng săn Điểm Rèn Luyện đếm ngược & Chatbot AI hỗ trợ sinh viên), cùng bộ tài liệu Poster A1 tách rời ngoài giao diện web.",
-  "updatedAt":  "2026-10-27T13:13:13.460485752Z",
+  "summary":  "Kế hoạch nâng cấp thẩm mỹ (Aesthetic Redesign) cho FORUS theo phong cách Bento Grid hiện đại, bổ sung hệ màu phụ (Cam Coral, Vàng Amber, Tím Pastel) kết hợp Xanh KHTN, và hoán đổi logo nền sáng - nền tối để đạt độ tương phản tối ưu.",
+  "updatedAt":  "2026-10-27T15:58:11.477240977Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

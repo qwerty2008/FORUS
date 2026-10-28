@@ -9,12 +9,21 @@ export type ActiveTab =
   | "vip"
   | "about";
 
+export interface ProductModelOption {
+  id: string;
+  name: string;
+  spec?: string;
+  priceDelta?: number;
+}
+
 export interface PricingVariant {
   id: string;
   label: string;
   price: number;
   unitLabel: string;
   type: "buy" | "rent" | "service";
+  conditionBadge?: "Mới 100%" | "Độ mới 90%" | "Độ mới 80%" | "Thuê ngắn hạn";
+  conditionDesc?: string;
 }
 
 export interface ProductReview {
@@ -38,9 +47,12 @@ export interface ProductItem {
   imageUrl?: string;
   fallbackIcon: string;
   fallbackGradient: string;
+  modelSelectorLabel?: string;
+  modelOptions?: ProductModelOption[];
   variants: PricingVariant[];
   pointsReward: number;
   inStock: number;
+  availabilityStatus?: "available" | "rented";
   deliveryInfo: string;
   reviews: ProductReview[];
 }
@@ -111,8 +123,10 @@ export interface TrainingPointEvent {
   drlSection: string;
   drlPoints: number;
   location: string;
-  registrationDeadline: string; // ISO string
-  eventEndTime: string; // ISO string
+  registrationDeadline?: string;
+  eventEndTime?: string;
+  registrationDeadlineIso: string;
+  eventEndIso: string;
   maxSlots: number;
   registeredCount: number;
   importantNotes: string[];
@@ -121,14 +135,17 @@ export interface TrainingPointEvent {
 
 export interface OrderReceipt {
   orderId: string;
-  createdAt: string;
+  createdAt?: string;
+  timestamp?: string;
   studentName: string;
-  studentEmail: string;
+  studentEmail?: string;
+  studentId?: string;
   deliveryLocation: string;
   paymentMethod: string;
   items: CartItem[];
-  subtotal: number;
-  discount: number;
-  total: number;
+  subtotal?: number;
+  discount?: number;
+  total?: number;
+  totalAmount: number;
   earnedPoints: number;
 }
