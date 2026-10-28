@@ -462,23 +462,36 @@ export default function App() {
     }, 3600);
   };
 
+  const getMembershipTierName = (pts: number) => {
+    if (pts >= 100) return "VIP FORUS (Đã mở khóa)";
+    if (pts >= 50) return "Hạng Bạc FORUS";
+    return "Hạng Tiêu Chuẩn";
+  };
+
   const earnPoints = (pointsToAdd: number, reason: string) => {
     setStudent((prev) => {
-      const nextPoints = prev.points + pointsToAdd;
+      const nextPoints = Math.max(0, prev.points + pointsToAdd);
       const unlockedVipNow = prev.points < 100 && nextPoints >= 100;
+      const tierLabel = getMembershipTierName(nextPoints);
       if (unlockedVipNow) {
         showToast(
-          `Chúc mừng! Bạn đạt ${nextPoints} điểm và mở khóa Đặc quyền VIP FORUS!`
+          `🎉 Chúc mừng! Bạn được +${pointsToAdd}đ VIP (Tổng: ${nextPoints}/100đ) và thăng hạng ${tierLabel}!`
         );
-      } else {
-        showToast(`+${pointsToAdd} điểm FORUS: ${reason}`);
+      } else if (pointsToAdd > 0) {
+        showToast(
+          `+${pointsToAdd} điểm VIP (${tierLabel} · ${nextPoints}/100đ): ${reason}`
+        );
+      } else if (pointsToAdd < 0) {
+        showToast(
+          `${pointsToAdd} điểm VIP (${tierLabel} · ${nextPoints}/100đ): ${reason}`
+        );
       }
       return {
         ...prev,
         points: nextPoints,
         pointHistory: [
           {
-            id: "pt-" + Date.now(),
+            id: "pt-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
             action: reason,
             points: pointsToAdd,
             timestamp: new Date().toLocaleTimeString("vi-VN", {
@@ -490,6 +503,57 @@ export default function App() {
         ],
       };
     });
+  };
+
+  const redeemPoints = (
+    pointsCost: number,
+    voucherTitle: string,
+    voucherId?: string
+  ): boolean => {
+    if (student.points < pointsCost) {
+      showToast(
+        `⚠️ Không đủ điểm VIP! Bạn hiện có ${student.points} điểm VIP, cần đủ ${pointsCost} điểm để đổi "${voucherTitle}".`
+      );
+      return false;
+    }
+
+    const nextPts = Math.max(0, student.points - pointsCost);
+    const nextTier = getMembershipTierName(nextPts);
+
+    setStudent((prev) => {
+      const updatedPts = Math.max(0, prev.points - pointsCost);
+      return {
+        ...prev,
+        points: updatedPts,
+        pointHistory: [
+          {
+            id:
+              "pt-redeem-" +
+              Date.now() +
+              "-" +
+              Math.random().toString(36).slice(2, 6),
+            action: `Đổi điểm VIP: ${voucherTitle}`,
+            points: -pointsCost,
+            timestamp: new Date().toLocaleTimeString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          },
+          ...prev.pointHistory,
+        ],
+      };
+    });
+
+    if (voucherId) {
+      setRedeemedHomeVouchers((prev) =>
+        prev.includes(voucherId) ? prev : [...prev, voucherId]
+      );
+    }
+
+    showToast(
+      `🎁 Đã trừ -${pointsCost} điểm VIP để đổi "${voucherTitle}"! Điểm còn lại: ${nextPts}/100đ (${nextTier}).`
+    );
+    return true;
   };
 
   const handleActivateDemoVip = () => {
@@ -553,6 +617,7 @@ export default function App() {
       if (idx > -1) {
         const updated = [...prev];
         updated[idx].quantity += 1;
+        updated[idx].pointsAlreadyCredited = true;
         return updated;
       }
       return [
@@ -573,12 +638,14 @@ export default function App() {
               : "FORUS Tech · Thiết bị học tập",
           customMeta,
           imageUrl: product.imageUrl,
+          pointsAlreadyCredited: true,
         },
       ];
     });
 
-    showToast(
-      `Đã thêm "${product.name}" vào giỏ (+${product.pointsReward} điểm FORUS)`
+    earnPoints(
+      product.pointsReward,
+      `Mua hàng: ${product.name} (${chosenVariant.label})`
     );
   };
 
@@ -591,9 +658,6 @@ export default function App() {
       }
     });
     setIsCartOpen(true);
-    showToast(
-      `Đã thêm lại ${order.items.length} món từ đơn #${order.orderId} vào giỏ hàng! Chọn tòa nhà nhận mới ngay.`
-    );
   };
 
   const handleAddPrintToCart = (
@@ -616,15 +680,31 @@ export default function App() {
         pointsReward: pointsEarned,
         categoryLabel: "Dịch vụ In ấn A1–A5",
         customMeta: `Nhận tại: ${config.pickupLocation}`,
+        pointsAlreadyCredited: true,
       },
     ]);
     setIsCartOpen(true);
-    showToast(
-      `Đã thêm đơn in khổ ${config.paperSize} vào giỏ (+${pointsEarned} điểm FORUS)`
+    earnPoints(
+      pointsEarned,
+      `Đặt in tài liệu khổ ${config.paperSize} (${config.fileName})`
     );
   };
 
   const handleUpdateCartQty = (cartItemId: string, delta: number) => {
+    const targetItem = cart.find((item) => item.cartItemId === cartItemId);
+    if (targetItem && targetItem.pointsAlreadyCredited) {
+      if (delta > 0) {
+        earnPoints(
+          targetItem.pointsReward * delta,
+          `Tăng số lượng mua: ${targetItem.name}`
+        );
+      } else if (delta < 0) {
+        earnPoints(
+          targetItem.pointsReward * delta,
+          `Giảm số lượng trong giỏ: ${targetItem.name}`
+        );
+      }
+    }
     setCart((prev) =>
       prev
         .map((item) =>
@@ -637,22 +717,64 @@ export default function App() {
   };
 
   const handleRemoveCartItem = (cartItemId: string) => {
+    const targetItem = cart.find((item) => item.cartItemId === cartItemId);
+    if (targetItem && targetItem.pointsAlreadyCredited) {
+      earnPoints(
+        -(targetItem.pointsReward * targetItem.quantity),
+        `Hủy món khỏi giỏ hàng: ${targetItem.name}`
+      );
+    }
     setCart((prev) => prev.filter((item) => item.cartItemId !== cartItemId));
   };
 
   const handleCompleteOrder = (receipt: OrderReceipt) => {
-    earnPoints(
-      receipt.earnedPoints,
-      `Thanh toán đơn #${receipt.orderId} (${receipt.deliveryLocation})`
+    // Calculate any uncredited points + group lab order bonus (x2)
+    const uncreditedPoints = receipt.items.reduce(
+      (sum, it) =>
+        it.pointsAlreadyCredited ? sum : sum + it.pointsReward * it.quantity,
+      0
     );
+    const groupBonusPoints = isHomeGroupOrderOn ? receipt.earnedPoints : 0;
+    const totalAdditionalEarned = uncreditedPoints + groupBonusPoints;
+
+    if (totalAdditionalEarned > 0) {
+      earnPoints(
+        totalAdditionalEarned,
+        `Hoàn tất đơn #${receipt.orderId}${
+          isHomeGroupOrderOn ? " (Nhân đôi điểm Gom Đơn Lab)" : ""
+        }`
+      );
+    }
+
+    if (receipt.pointsRedeemed && receipt.pointsRedeemed > 0) {
+      redeemPoints(
+        receipt.pointsRedeemed,
+        `Giảm giá trực tiếp đơn #${receipt.orderId}`
+      );
+    }
+
+    if (
+      totalAdditionalEarned === 0 &&
+      (!receipt.pointsRedeemed || receipt.pointsRedeemed === 0)
+    ) {
+      showToast(
+        `✅ Đã xác nhận đơn #${receipt.orderId}! Đã cộng +${receipt.earnedPoints} điểm VIP vào Hạng thành viên (${getMembershipTierName(
+          student.points
+        )} · ${student.points}/100đ).`
+      );
+    }
+
     const newHistoryEntry: OrderHistoryEntry = {
       orderId: receipt.orderId,
       timeLabel: "Vừa xong",
       pickupSpot: receipt.deliveryLocation,
-      pointsEarned: receipt.earnedPoints,
+      pointsEarned:
+        receipt.earnedPoints + (isHomeGroupOrderOn ? receipt.earnedPoints : 0),
       status: "shipping",
-      totalAmount: receipt.totalAmount,
-      promoCode: "KHTN227",
+      totalAmount: receipt.totalAmount ?? receipt.total ?? 0,
+      promoCode: receipt.pointsRedeemed
+        ? `VIP-${receipt.pointsRedeemed}D`
+        : "KHTN227",
       items: receipt.items.map((it) => ({
         productId: it.productId,
         name: it.name,
@@ -892,8 +1014,24 @@ export default function App() {
               })}
             </nav>
 
-            {/* Right Controls: [1. Icon-only Sun/Moon] -> [2. Cart] -> [3. Icon-only Menu Button] */}
+            {/* Right Controls: [VIP Badge] -> [1. Icon-only Sun/Moon] -> [2. Cart] -> [3. Icon-only Menu Button] */}
             <div className="flex items-center gap-2 shrink-0">
+              {/* Live VIP Membership Tier & Points Pill */}
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(true)}
+                title="Xem Hạng thành viên & Điểm VIP của bạn"
+                className="hidden sm:flex items-center gap-1.5 px-3 h-10 rounded-xl border border-[#E5DEC9] bg-[#F3EFE6] hover:bg-[#E8E2D5] dark:border-slate-700 dark:bg-slate-800 text-[#0B2545] dark:text-white text-xs font-extrabold transition cursor-pointer"
+              >
+                <Crown className="w-3.5 h-3.5 text-[#D95326] dark:text-amber-400 shrink-0" />
+                <span className="hidden xl:inline">
+                  {getMembershipTierName(currentPoints).split(" (")[0]}:
+                </span>
+                <span className="font-mono text-[#D95326] dark:text-amber-300 tabular-nums">
+                  {currentPoints}/100đ VIP
+                </span>
+              </button>
+
               {/* 1. Icon-only Light/Dark Mode Toggle (Left of Cart) */}
               <button
                 onClick={() =>
@@ -985,9 +1123,7 @@ export default function App() {
                           Hạng thành viên FORUS
                         </span>
                         <h3 className="font-extrabold text-sm sm:text-base">
-                          {isVip
-                            ? "VIP FORUS (Đã mở khóa)"
-                            : "Thành viên Tiêu chuẩn"}
+                          {getMembershipTierName(currentPoints)}
                         </h3>
                       </div>
                     </div>
@@ -1010,7 +1146,7 @@ export default function App() {
                       />
                     </div>
                     <div className="flex justify-between text-[11px] text-slate-200">
-                      <span>Mỗi dịch vụ: +5 đến +10 điểm</span>
+                      <span>Mua hàng: +5~10đ · Đổi ưu đãi: Trừ điểm VIP</span>
                       <span className="font-semibold text-amber-300">
                         {isVip
                           ? "Đủ điều kiện VIP 100%"
@@ -1019,7 +1155,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Action Buttons for VIP */}
+                  {/* Quick Redeem & Action Buttons for VIP */}
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     {!isVip ? (
                       <button
@@ -1044,6 +1180,26 @@ export default function App() {
                     >
                       <Crown className="w-3.5 h-3.5 text-amber-300" />
                       Vào Đặc quyền VIP
+                    </button>
+                  </div>
+
+                  {/* Quick Point Redemption Row right inside Membership Card */}
+                  <div className="pt-2 border-t border-white/15 flex items-center justify-between gap-2 text-xs">
+                    <span className="text-slate-200 text-[11px]">
+                      Đổi nhanh Voucher 10.000đ:
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        redeemPoints(
+                          50,
+                          "Voucher Giảm 10.000đ Đơn Ăn Sáng Express",
+                          "hv-50"
+                        )
+                      }
+                      className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono font-extrabold text-[11px] transition cursor-pointer shrink-0"
+                    >
+                      Đổi 50 điểm (-50đ VIP)
                     </button>
                   </div>
                 </div>
@@ -1245,7 +1401,7 @@ export default function App() {
                     <div className="flex items-center gap-2">
                       <History className="w-4 h-4 text-[#D95326]" />
                       <h3 className="font-extrabold text-xs sm:text-sm text-[#0B2545] dark:text-slate-100">
-                        Lịch sử tích điểm gần đây
+                        Lịch sử cộng &amp; đổi điểm VIP
                       </h3>
                     </div>
                     <span className="text-[11px] font-mono text-[#64748B] dark:text-slate-300 tabular-nums">
@@ -1253,25 +1409,34 @@ export default function App() {
                     </span>
                   </div>
 
-                  <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
-                    {student.pointHistory.slice(0, 5).map((entry) => (
-                      <div
-                        key={entry.id}
-                        className="flex items-center justify-between gap-2 bg-[#FAF8F5] dark:bg-slate-900 px-3 py-2 rounded-xl border border-[#EAE5DC] dark:border-slate-700 text-xs"
-                      >
-                        <div className="min-w-0">
-                          <p className="font-semibold text-[#0B2545] dark:text-slate-100 truncate">
-                            {entry.action}
-                          </p>
-                          <p className="text-[10px] text-[#64748B] dark:text-slate-400">
-                            {entry.timestamp}
-                          </p>
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {student.pointHistory.slice(0, 8).map((entry) => {
+                      const isPositive = entry.points >= 0;
+                      return (
+                        <div
+                          key={entry.id}
+                          className="flex items-center justify-between gap-2 bg-[#FAF8F5] dark:bg-slate-900 px-3 py-2 rounded-xl border border-[#EAE5DC] dark:border-slate-700 text-xs"
+                        >
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[#0B2545] dark:text-slate-100 truncate">
+                              {entry.action}
+                            </p>
+                            <p className="text-[10px] text-[#64748B] dark:text-slate-400">
+                              {entry.timestamp}
+                            </p>
+                          </div>
+                          <span
+                            className={`font-mono font-extrabold text-xs shrink-0 tabular-nums px-2 py-0.5 rounded-md ${
+                              isPositive
+                                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                                : "bg-rose-500/15 text-rose-600 dark:text-rose-400"
+                            }`}
+                          >
+                            {isPositive ? `+${entry.points}đ` : `${entry.points}đ`}
+                          </span>
                         </div>
-                        <span className="font-mono font-extrabold text-[#D95326] dark:text-amber-400 text-xs shrink-0 tabular-nums">
-                          +{entry.points}đ
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1942,10 +2107,11 @@ export default function App() {
                 {/* Left 7 Cols: 3 Voucher Cards */}
                 <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-6 dark:border-slate-700 dark:bg-slate-900 lg:col-span-7">
                   <div>
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0B2545] px-3.5 py-1.5 font-mono text-xs font-bold text-white">
                         <Gift className="h-3.5 w-3.5 text-amber-300" />
-                        Đổi Điểm FORUS Point ({currentPoints} điểm khả dụng)
+                        Đổi Điểm VIP FORUS ({currentPoints} điểm khả dụng ·{" "}
+                        {getMembershipTierName(currentPoints)})
                       </span>
                       <button
                         type="button"
@@ -1957,46 +2123,54 @@ export default function App() {
                     </div>
 
                     <p className="mt-3.5 text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                      Mỗi{" "}
+                      Khi{" "}
                       <strong className="text-[#0B2545] dark:text-white">
-                        1.000đ
+                        mua hàng
                       </strong>{" "}
-                      mua đồ ăn sáng, in tài liệu hoặc thuê học cụ đều tích điểm{" "}
-                      <strong className="text-[#0B2545] dark:text-white">
-                        FORUS Point
-                      </strong>
-                      . Bạn có thể dùng trực tiếp{" "}
-                      <strong className="text-[#0B2545] dark:text-white">
-                        100 điểm để trừ 10.000đ
+                      (đồ ăn sáng, in tài liệu, thuê học cụ), hệ thống sẽ{" "}
+                      <strong className="text-emerald-700 dark:text-emerald-400">
+                        cộng điểm VIP
                       </strong>{" "}
-                      trong giỏ hàng hoặc đổi ngay các gói ưu đãi bên dưới:
+                      trực tiếp vào hạng thành viên. Khi{" "}
+                      <strong className="text-[#D95326] dark:text-amber-400">
+                        đổi điểm
+                      </strong>{" "}
+                      nhận các gói Voucher bên dưới, hệ thống sẽ{" "}
+                      <strong className="text-[#D95326] dark:text-amber-400">
+                        trừ điểm VIP
+                      </strong>{" "}
+                      tương ứng:
                     </p>
 
                     <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
                       {[
                         {
-                          id: "hv-80",
-                          req: "Cần 80 điểm · Trị giá 10.000đ",
+                          id: "hv-50",
+                          cost: 50,
+                          req: "Cần 50 điểm VIP · Trị giá 10.000đ",
                           title: "Voucher Giảm 10.000đ Đơn Ăn Sáng Express",
                           desc: "Áp dụng cho mọi món bánh mì, xôi lá chuối, cà phê muối giao tại Tòa I, F, B, C.",
-                          btnLabel: "Đổi 80 điểm ngay",
+                          btnLabel: "Đổi 50 điểm ngay (-50đ VIP)",
                         },
                         {
-                          id: "hv-110",
-                          req: "Cần 110 điểm · Trị giá 15.000đ",
+                          id: "hv-60",
+                          cost: 60,
+                          req: "Cần 60 điểm VIP · Trị giá 15.000đ",
                           title: "Voucher Giảm 15.000đ Thuê Thiết Bị & Sổ Tay AI",
                           desc: "Dùng khi thuê Combo iPad Sinh Viên, MacroPad LaTeX hoặc Sổ tay Toán cho AI CSC00006.",
-                          btnLabel: "Đổi 110 điểm ngay",
+                          btnLabel: "Đổi 60 điểm ngay (-60đ VIP)",
                         },
                         {
-                          id: "hv-140",
-                          req: "Cần 140 điểm · Giảm 15% tổng đơn",
+                          id: "hv-100",
+                          cost: 100,
+                          req: "Cần 100 điểm VIP · Giảm 15% tổng đơn",
                           title: "Đặc Quyền Giảm 15% Toàn Bộ Giỏ Hàng Tuần Này",
                           desc: "Ưu đãi cao nhất dành cho thành viên tích điểm năng nổ tại Cơ sở 1 (227 NVC).",
-                          btnLabel: "Đổi 140 điểm ngay",
+                          btnLabel: "Đổi 100 điểm ngay (-100đ VIP)",
                         },
                       ].map((v) => {
                         const isRedeemed = redeemedHomeVouchers.includes(v.id);
+                        const canAfford = currentPoints >= v.cost;
                         return (
                           <div
                             key={v.id}
@@ -2014,27 +2188,32 @@ export default function App() {
                               </p>
                             </div>
 
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (!isRedeemed) {
-                                  setRedeemedHomeVouchers((prev) => [
-                                    ...prev,
-                                    v.id,
-                                  ]);
-                                  showToast(
-                                    `Đã lưu "${v.title}" vào tài khoản sinh viên của bạn!`
-                                  );
+                            <div className="mt-4 space-y-1.5">
+                              {isRedeemed && (
+                                <span className="block text-center font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                                  ✓ Đã đổi ưu đãi này
+                                </span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  redeemPoints(v.cost, v.title, v.id)
                                 }
-                              }}
-                              className={`mt-4 w-full rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer ${
-                                isRedeemed
-                                  ? "bg-emerald-600 text-white"
-                                  : "bg-[#0B2545] hover:bg-[#163A66] text-white dark:bg-amber-400 dark:text-slate-950"
-                              }`}
-                            >
-                              {isRedeemed ? "Đã đổi thành công ✓" : v.btnLabel}
-                            </button>
+                                className={`w-full rounded-xl py-2.5 px-2 text-xs font-extrabold transition cursor-pointer ${
+                                  isRedeemed
+                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                    : canAfford
+                                    ? "bg-[#0B2545] hover:bg-[#163A66] text-white dark:bg-amber-400 dark:text-slate-950"
+                                    : "bg-slate-200 hover:bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                                }`}
+                              >
+                                {isRedeemed
+                                  ? `Đổi thêm lần nữa (-${v.cost}đ VIP)`
+                                  : canAfford
+                                  ? v.btnLabel
+                                  : `Thiếu ${v.cost - currentPoints} điểm VIP`}
+                              </button>
+                            </div>
                           </div>
                         );
                       })}
@@ -2706,6 +2885,8 @@ export default function App() {
           <VipHub
             student={student}
             onUnlockDemoVip={handleActivateDemoVip}
+            onRedeemPoints={redeemPoints}
+            redeemedVoucherIds={redeemedHomeVouchers}
             onToggleReminder={handleToggleEventReminder}
             onSaveEventNote={handleSaveEventNote}
             onNavigateToShop={() => setActiveTab("gear")}

@@ -68,6 +68,7 @@ export interface CartItem {
   categoryLabel: string;
   customMeta?: string;
   imageUrl?: string;
+  pointsAlreadyCredited?: boolean;
 }
 
 export interface StudentProfile {
@@ -148,4 +149,5 @@ export interface OrderReceipt {
   total?: number;
   totalAmount: number;
   earnedPoints: number;
+  pointsRedeemed?: number;
 }

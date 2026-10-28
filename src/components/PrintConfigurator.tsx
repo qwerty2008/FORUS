@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   FileText,
   Upload,
@@ -8,6 +8,10 @@ import {
   Sparkles,
   Calculator,
   BookOpen,
+  FileUp,
+  X,
+  FolderOpen,
+  CheckCircle2,
 } from "lucide-react";
 import { PrintOrderConfig } from "../types";
 import { PRINT_PRICING_TABLE, CAMPUS_BUILDINGS_CS1 } from "../data/forusData";
@@ -42,17 +46,100 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
     note: "09:15 – 09:35 (Giải lao giữa Ca sáng)",
   });
 
+  const [presetKey, setPresetKey] = useState<string>("A4-bw");
+  const [uploadedFileMeta, setUploadedFileMeta] = useState<{
+    name: string;
+    sizeLabel: string;
+    ext: string;
+    autoDetectedPages?: number;
+  } | null>(null);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [studentNameInput, setStudentNameInput] = useState("");
   const [studentIdInput, setStudentIdInput] = useState("");
   const [addedToast, setAddedToast] = useState(false);
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const processSelectedFile = async (file: File) => {
+    const ext = file.name.split(".").pop()?.toUpperCase() || "FILE";
+    const sizeLabel = formatFileSize(file.size);
+    let detectedPages: number | undefined = undefined;
+
+    // Attempt to detect actual page count if file is a PDF
+    if (ext === "PDF" && file.size < 25 * 1024 * 1024) {
+      try {
+        const buffer = await file.arrayBuffer();
+        const text = new TextDecoder("latin1").decode(buffer);
+        const matches = text.match(/\/Type\s*\/Page\b/g);
+        if (matches && matches.length > 0 && matches.length <= 2000) {
+          detectedPages = matches.length;
+        }
+      } catch {
+        // Fallback if binary read fails
+      }
+    } else if (["PNG", "JPG", "JPEG", "WEBP"].includes(ext)) {
+      detectedPages = 1;
+    }
+
+    setUploadedFileMeta({
+      name: file.name,
+      sizeLabel,
+      ext,
+      autoDetectedPages: detectedPages,
+    });
+
+    setConfig((prev) => ({
+      ...prev,
+      fileName: file.name,
+      pageCount: detectedPages ?? prev.pageCount,
+    }));
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setConfig((prev) => ({
-        ...prev,
-        fileName: file.name,
-      }));
+      void processSelectedFile(file);
+    }
+    // Reset input value so selecting the same file again on desktop still triggers onChange
+    e.target.value = "";
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDraggingOver) setIsDraggingOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      void processSelectedFile(file);
+    }
+  };
+
+  const handleClearUploadedFile = () => {
+    setUploadedFileMeta(null);
+    setConfig((prev) => ({
+      ...prev,
+      fileName: "Bao_Cao_Do_An_1_CSC00006.pdf",
+    }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -162,8 +249,8 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
         className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-stretch"
       >
         {/* Step 1 Card */}
-        <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-6 sm:p-7 shadow-2xs dark:border-slate-700/80 dark:bg-slate-800/90 lg:col-span-7">
-          <div className="space-y-5">
+        <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-6 sm:p-7 shadow-2xs dark:border-slate-700/80 dark:bg-slate-800/90 lg:col-span-7 min-w-0">
+          <div className="space-y-5 min-w-0">
             <div className="flex items-center gap-2.5">
               <Calculator className="h-5 w-5 text-[#D95326] shrink-0" />
               <h3 className="text-lg font-extrabold text-[#0B2545] sm:text-xl dark:text-white">
@@ -171,49 +258,56 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
               </h3>
             </div>
 
-            {/* Select Document / Preset Dropdown */}
-            <div>
-              <label className="block text-xs font-bold text-[#334155] dark:text-slate-200 mb-1.5">
-                Chọn loại tài liệu hoặc tải file PDF/DOCX bạn muốn in
-              </label>
-              <div className="flex flex-col sm:flex-row gap-2.5">
+            {/* Select Document Preset & Desktop File Upload Zone */}
+            <div className="space-y-3 min-w-0">
+              <div>
+                <label className="block text-xs font-bold text-[#334155] dark:text-slate-200 mb-1.5">
+                  Chọn mẫu cấu hình in nhanh (hoặc tự tải file bên dưới)
+                </label>
                 <select
-                  value={`${config.paperSize}-${config.colorMode}`}
+                  value={presetKey}
                   onChange={(e) => {
                     const val = e.target.value;
+                    setPresetKey(val);
                     if (val === "A1-color") {
-                      setConfig({
-                        ...config,
-                        fileName: "Poster_Do_An_1_A1_Doc_CSC00006.pdf",
+                      setConfig((prev) => ({
+                        ...prev,
+                        fileName:
+                          uploadedFileMeta?.name ||
+                          "Poster_Do_An_1_A1_Doc_CSC00006.pdf",
                         paperSize: "A1",
                         colorMode: "color",
                         sides: "1-side",
-                        pageCount: 1,
+                        pageCount: uploadedFileMeta?.autoDetectedPages || 1,
                         binding: "poster-tube",
-                      });
+                      }));
                     } else if (val === "A4-bw") {
-                      setConfig({
-                        ...config,
-                        fileName: "Giao_Trinh_Vi_Tich_Phan_1B_Chuong_1_4.pdf",
+                      setConfig((prev) => ({
+                        ...prev,
+                        fileName:
+                          uploadedFileMeta?.name ||
+                          "Giao_Trinh_Vi_Tich_Phan_1B_Chuong_1_4.pdf",
                         paperSize: "A4",
                         colorMode: "bw",
                         sides: "2-side",
-                        pageCount: 40,
+                        pageCount: uploadedFileMeta?.autoDetectedPages || 40,
                         binding: "spiral-plastic",
-                      });
+                      }));
                     } else if (val === "A5-color") {
-                      setConfig({
-                        ...config,
-                        fileName: "So_Tay_Cong_Thuc_Dai_So_Tuyen_Tinh_A5.pdf",
+                      setConfig((prev) => ({
+                        ...prev,
+                        fileName:
+                          uploadedFileMeta?.name ||
+                          "So_Tay_Cong_Thuc_Dai_So_Tuyen_Tinh_A5.pdf",
                         paperSize: "A5",
                         colorMode: "color",
                         sides: "2-side",
-                        pageCount: 16,
+                        pageCount: uploadedFileMeta?.autoDetectedPages || 16,
                         binding: "staple",
-                      });
+                      }));
                     }
                   }}
-                  className="flex-1 rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  className="w-full min-w-0 truncate rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                 >
                   <option value="A4-bw">
                     Giáo trình &amp; Slide bài giảng Khổ A4 (Đóng lò xo) — Đơn giá: 500đ/trang
@@ -225,21 +319,123 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
                     Sổ tay công thức Toán / LaTeX Khổ A5 nhỏ gọn — Đơn giá: 1.200đ/trang
                   </option>
                 </select>
-
-                <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#0B2545]/20 bg-white px-4 py-2.5 text-xs font-bold text-[#0B2545] hover:bg-[#F5F2EB] transition dark:border-slate-600 dark:bg-slate-700 dark:text-white shrink-0">
-                  <Upload className="h-4 w-4 text-[#D95326]" />
-                  <span>Tải file lên</span>
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx,.png,.jpg"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
               </div>
-              <p className="mt-1.5 font-mono text-[11px] text-[#64748B] dark:text-slate-400">
-                Tệp hiện tại: <strong className="text-[#0B2545] dark:text-white">{config.fileName}</strong>
-              </p>
+
+              {/* Hidden Native File Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+
+              {/* Desktop-Optimized Drag & Drop + File Picker Card */}
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`group relative rounded-2xl border-2 border-dashed p-3.5 sm:p-4 transition-all cursor-pointer ${
+                  isDraggingOver
+                    ? "border-[#D95326] bg-[#FFF8F5] dark:border-amber-400 dark:bg-slate-800"
+                    : uploadedFileMeta
+                    ? "border-emerald-600/50 bg-emerald-50/50 dark:border-emerald-500/40 dark:bg-emerald-950/20"
+                    : "border-[#D5CEC0] bg-[#FAF8F5] hover:border-[#0B2545] hover:bg-[#F3EFE6]/70 dark:border-slate-600 dark:bg-slate-900/60 dark:hover:border-amber-400"
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition ${
+                        uploadedFileMeta
+                          ? "bg-emerald-600 text-white"
+                          : "bg-[#0B2545] text-white group-hover:bg-[#D95326] dark:bg-slate-700"
+                      }`}
+                    >
+                      {uploadedFileMeta ? (
+                        <CheckCircle2 className="h-5 w-5" />
+                      ) : (
+                        <FileUp className="h-5 w-5" />
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white truncate max-w-full">
+                          {uploadedFileMeta
+                            ? uploadedFileMeta.name
+                            : "Tải file tài liệu / Poster từ máy tính"}
+                        </span>
+                        {uploadedFileMeta ? (
+                          <span className="inline-flex items-center rounded-md bg-emerald-600/15 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-800 dark:text-emerald-300 shrink-0">
+                            {uploadedFileMeta.ext} · {uploadedFileMeta.sizeLabel}
+                            {uploadedFileMeta.autoDetectedPages
+                              ? ` · ${uploadedFileMeta.autoDetectedPages} trang`
+                              : ""}
+                          </span>
+                        ) : (
+                          <span className="hidden xl:inline-flex items-center rounded-md bg-[#E5DEC9]/70 px-2 py-0.5 font-mono text-[10px] font-bold text-[#0B2545] dark:bg-slate-700 dark:text-slate-300 shrink-0">
+                            PDF · DOCX · PNG · JPG
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="mt-0.5 text-[11px] text-[#64748B] dark:text-slate-400 truncate">
+                        {uploadedFileMeta ? (
+                          <>
+                            Đã nhận file từ máy tính — Bấm{" "}
+                            <strong className="text-[#0B2545] dark:text-white">
+                              Chọn tệp khác
+                            </strong>{" "}
+                            hoặc kéo thả file mới để thay thế
+                          </>
+                        ) : (
+                          <>
+                            Kéo &amp; thả file vào khung này hoặc bấm nút{" "}
+                            <strong className="text-[#0B2545] dark:text-white">
+                              Chọn tệp từ máy tính
+                            </strong>{" "}
+                            (Đang dùng mẫu:{" "}
+                            <span className="font-mono text-[#0B2545] dark:text-slate-200">
+                              {config.fileName}
+                            </span>
+                            )
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons on the Right */}
+                  <div
+                    className="flex items-center gap-2 shrink-0 self-start sm:self-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0B2545] hover:bg-[#163A66] px-3.5 py-2 text-xs font-extrabold text-white transition cursor-pointer shadow-2xs dark:bg-[#D95326] dark:hover:bg-[#C0441B]"
+                    >
+                      <FolderOpen className="h-3.5 w-3.5 text-amber-300 dark:text-white" />
+                      <span>
+                        {uploadedFileMeta ? "Đổi tệp khác" : "Chọn tệp từ máy tính"}
+                      </span>
+                    </button>
+
+                    {uploadedFileMeta && (
+                      <button
+                        type="button"
+                        onClick={handleClearUploadedFile}
+                        title="Xóa tệp đã tải lên"
+                        className="inline-flex items-center justify-center rounded-xl border border-[#DDD6C7] bg-white hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 p-2 text-[#64748B] transition cursor-pointer dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* 3 Selectable Option Cards (Matches Screenshot 1's 3-card selector) */}
@@ -278,7 +474,14 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
                     <button
                       key={opt.id}
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
+                        setPresetKey(
+                          opt.id === "A1"
+                            ? "A1-color"
+                            : opt.id === "A5"
+                            ? "A5-color"
+                            : "A4-bw"
+                        );
                         setConfig({
                           ...config,
                           paperSize: opt.id as PrintOrderConfig["paperSize"],
@@ -287,8 +490,8 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
                           pageCount: opt.id === "A1" ? 1 : config.pageCount,
                           binding:
                             opt.id === "A1" ? "poster-tube" : config.binding,
-                        })
-                      }
+                        });
+                      }}
                       className={`flex flex-col justify-between rounded-2xl p-4 text-left transition cursor-pointer ${
                         isSelected
                           ? "border-2 border-[#0B2545] bg-[#F8FAFC] dark:border-amber-400 dark:bg-slate-900"

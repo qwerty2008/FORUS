@@ -21,6 +21,8 @@ import { VIP_TRAINING_POINT_EVENTS } from "../data/forusData";
 interface VipHubProps {
   student: StudentProfile;
   onUnlockDemoVip: () => void;
+  onRedeemPoints: (cost: number, title: string, voucherId: string) => boolean;
+  redeemedVoucherIds: string[];
   onToggleReminder: (eventId: string, eventTitle: string) => void;
   onSaveEventNote: (eventId: string, note: string) => void;
   onNavigateToShop: () => void;
@@ -55,12 +57,20 @@ const formatCountdown = (targetIso: string, nowMs: number) => {
 export const VipHub: React.FC<VipHubProps> = ({
   student,
   onUnlockDemoVip,
+  onRedeemPoints,
+  redeemedVoucherIds,
   onToggleReminder,
   onSaveEventNote,
   onNavigateToShop,
   initialSection = "chatbot",
 }) => {
   const isVipUnlocked = student.points >= 100;
+  const membershipTierLabel =
+    student.points >= 100
+      ? "Hạng VIP FORUS (Đã mở khóa)"
+      : student.points >= 50
+      ? "Hạng Bạc FORUS"
+      : "Hạng Tiêu Chuẩn";
   const [nowMs, setNowMs] = useState<number>(() => Date.now());
   const [activeVipSection, setActiveVipSection] = useState<"events" | "chatbot">(
     initialSection
@@ -71,7 +81,6 @@ export const VipHub: React.FC<VipHubProps> = ({
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [noteDraft, setNoteDraft] = useState<string>("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [redeemedVouchers, setRedeemedVouchers] = useState<string[]>([]);
   const [labGroupCode, setLabGroupCode] = useState("LAB-TOA-F-09");
   const [isGroupOrderActive, setIsGroupOrderActive] = useState(false);
 
@@ -236,10 +245,10 @@ export const VipHub: React.FC<VipHubProps> = ({
           <div className="rounded-2xl border border-[#E6E0D5] bg-white p-5 shadow-2xs dark:border-slate-700 dark:bg-slate-900 lg:col-span-5">
             <div className="flex items-center justify-between">
               <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#64748B] dark:text-slate-400">
-                TRẠNG THÁI ĐIỂM THƯỞNG CỦA BẠN
+                HẠNG THÀNH VIÊN: {membershipTierLabel}
               </p>
               <span className="font-mono text-sm font-extrabold text-[#D95326] dark:text-amber-400">
-                {student.points} / 100 điểm
+                {student.points} / 100 điểm VIP
               </span>
             </div>
 
@@ -253,10 +262,18 @@ export const VipHub: React.FC<VipHubProps> = ({
             <div className="mt-3.5 divide-y divide-[#EAE5DC] text-xs dark:divide-slate-800">
               <div className="flex items-center justify-between py-2">
                 <span className="text-[#4A5568] dark:text-slate-300">
-                  Mỗi đơn Ăn sáng / In ấn / Thuê đồ:
+                  Khi mua hàng (Ăn sáng / In ấn / Thuê đồ):
                 </span>
-                <span className="font-mono font-bold text-[#0B2545] dark:text-white">
-                  Cộng +5 đến +10 điểm
+                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                  Cộng +5 đến +10 điểm VIP
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span className="text-[#4A5568] dark:text-slate-300">
+                  Khi đổi điểm lấy Voucher ưu đãi:
+                </span>
+                <span className="font-mono font-bold text-[#D95326] dark:text-amber-400">
+                  Trừ trực tiếp điểm VIP
                 </span>
               </div>
               <div className="flex items-center justify-between pt-2">
@@ -292,48 +309,50 @@ export const VipHub: React.FC<VipHubProps> = ({
               <div className="flex items-center justify-between gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0B2545] px-3 py-1 font-mono text-xs font-bold text-white">
                   <Gift className="h-3.5 w-3.5 text-amber-300" />
-                  Đổi Điểm FORUS Point ({student.points} điểm khả dụng)
+                  Đổi Điểm VIP FORUS ({student.points} điểm khả dụng)
                 </span>
                 <button
                   type="button"
                   onClick={onNavigateToShop}
                   className="text-xs font-bold text-[#D95326] hover:underline cursor-pointer"
                 >
-                  Tích thêm điểm tại Cửa hàng →
+                  Mua hàng tích thêm điểm VIP →
                 </button>
               </div>
 
               <p className="mt-3 text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                Mỗi <strong className="text-[#0B2545] dark:text-white">1.000đ</strong> mua đồ ăn sáng, in ấn hoặc thuê thiết bị đều tích điểm{" "}
-                <strong className="text-[#0B2545] dark:text-white">FORUS Point</strong>. Bạn có thể dùng trực tiếp{" "}
-                <strong className="text-[#0B2545] dark:text-white">100 điểm để giảm 15%</strong> trong giỏ hàng hoặc đổi ngay các gói ưu đãi bên dưới:
+                Khi <strong className="text-[#0B2545] dark:text-white">mua hàng</strong> tại FORUS, bạn được cộng điểm VIP trực tiếp vào hạng thành viên. Khi <strong className="text-[#D95326] dark:text-amber-400">đổi điểm</strong> lấy các gói ưu đãi bên dưới, hệ thống sẽ trừ số điểm VIP tương ứng:
               </p>
 
               <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
                 {[
                   {
-                    id: "v-60",
-                    req: "Cần 60 điểm · Trị giá 10.000đ",
+                    id: "hv-50",
+                    cost: 50,
+                    req: "Cần 50 điểm VIP · Trị giá 10.000đ",
                     title: "Voucher Giảm 10.000đ Đơn Ăn Sáng Express",
                     desc: "Áp dụng cho mọi món bánh mì, xôi lá chuối, cà phê muối giao tại Tòa I, F, B, C.",
-                    btnLabel: "Đổi 60 điểm ngay",
+                    btnLabel: "Đổi 50 điểm ngay (-50đ VIP)",
                   },
                   {
-                    id: "v-80",
-                    req: "Cần 80 điểm · Trị giá 15.000đ",
+                    id: "hv-60",
+                    cost: 60,
+                    req: "Cần 60 điểm VIP · Trị giá 15.000đ",
                     title: "Voucher Giảm 15.000đ Thuê Thiết Bị & In Ấn",
                     desc: "Dùng khi thuê Combo iPad Sinh Viên, Casio fx-580VN X hoặc in Poster khổ A1.",
-                    btnLabel: "Đổi 80 điểm ngay",
+                    btnLabel: "Đổi 60 điểm ngay (-60đ VIP)",
                   },
                   {
-                    id: "v-100",
-                    req: "Cần 100 điểm · Giảm 15% tổng đơn",
+                    id: "hv-100",
+                    cost: 100,
+                    req: "Cần 100 điểm VIP · Giảm 15% tổng đơn",
                     title: "Đặc Quyền Giảm 15% Toàn Bộ Giỏ Hàng Tuần Này",
                     desc: "Ưu đãi cao nhất dành cho thành viên tích điểm năng nổ tại Cơ sở 1 (227 NVC).",
-                    btnLabel: "Đổi 100 điểm ngay",
+                    btnLabel: "Đổi 100 điểm ngay (-100đ VIP)",
                   },
                 ].map((v) => {
-                  const isRedeemed = redeemedVouchers.includes(v.id);
+                  const isRedeemed = redeemedVoucherIds.includes(v.id);
+                  const canAfford = student.points >= v.cost;
                   return (
                     <div
                       key={v.id}
@@ -351,24 +370,41 @@ export const VipHub: React.FC<VipHubProps> = ({
                         </p>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!isRedeemed) {
-                            setRedeemedVouchers((prev) => [...prev, v.id]);
-                            showToast(
-                              `Đã lưu "${v.title}" vào ví ưu đãi sinh viên của bạn!`
-                            );
-                          }
-                        }}
-                        className={`mt-4 w-full rounded-xl py-2.5 text-xs font-extrabold transition cursor-pointer ${
-                          isRedeemed
-                            ? "bg-emerald-600 text-white"
-                            : "bg-[#0B2545] hover:bg-[#163A66] text-white dark:bg-amber-400 dark:text-slate-950"
-                        }`}
-                      >
-                        {isRedeemed ? "Đã lưu mã ưu đãi ✓" : v.btnLabel}
-                      </button>
+                      <div className="mt-4 space-y-1.5">
+                        {isRedeemed && (
+                          <span className="block text-center font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                            ✓ Đã đổi ưu đãi này
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const ok = onRedeemPoints(v.cost, v.title, v.id);
+                            if (ok) {
+                              showToast(
+                                `Đã trừ ${v.cost} điểm VIP để đổi "${v.title}"!`
+                              );
+                            } else {
+                              showToast(
+                                `Bạn đang có ${student.points} điểm VIP, cần đủ ${v.cost} điểm để đổi ưu đãi này.`
+                              );
+                            }
+                          }}
+                          className={`w-full rounded-xl py-2.5 px-2 text-xs font-extrabold transition cursor-pointer ${
+                            isRedeemed
+                              ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                              : canAfford
+                              ? "bg-[#0B2545] hover:bg-[#163A66] text-white dark:bg-amber-400 dark:text-slate-950"
+                              : "bg-slate-200 hover:bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                          }`}
+                        >
+                          {isRedeemed
+                            ? `Đổi thêm lần nữa (-${v.cost}đ VIP)`
+                            : canAfford
+                            ? v.btnLabel
+                            : `Thiếu ${v.cost - student.points} điểm VIP`}
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
