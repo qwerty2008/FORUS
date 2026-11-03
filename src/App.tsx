@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "motion/react";
 import {
   Calendar,
   Printer,
@@ -3021,10 +3022,18 @@ export default function App() {
 
                 {/* Order Cards List */}
                 <div className="space-y-4">
-                  {filteredOrderHistory.map((ord) => (
-                    <div
-                      key={ord.orderId}
-                      className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5]/60 p-4 sm:p-5 dark:border-slate-700 dark:bg-slate-900/60 space-y-4"
+                  {filteredOrderHistory.map((ord, orderIdx) => (
+                    <motion.div
+                      key={`${orderStatusFilter}-${ord.orderId}`}
+                      initial={{ opacity: 0, y: 24 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.15 }}
+                      transition={{
+                        duration: 0.45,
+                        delay: Math.min(orderIdx * 0.08, 0.28),
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                      className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5]/60 p-4 sm:p-5 dark:border-slate-700 dark:bg-slate-900/60 space-y-4 transition-colors hover:border-[#D4CCBC] dark:hover:border-slate-600"
                     >
                       {/* Order Header Row */}
                       <div className="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
@@ -3076,6 +3085,7 @@ export default function App() {
                                   <img
                                     src={it.imageUrl}
                                     alt={it.name}
+                                    referrerPolicy="no-referrer"
                                     className="h-full w-full object-cover"
                                   />
                                 ) : (
@@ -3086,7 +3096,7 @@ export default function App() {
                                 <p className="truncate text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white">
                                   {it.name}
                                 </p>
-                                <p className="font-mono text-xs text-[#64748B] dark:text-slate-300">
+                                <p className="font-mono text-xs text-[#64748B] dark:text-slate-300 tabular-nums">
                                   SL: x{it.quantity} ·{" "}
                                   {it.price.toLocaleString("vi-VN")}đ
                                 </p>
@@ -3113,7 +3123,12 @@ export default function App() {
 
                       {/* Tracking Progress Drawer (if toggled) */}
                       {trackingOrderId === ord.orderId && (
-                        <div className="rounded-xl bg-[#F3EFE6] p-3.5 text-xs text-[#0B2545] dark:bg-slate-800 dark:text-slate-200 flex flex-wrap items-center justify-between gap-2">
+                        <motion.div
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                          className="rounded-xl bg-[#F3EFE6] p-3.5 text-xs text-[#0B2545] dark:bg-slate-800 dark:text-slate-200 flex flex-wrap items-center justify-between gap-2"
+                        >
                           <span>
                             🚚 <strong>Lộ trình đơn #{ord.orderId}:</strong> Đã xác nhận tại Trạm FORUS Cổng 227 NVC → Shipper sinh viên đang di chuyển tới{" "}
                             <strong>{ord.pickupSpot}</strong>.
@@ -3121,14 +3136,14 @@ export default function App() {
                           <span className="font-mono font-bold text-[#D95326]">
                             Dự kiến giao: 5 phút nữa
                           </span>
-                        </div>
+                        </motion.div>
                       )}
 
                       {/* Order Footer Row */}
                       <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                         <div className="text-xs sm:text-sm text-[#64748B] dark:text-slate-300">
                           Tổng cộng ({ord.items.length} món):{" "}
-                          <strong className="font-mono text-base font-extrabold text-[#0B2545] dark:text-white">
+                          <strong className="font-mono text-base font-extrabold text-[#0B2545] dark:text-white tabular-nums">
                             {ord.totalAmount.toLocaleString("vi-VN")}đ
                           </strong>{" "}
                           <span className="font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400">
@@ -3162,7 +3177,7 @@ export default function App() {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>

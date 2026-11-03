@@ -362,7 +362,7 @@ export const TutorHub: React.FC<TutorHubProps> = ({
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full lg:w-auto">
             <div className="relative flex-1 sm:w-64">
               <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#64748B]" />
               <input
@@ -377,7 +377,7 @@ export const TutorHub: React.FC<TutorHubProps> = ({
             <button
               type="button"
               onClick={() => setShowPostForm(!showPostForm)}
-              className="flex items-center gap-2 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] px-4 py-2.5 text-xs font-extrabold text-white transition whitespace-nowrap shrink-0 cursor-pointer shadow-2xs"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] px-4 py-2.5 text-xs font-extrabold text-white transition whitespace-nowrap shrink-0 cursor-pointer shadow-2xs"
             >
               <Plus className="h-4 w-4" />
               <span>
@@ -406,7 +406,7 @@ export const TutorHub: React.FC<TutorHubProps> = ({
                   key={subj.id}
                   type="button"
                   onClick={() => setSubjectFilter(subj.id)}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                  className={`rounded-xl px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold transition cursor-pointer ${
                     isSelected
                       ? "bg-[#0B2545] text-white shadow-2xs dark:bg-sky-500 dark:text-slate-950"
                       : "border border-[#E5E0D5] bg-white text-[#4A5568] hover:border-[#0B2545]/40 hover:text-[#0B2545] dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:text-white"
@@ -419,12 +419,12 @@ export const TutorHub: React.FC<TutorHubProps> = ({
           </div>
 
           {/* Sort by Tuition Fee */}
-          <div className="flex items-center gap-2 self-start lg:self-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
             <span className="inline-flex items-center gap-1 text-xs font-bold text-[#4A5568] dark:text-slate-300 whitespace-nowrap">
               <ArrowDownWideNarrow className="h-3.5 w-3.5 text-[#D95326]" />
               Sắp xếp học phí:
             </span>
-            <div className="inline-flex rounded-xl border border-[#E5E0D5] bg-[#F2EFE9] p-1 dark:border-slate-700 dark:bg-slate-800">
+            <div className="grid grid-cols-3 sm:inline-flex w-full sm:w-auto rounded-xl border border-[#E5E0D5] bg-[#F2EFE9] p-1 dark:border-slate-700 dark:bg-slate-800">
               {[
                 { id: "fee-desc", label: "Cao đến thấp" },
                 { id: "fee-asc", label: "Thấp đến cao" },
@@ -434,7 +434,7 @@ export const TutorHub: React.FC<TutorHubProps> = ({
                   key={opt.id}
                   type="button"
                   onClick={() => setFeeSort(opt.id as typeof feeSort)}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                  className={`rounded-lg px-2 sm:px-2.5 py-1.5 sm:py-1 text-[11px] sm:text-xs font-bold transition text-center truncate cursor-pointer ${
                     feeSort === opt.id
                       ? "bg-white text-[#0B2545] shadow-2xs dark:bg-slate-900 dark:text-amber-300"
                       : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-400 dark:hover:text-white"
@@ -452,17 +452,17 @@ export const TutorHub: React.FC<TutorHubProps> = ({
       {showPostForm && (
         <form
           onSubmit={handleCreatePost}
-          className="space-y-4 rounded-3xl border border-[#E6E0D5] bg-white p-6 shadow-xs dark:border-slate-700 dark:bg-slate-800/90"
+          className="space-y-4 rounded-3xl border border-[#E6E0D5] bg-white p-4 sm:p-6 shadow-xs dark:border-slate-700 dark:bg-slate-800/90"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <h3 className="text-base font-extrabold text-[#0B2545] dark:text-white">
               Đăng Tin Mới Lên Cò Gia Sư FORUS
             </h3>
-            <div className="flex rounded-xl bg-[#F2EFE9] p-1 border border-[#E5E0D5] dark:bg-slate-700 dark:border-slate-600">
+            <div className="grid grid-cols-2 sm:flex rounded-xl bg-[#F2EFE9] p-1 border border-[#E5E0D5] dark:bg-slate-700 dark:border-slate-600 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setPostMode("student-profile")}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                className={`rounded-lg px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold transition text-center truncate cursor-pointer ${
                   postMode === "student-profile"
                     ? "bg-white text-[#0B2545] shadow-2xs dark:bg-slate-900 dark:text-white"
                     : "text-[#5A6578] dark:text-slate-300"
@@ -473,7 +473,7 @@ export const TutorHub: React.FC<TutorHubProps> = ({
               <button
                 type="button"
                 onClick={() => setPostMode("parent-seeking")}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                className={`rounded-lg px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold transition text-center truncate cursor-pointer ${
                   postMode === "parent-seeking"
                     ? "bg-white text-[#0B2545] shadow-2xs dark:bg-slate-900 dark:text-white"
                     : "text-[#5A6578] dark:text-slate-300"
