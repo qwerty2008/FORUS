@@ -7,19 +7,96 @@ import {
   Plus,
   Send,
   Search,
+  ArrowDownWideNarrow,
+  BookOpen,
 } from "lucide-react";
-import { TutorListing } from "../types";
+import { TutorListing, StudentProfile } from "../types";
 import { TUTOR_LISTINGS } from "../data/forusData";
 
 interface TutorHubProps {
   onEarnPoints: (points: number, reason: string) => void;
+  student?: StudentProfile;
+  onOpenEditProfile?: () => void;
 }
 
-export const TutorHub: React.FC<TutorHubProps> = ({ onEarnPoints }) => {
+type SubjectCategory =
+  | "all"
+  | "math"
+  | "cs"
+  | "physics"
+  | "chem-bio"
+  | "general-uni"
+  | "english";
+
+const SUBJECT_FILTERS: { id: SubjectCategory; label: string; keywords: string[] }[] = [
+  { id: "all", label: "Tất cả môn", keywords: [] },
+  {
+    id: "math",
+    label: "Toán học",
+    keywords: ["toán", "vi tích phân", "đại số", "giải tích", "xác suất"],
+  },
+  {
+    id: "cs",
+    label: "Tin học / Lập trình",
+    keywords: ["c++", "python", "lập trình", "thuật toán", "scratch", "cấu trúc dữ liệu", "tin"],
+  },
+  {
+    id: "physics",
+    label: "Vật lý",
+    keywords: ["vật lý", "điện tử"],
+  },
+  {
+    id: "chem-bio",
+    label: "Hóa & Sinh",
+    keywords: ["hóa", "sinh"],
+  },
+  {
+    id: "general-uni",
+    label: "Đại cương KHTN",
+    keywords: [
+      "đại cương",
+      "vi tích phân",
+      "đại số tuyến tính",
+      "nhập môn lập trình",
+      "xác suất thống kê",
+      "toán rời rạc",
+    ],
+  },
+  {
+    id: "english",
+    label: "Tiếng Anh / IELTS",
+    keywords: ["ielts", "tiếng anh", "igcse", "sat"],
+  },
+];
+
+const parseFeeAmount = (feeStr: string): number => {
+  const matches = feeStr.match(/\d+(?:\.\d+)*/g);
+  if (!matches || matches.length === 0) return 0;
+  const numericValues = matches.map((m) => parseInt(m.replace(/\./g, ""), 10) || 0);
+  return Math.max(...numericValues);
+};
+
+const matchesSubjectCategory = (item: TutorListing, category: SubjectCategory): boolean => {
+  if (category === "all") return true;
+  const filterDef = SUBJECT_FILTERS.find((f) => f.id === category);
+  if (!filterDef) return true;
+  const haystack = `${item.subject} ${item.title} ${item.gradeLevel}`.toLowerCase();
+  return filterDef.keywords.some((kw) => haystack.includes(kw));
+};
+
+export const TutorHub: React.FC<TutorHubProps> = ({
+  onEarnPoints,
+  student,
+  onOpenEditProfile,
+}) => {
   const [listings, setListings] = useState<TutorListing[]>(TUTOR_LISTINGS);
   const [filterType, setFilterType] = useState<
     "all" | "parent-seeking" | "student-profile"
   >("all");
+  const [subjectFilter, setSubjectFilter] = useState<SubjectCategory>("all");
+  const [feeSort, setFeeSort] = useState<"fee-desc" | "fee-asc" | "default">(
+    "fee-desc"
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [appliedIds, setAppliedIds] = useState<string[]>([]);
   const [showPostForm, setShowPostForm] = useState(false);
@@ -29,21 +106,35 @@ export const TutorHub: React.FC<TutorHubProps> = ({ onEarnPoints }) => {
     "parent-seeking" | "student-profile"
   >("student-profile");
   const [title, setTitle] = useState("");
-  const [subject, setSubject] = useState("Toán · Tin học (C++/Python)");
-  const [gradeLevel, setGradeLevel] = useState("Lớp 9 - Lớp 12");
+  const [subject, setSubject] = useState(
+    student?.tutorSubjects || "Toán · Tin học (C++/Python)"
+  );
+  const [gradeLevel, setGradeLevel] = useState("Lớp 9 - Lớp 12 / Đại cương KHTN");
   const [district, setDistrict] = useState("Quận 5 (Gần ĐH KHTN CS1)");
   const [schedule, setSchedule] = useState("2 buổi/tuần (Tối 18h30 - 20h30)");
   const [feePerSession, setFeePerSession] = useState("200.000đ / buổi");
   const [contactInfo, setContactInfo] = useState("");
 
-  const filteredListings = listings.filter((item) => {
-    const matchesType = filterType === "all" || item.type === filterType;
-    const matchesSearch =
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.district.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesType && matchesSearch;
-  });
+  const filteredListings = listings
+    .filter((item) => {
+      const matchesType = filterType === "all" || item.type === filterType;
+      const matchesSubject = matchesSubjectCategory(item, subjectFilter);
+      const matchesSearch =
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.facultyOrSchool.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesType && matchesSubject && matchesSearch;
+    })
+    .sort((a, b) => {
+      if (feeSort === "fee-desc") {
+        return parseFeeAmount(b.feePerSession) - parseFeeAmount(a.feePerSession);
+      }
+      if (feeSort === "fee-asc") {
+        return parseFeeAmount(a.feePerSession) - parseFeeAmount(b.feePerSession);
+      }
+      return 0;
+    });
 
   const handleApplyOrConnect = (item: TutorListing) => {
     if (appliedIds.includes(item.id)) return;
@@ -52,15 +143,26 @@ export const TutorHub: React.FC<TutorHubProps> = ({ onEarnPoints }) => {
       item.pointsReward,
       `Kết nối Cò Gia Sư: ${item.subject} (${item.district})`
     );
+    const achievementSummary = student?.personalAchievements
+      ? ` (Kèm hồ sơ thành tích: ${student.personalAchievements})`
+      : "";
     setFeedbackBanner(
-      `Đã gửi yêu cầu kết nối mã lớp "${item.subject}" thành công! Bạn nhận được +${item.pointsReward} điểm tích lũy FORUS.`
+      `Đã gửi yêu cầu kết nối mã lớp "${item.subject}" thành công${achievementSummary}! Bạn nhận được +${item.pointsReward} điểm tích lũy FORUS.`
     );
-    setTimeout(() => setFeedbackBanner(null), 4000);
+    setTimeout(() => setFeedbackBanner(null), 4500);
   };
 
   const handleCreatePost = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
+
+    const studentAchievementTags =
+      postMode === "student-profile" && student?.personalAchievements
+        ? student.personalAchievements
+            .split(/[·•,;|\n]+/)
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
 
     const newListing: TutorListing = {
       id: `tutor-${Date.now()}`,
@@ -72,16 +174,27 @@ export const TutorHub: React.FC<TutorHubProps> = ({ onEarnPoints }) => {
       schedule,
       feePerSession,
       tutorOrStudentInfo:
-        contactInfo.trim() || "Sinh viên ĐH KHTN CS1 · Đã xác thực email",
+        contactInfo.trim() ||
+        (student
+          ? `${student.fullName} (${student.studentId}${
+              student.gpa ? ` · GPA ${student.gpa}` : ""
+            }${student.phone ? ` · SĐT: ${student.phone}` : ""})`
+          : "Sinh viên ĐH KHTN CS1 · Đã xác thực email"),
       facultyOrSchool:
         postMode === "student-profile"
-          ? "Trường ĐH Khoa học Tự nhiên — ĐHQG-HCM"
+          ? `${student?.faculty || "Khoa CNTT"} — ĐH KHTN (HCMUS)`
           : "Phụ huynh / Học sinh khu vực TP.HCM",
       verified: true,
-      requirements: [
-        "Kết nối trực tiếp qua nền tảng Cò Gia Sư FORUS minh bạch chi phí",
-        "Hỗ trợ bộ tài liệu giảng dạy chuẩn KHTN",
-      ],
+      requirements:
+        studentAchievementTags.length > 0
+          ? [
+              ...studentAchievementTags,
+              "Đã xác thực hồ sơ sinh viên & thành tích cá nhân trên FORUS",
+            ]
+          : [
+              "Kết nối trực tiếp qua nền tảng Cò Gia Sư FORUS minh bạch chi phí",
+              "Hỗ trợ bộ tài liệu giảng dạy chuẩn KHTN",
+            ],
       pointsReward: 10,
     };
 
@@ -91,7 +204,7 @@ export const TutorHub: React.FC<TutorHubProps> = ({ onEarnPoints }) => {
     setTitle("");
     setContactInfo("");
     setFeedbackBanner(
-      "Đã đăng tin lên sàn Cò Gia Sư FORUS thành công! Bạn được cộng +10 điểm thưởng."
+      "Đã đăng tin kèm thành tích cá nhân lên sàn Cò Gia Sư FORUS thành công! Bạn được cộng +10 điểm thưởng."
     );
     setTimeout(() => setFeedbackBanner(null), 4000);
   };
@@ -102,9 +215,6 @@ export const TutorHub: React.FC<TutorHubProps> = ({ onEarnPoints }) => {
       <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center">
           <div className="space-y-3 lg:col-span-7">
-            <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
-              FORUS TUTOR MATCH · KẾT NỐI GIA SƯ TỰ NHIÊN TẠI 227 NGUYỄN VĂN CỪ
-            </p>
             <h2 className="text-2xl font-extrabold tracking-tight text-[#0B2545] sm:text-4xl dark:text-white leading-[1.15]">
               Cò Gia Sư KHTN — Kết Nối Lớp Dạy Kèm &amp; Mentor Đại Cương
             </h2>
@@ -153,6 +263,62 @@ export const TutorHub: React.FC<TutorHubProps> = ({ onEarnPoints }) => {
             </div>
           </div>
         </div>
+
+        {/* Student Tutor Achievement Card (Synced with Avatar Edit Profile) */}
+        {student && (
+          <div className="mt-5 pt-5 border-t border-[#E5DEC9] dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+              <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-[#0B2545] via-[#0284C7] to-[#10B981] shrink-0">
+                {student.avatarUrl ? (
+                  <img
+                    src={student.avatarUrl}
+                    alt={student.fullName}
+                    className="w-full h-full rounded-full object-cover bg-white"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-[#0B2545] text-white flex items-center justify-center font-extrabold text-xs">
+                    {student.fullName
+                      .trim()
+                      .split(/\s+/)
+                      .slice(-2)
+                      .map((part) => part[0])
+                      .join("")
+                      .toUpperCase() || "SV"}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white">
+                    Hồ sơ Gia sư của bạn: {student.fullName} ({student.studentId})
+                  </span>
+                  {student.gpa && (
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/15 text-[#D95326] dark:text-amber-300 font-mono text-[11px] font-bold">
+                      GPA: {student.gpa}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#4A5568] dark:text-slate-300 line-clamp-2">
+                  <strong className="text-[#0B2545] dark:text-slate-100">
+                    Thành tích &amp; Năng lực gia sư:
+                  </strong>{" "}
+                  {student.personalAchievements ||
+                    "Chưa cập nhật thành tích cá nhân. Hãy bấm vào Avatar góc trên để bổ sung thành tích khi ứng tuyển gia sư!"}
+                </p>
+              </div>
+            </div>
+
+            {onOpenEditProfile && (
+              <button
+                type="button"
+                onClick={onOpenEditProfile}
+                className="px-3.5 py-2 rounded-xl border border-[#0B2545]/20 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-[#0B2545] hover:text-white dark:hover:bg-slate-700 text-[#0B2545] dark:text-slate-100 text-xs font-extrabold transition shrink-0 cursor-pointer"
+              >
+                Cập nhật Hồ sơ &amp; Thành tích Gia sư
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {feedbackBanner && (
@@ -162,51 +328,123 @@ export const TutorHub: React.FC<TutorHubProps> = ({ onEarnPoints }) => {
         </div>
       )}
 
-      {/* Search, Segmented Filter & Post Action Row (Matches Screenshot 2 Filter Bar) */}
-      <div className="flex flex-col justify-between gap-4 border-b border-[#E5DEC9] pb-4 dark:border-slate-700/80 lg:flex-row lg:items-center">
-        <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-[#E5E0D5] bg-[#F2EFE9] p-1.5 dark:border-slate-700 dark:bg-slate-800">
-          {[
-            { id: "all", label: `Tất cả (${listings.length})` },
-            { id: "parent-seeking", label: "Lớp đang tìm Gia sư SV" },
-            { id: "student-profile", label: "Hồ sơ Gia sư KHTN" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setFilterType(tab.id as typeof filterType)}
-              className={`rounded-xl px-4 py-2 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
-                filterType === tab.id
-                  ? "bg-white text-[#0B2545] shadow-2xs dark:bg-slate-900 dark:text-white"
-                  : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-300"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#64748B]" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm môn Toán, Python, Quận 5..."
-              className="w-full rounded-2xl border border-[#E5E0D5] bg-white py-2.5 pr-3.5 pl-9 text-xs font-medium text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-            />
+      {/* Search, Segmented Filter & Post Action Row */}
+      <div className="space-y-3.5 border-b border-[#E5DEC9] pb-4 dark:border-slate-700/80">
+        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+          <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-[#E5E0D5] bg-[#F2EFE9] p-1.5 dark:border-slate-700 dark:bg-slate-800">
+            {[
+              { id: "all", label: `Tất cả (${listings.length})` },
+              {
+                id: "parent-seeking",
+                label: `Lớp tìm Gia sư (${
+                  listings.filter((l) => l.type === "parent-seeking").length
+                })`,
+              },
+              {
+                id: "student-profile",
+                label: `Hồ sơ Gia sư KHTN (${
+                  listings.filter((l) => l.type === "student-profile").length
+                })`,
+              },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setFilterType(tab.id as typeof filterType)}
+                className={`rounded-xl px-4 py-2 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                  filterType === tab.id
+                    ? "bg-white text-[#0B2545] shadow-2xs dark:bg-slate-900 dark:text-white"
+                    : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-300"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowPostForm(!showPostForm)}
-            className="flex items-center gap-2 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] px-4 py-2.5 text-xs font-extrabold text-white transition whitespace-nowrap shrink-0 cursor-pointer shadow-2xs"
-          >
-            <Plus className="h-4 w-4" />
-            <span>
-              {showPostForm ? "Đóng Khung Đăng Tin" : "Đăng Hồ Sơ / Tìm Gia Sư (+10đ)"}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative flex-1 sm:w-64">
+              <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#64748B]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm môn Toán, Python, Quận 5..."
+                className="w-full rounded-2xl border border-[#E5E0D5] bg-white py-2.5 pr-3.5 pl-9 text-xs font-medium text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowPostForm(!showPostForm)}
+              className="flex items-center gap-2 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] px-4 py-2.5 text-xs font-extrabold text-white transition whitespace-nowrap shrink-0 cursor-pointer shadow-2xs"
+            >
+              <Plus className="h-4 w-4" />
+              <span>
+                {showPostForm ? "Đóng Khung Đăng Tin" : "Đăng Hồ Sơ / Tìm Gia Sư (+10đ)"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Subject Filter & Tuition Fee Sort Row */}
+        <div className="flex flex-col justify-between gap-3 pt-1 lg:flex-row lg:items-center">
+          {/* Filter by Subject */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 inline-flex items-center gap-1 text-xs font-bold text-[#4A5568] dark:text-slate-300">
+              <BookOpen className="h-3.5 w-3.5 text-[#0B2545] dark:text-sky-400" />
+              Lọc theo môn:
             </span>
-          </button>
+            {SUBJECT_FILTERS.map((subj) => {
+              const count = listings.filter((item) => {
+                const typeOk = filterType === "all" || item.type === filterType;
+                return typeOk && matchesSubjectCategory(item, subj.id);
+              }).length;
+              const isSelected = subjectFilter === subj.id;
+              return (
+                <button
+                  key={subj.id}
+                  type="button"
+                  onClick={() => setSubjectFilter(subj.id)}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                    isSelected
+                      ? "bg-[#0B2545] text-white shadow-2xs dark:bg-sky-500 dark:text-slate-950"
+                      : "border border-[#E5E0D5] bg-white text-[#4A5568] hover:border-[#0B2545]/40 hover:text-[#0B2545] dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:text-white"
+                  }`}
+                >
+                  {subj.label} ({count})
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Sort by Tuition Fee */}
+          <div className="flex items-center gap-2 self-start lg:self-auto">
+            <span className="inline-flex items-center gap-1 text-xs font-bold text-[#4A5568] dark:text-slate-300 whitespace-nowrap">
+              <ArrowDownWideNarrow className="h-3.5 w-3.5 text-[#D95326]" />
+              Sắp xếp học phí:
+            </span>
+            <div className="inline-flex rounded-xl border border-[#E5E0D5] bg-[#F2EFE9] p-1 dark:border-slate-700 dark:bg-slate-800">
+              {[
+                { id: "fee-desc", label: "Cao đến thấp" },
+                { id: "fee-asc", label: "Thấp đến cao" },
+                { id: "default", label: "Mặc định" },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setFeeSort(opt.id as typeof feeSort)}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                    feeSort === opt.id
+                      ? "bg-white text-[#0B2545] shadow-2xs dark:bg-slate-900 dark:text-amber-300"
+                      : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-400 dark:hover:text-white"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

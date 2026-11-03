@@ -3,7 +3,7 @@ export type ThemeMode = "light" | "dark";
 export type ActiveTab =
   | "home"
   | "gear"
-  | "food"
+  | "events"
   | "print"
   | "tutor"
   | "vip"
@@ -14,6 +14,7 @@ export interface ProductModelOption {
   name: string;
   spec?: string;
   priceDelta?: number;
+  imageUrl?: string;
 }
 
 export interface PricingVariant {
@@ -77,6 +78,14 @@ export interface StudentProfile {
   studentId: string;
   fullName: string;
   faculty: string;
+  avatarUrl?: string;
+  phone?: string;
+  academicYear?: string;
+  gpa?: string;
+  bio?: string;
+  tutorSubjects?: string;
+  personalAchievements?: string;
+  isTutorActive?: boolean;
   points: number;
   pointHistory: {
     id: string;
@@ -126,8 +135,8 @@ export interface TrainingPointEvent {
   location: string;
   registrationDeadline?: string;
   eventEndTime?: string;
-  registrationDeadlineIso: string;
-  eventEndIso: string;
+  registrationDeadlineIso?: string;
+  eventEndIso?: string;
   maxSlots: number;
   registeredCount: number;
   importantNotes: string[];

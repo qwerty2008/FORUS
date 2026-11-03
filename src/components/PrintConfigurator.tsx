@@ -185,9 +185,6 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
       <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center">
           <div className="space-y-3 lg:col-span-7">
-            <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
-              FORUS PRINT EXPRESS · IN ẤN HỌC THUẬT TẠI 227 NGUYỄN VĂN CỪ
-            </p>
             <h2 className="text-2xl font-extrabold tracking-tight text-[#0B2545] sm:text-4xl dark:text-white leading-[1.15]">
               Đặt In Tài Liệu, Giáo Trình &amp; Poster Đồ Án Khổ A1–A5
             </h2>

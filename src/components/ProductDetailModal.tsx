@@ -13,6 +13,10 @@ import { ProductVisual } from "./ProductVisual";
 
 interface ProductDetailModalProps {
   product: ProductItem | null;
+  initialModelId?: string;
+  initialVariantId?: string;
+  onSelectModel?: (modelId: string) => void;
+  onSelectVariant?: (variantId: string) => void;
   onClose: () => void;
   onAddToCart: (
     product: ProductItem,
@@ -28,6 +32,10 @@ interface ProductDetailModalProps {
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   product,
+  initialModelId,
+  initialVariantId,
+  onSelectModel,
+  onSelectVariant,
   onClose,
   onAddToCart,
   onAddReview,
@@ -44,10 +52,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   useEffect(() => {
     if (product) {
-      setSelectedVariantId(product.variants[0]?.id || "");
-      setSelectedModelId(product.modelOptions?.[0]?.id || "");
+      setSelectedVariantId(initialVariantId || product.variants[0]?.id || "");
+      setSelectedModelId(initialModelId || product.modelOptions?.[0]?.id || "");
     }
-  }, [product]);
+  }, [product, initialModelId, initialVariantId]);
 
   if (!product) return null;
 
@@ -58,6 +66,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const currentModel =
     product.modelOptions?.find((m) => m.id === selectedModelId) ||
     product.modelOptions?.[0];
+
+  const activeImageUrl = currentModel?.imageUrl || product.imageUrl;
+
+  const handleModelChange = (modelId: string) => {
+    setSelectedModelId(modelId);
+    onSelectModel?.(modelId);
+  };
 
   const getAdjustedPrice = (variant: PricingVariant) => {
     if (!currentModel || !currentModel.priceDelta) return variant.price;
@@ -85,7 +100,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       ? `Tình trạng: ${currentVariant.conditionBadge}`
       : undefined;
 
-    onAddToCart(product, adjustedVariant, metaLabel);
+    onAddToCart(
+      { ...product, imageUrl: activeImageUrl },
+      adjustedVariant,
+      metaLabel
+    );
     setAddedFeedback(true);
     setTimeout(() => setAddedFeedback(false), 2000);
   };
@@ -106,6 +125,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     setReviewText("");
   };
 
+  const hasModelImages = Boolean(
+    product.modelOptions?.some((m) => Boolean(m.imageUrl))
+  );
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-xs">
       <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-[#E5DEC9] bg-[#FAF8F5] shadow-2xl dark:border-slate-800 dark:bg-slate-900">
@@ -116,7 +139,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               {product.code}
             </span>
             <span aria-hidden="true">·</span>
-            <span>Chi tiết sản phẩm / dịch vụ FORUS Cơ sở 1</span>
+            <span>
+              {currentModel
+                ? `Đang xem: ${currentModel.name}`
+                : "Chi tiết sản phẩm / dịch vụ FORUS Cơ sở 1"}
+            </span>
           </div>
           <button
             type="button"
@@ -129,16 +156,73 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
         {/* Scrollable Content */}
         <div className="grid flex-1 grid-cols-1 gap-8 overflow-y-auto p-6 lg:grid-cols-12">
-          {/* Left Image & Highlights */}
+          {/* Left Image, Model Thumbnail Strip & Highlights */}
           <div className="space-y-4 lg:col-span-6">
-            <ProductVisual
-              imageUrl={product.imageUrl}
-              alt={product.name}
-              fallbackIcon={product.fallbackIcon}
-              fallbackGradient={product.fallbackGradient}
-              code={product.code}
-              className="h-64 sm:h-72 w-full rounded-2xl border border-[#E6E0D5] dark:border-slate-700"
-            />
+            <div className="space-y-2.5">
+              <ProductVisual
+                imageUrl={activeImageUrl}
+                alt={
+                  currentModel
+                    ? `${product.name} — ${currentModel.name}`
+                    : product.name
+                }
+                fallbackIcon={product.fallbackIcon}
+                fallbackGradient={product.fallbackGradient}
+                code={
+                  currentModel
+                    ? `${product.code} · ${currentModel.name}`
+                    : product.code
+                }
+                className="h-64 sm:h-72 w-full rounded-2xl border border-[#E6E0D5] dark:border-slate-700"
+              />
+
+              {/* Interactive Thumbnail Gallery when product has model images */}
+              {hasModelImages && product.modelOptions && (
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-bold text-[#64748B] dark:text-slate-300">
+                    Bấm chọn mẫu để xem ảnh thực tế ({product.modelOptions.length}{" "}
+                    lựa chọn):
+                  </p>
+                  <div className="grid grid-cols-5 gap-2">
+                    {product.modelOptions.map((mod) => {
+                      const isActive = currentModel?.id === mod.id;
+                      return (
+                        <button
+                          key={mod.id}
+                          type="button"
+                          onClick={() => handleModelChange(mod.id)}
+                          title={mod.name}
+                          className={`group/thumb relative flex flex-col items-center rounded-xl border p-1.5 text-center transition cursor-pointer ${
+                            isActive
+                              ? "border-2 border-[#D95326] bg-white shadow-xs dark:border-amber-400 dark:bg-slate-800"
+                              : "border-[#E6E0D5] bg-white/80 hover:border-[#0B2545] dark:border-slate-700 dark:bg-slate-800/50"
+                          }`}
+                        >
+                          {mod.imageUrl && (
+                            <div className="h-11 w-full overflow-hidden rounded-lg bg-white dark:bg-slate-900 flex items-center justify-center p-0.5">
+                              <img
+                                src={mod.imageUrl}
+                                alt={mod.name}
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
+                          )}
+                          <span
+                            className={`mt-1 line-clamp-1 text-[9px] font-extrabold leading-tight ${
+                              isActive
+                                ? "text-[#D95326] dark:text-amber-300"
+                                : "text-[#0B2545] dark:text-slate-300"
+                            }`}
+                          >
+                            {mod.name.replace("Giáo trình ", "").replace("Toán cao cấp: ", "")}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="rounded-2xl border border-[#E6E0D5] bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-800/70">
               <h4 className="text-xs font-extrabold text-[#0B2545] dark:text-white">
@@ -193,7 +277,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </label>
                   <select
                     value={currentModel?.id || ""}
-                    onChange={(e) => setSelectedModelId(e.target.value)}
+                    onChange={(e) => handleModelChange(e.target.value)}
                     className="w-full rounded-xl border border-[#DDD6C7] bg-white px-3 py-2 text-xs font-bold text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                   >
                     {product.modelOptions.map((m) => (

@@ -133,16 +133,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/60 backdrop-blur-xs">
-      <div className="flex h-full w-full max-w-lg flex-col bg-white shadow-2xl dark:bg-slate-900">
-        {/* Top Bar */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <ShoppingBag className="h-5 w-5 text-[#D95326]" />
-            <h2 className="text-base font-bold text-[#0B2545] dark:text-white">
-              {completedReceipt
-                ? "Biên Lai Xác Nhận Đơn Hàng"
-                : `Giỏ Hàng Tiện Ích FORUS (${items.length})`}
+    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/50 backdrop-blur-[2px]">
+      <div className="flex h-full w-full max-w-md flex-col bg-[#FAF8F5] text-[#0B2545] shadow-2xl border-l border-[#E5DEC9] dark:border-slate-800 dark:bg-[#0D1525] dark:text-slate-100">
+        {/* Minimal Top Header */}
+        <div className="flex items-center justify-between border-b border-[#E5DEC9] px-5 py-4 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-[#F2EFE9] border border-[#E5E0D5] dark:bg-slate-800 dark:border-slate-700 flex items-center justify-center">
+              <ShoppingBag className="h-4 w-4 text-[#0B2545] dark:text-amber-300" />
+            </div>
+            <h2 className="text-sm font-extrabold text-[#0B2545] dark:text-white">
+              {completedReceipt ? "Biên lai đơn hàng" : `Giỏ hàng (${items.length})`}
             </h2>
           </div>
           <button
@@ -151,102 +151,57 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               setCompletedReceipt(null);
               onClose();
             }}
-            className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+            aria-label="Đóng"
+            className="w-8 h-8 rounded-xl bg-[#F2EFE9] hover:bg-[#E6E0D5] border border-[#E5E0D5] flex items-center justify-center text-[#0B2545] dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer transition"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Receipt View if order completed */}
         {completedReceipt ? (
-          <div className="flex-1 space-y-5 overflow-y-auto p-6">
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-center">
-              <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-600 dark:text-emerald-400" />
-              <h3 className="mt-2 text-lg font-extrabold text-[#0B2545] dark:text-white">
-                Đặt Hàng Thành Công &amp; Đã Cộng Điểm VIP!
+          <div className="flex-1 space-y-4 overflow-y-auto p-5">
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
+              <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+              <h3 className="mt-1.5 text-base font-extrabold text-[#0B2545] dark:text-white">
+                Đặt thành công #{completedReceipt.orderId}
               </h3>
-              <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                Mã đơn:{" "}
-                <strong className="font-mono">{completedReceipt.orderId}</strong>{" "}
-                · Giao tới: {completedReceipt.deliveryLocation}
+              <p className="mt-0.5 text-xs text-[#4A5568] dark:text-slate-300">
+                {completedReceipt.deliveryLocation}
               </p>
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-                <div className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 font-mono text-xs font-bold text-white">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>+{completedReceipt.earnedPoints} Điểm VIP (Mua hàng)</span>
-                </div>
+              <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 font-mono text-[11px] font-bold text-white">
+                  <Sparkles className="h-3 w-3" />
+                  +{completedReceipt.earnedPoints}đ
+                </span>
                 {completedReceipt.pointsRedeemed &&
                   completedReceipt.pointsRedeemed > 0 && (
-                    <div className="inline-flex items-center gap-1.5 rounded-xl bg-[#D95326] px-3.5 py-1.5 font-mono text-xs font-bold text-white">
-                      <span>-{completedReceipt.pointsRedeemed} Điểm VIP (Đổi giảm giá)</span>
-                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-lg bg-[#D95326] px-2.5 py-1 font-mono text-[11px] font-bold text-white">
+                      -{completedReceipt.pointsRedeemed}đ
+                    </span>
                   )}
               </div>
             </div>
 
-            {/* Updated VIP Membership Tier Box in Receipt */}
-            <div className="rounded-2xl bg-[#0B2545] p-4 text-white space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-mono uppercase tracking-wider text-amber-300 font-bold">
-                  {getMembershipTierLabel(student.points)}
-                </span>
-                <span className="font-mono text-base font-extrabold text-amber-300">
-                  {student.points}/100đ VIP
-                </span>
-              </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-white/15">
+            <div className="space-y-2 rounded-2xl border border-[#E6E0D5] bg-white p-4 text-xs dark:border-slate-800 dark:bg-slate-900">
+              {completedReceipt.items.map((it) => (
                 <div
-                  className="h-full rounded-full bg-[#D95326] transition-all duration-500"
-                  style={{ width: `${Math.min(100, student.points)}%` }}
-                />
-              </div>
-              <p className="text-[11px] text-slate-200">
-                {student.points >= 100
-                  ? "Chúc mừng! Bạn đang ở hạng VIP FORUS cao nhất (Mở khóa 100% đặc quyền)."
-                  : `Bạn còn thiếu ${100 - student.points} điểm nữa để thăng hạng VIP 100 điểm.`}
-              </p>
-            </div>
-
-            <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs dark:border-slate-800 dark:bg-slate-800/50">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Người nhận:</span>
-                <span className="font-semibold text-slate-900 dark:text-white">
-                  {completedReceipt.studentName} ({completedReceipt.studentEmail})
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Phương thức (Chế độ thử):</span>
-                <span className="font-medium text-slate-900 dark:text-white">
-                  {completedReceipt.paymentMethod}
-                </span>
-              </div>
-              <div className="border-t border-slate-200 pt-2 dark:border-slate-700">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">
-                  Chi tiết sản phẩm / dịch vụ:
-                </span>
-                <ul className="mt-2 space-y-1.5">
-                  {completedReceipt.items.map((it) => (
-                    <li
-                      key={it.cartItemId}
-                      className="flex justify-between text-slate-600 dark:text-slate-300"
-                    >
-                      <span>
-                        {it.quantity}x {it.name} ({it.variantLabel})
-                      </span>
-                      <span className="font-mono font-semibold">
-                        {(it.price * it.quantity).toLocaleString("vi-VN")}đ
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="border-t border-slate-200 pt-2 dark:border-slate-700">
-                <div className="flex justify-between text-sm font-bold text-slate-900 dark:text-white">
-                  <span>Tổng thanh toán (Chế độ thử):</span>
-                  <span className="font-mono text-[#D95326] dark:text-amber-400">
-                    {completedReceipt.totalAmount.toLocaleString("vi-VN")}đ
+                  key={it.cartItemId}
+                  className="flex justify-between gap-2 text-[#4A5568] dark:text-slate-300"
+                >
+                  <span className="truncate">
+                    {it.quantity}× {it.name}
+                  </span>
+                  <span className="font-mono font-bold text-[#0B2545] dark:text-white shrink-0">
+                    {(it.price * it.quantity).toLocaleString("vi-VN")}đ
                   </span>
                 </div>
+              ))}
+              <div className="flex justify-between border-t border-[#EAE5DC] pt-2.5 text-sm font-extrabold text-[#0B2545] dark:border-slate-800 dark:text-white">
+                <span>Tổng thanh toán</span>
+                <span className="font-mono text-[#D95326] dark:text-amber-400">
+                  {completedReceipt.totalAmount.toLocaleString("vi-VN")}đ
+                </span>
               </div>
             </div>
 
@@ -258,17 +213,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               }}
               className="w-full rounded-xl bg-[#0B2545] py-3 text-xs font-extrabold text-white transition hover:bg-[#163A66] cursor-pointer"
             >
-              Tiếp Tục Khám Phá Hệ Sinh Thái FORUS
+              Đóng
             </button>
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-            <ShoppingBag className="h-12 w-12 text-slate-300 dark:text-slate-700" />
-            <h3 className="mt-3 text-base font-bold text-slate-900 dark:text-white">
-              Giỏ hàng của bạn đang trống
-            </h3>
-            <p className="mt-1 max-w-xs text-xs text-slate-500 dark:text-slate-400">
-              Hãy chọn thuê/mua Combo iPad Sinh Viên, đặt bánh mì giao tận phòng hoặc gửi file in A1–A5 để tích lũy 5–10 điểm mỗi đơn nhé!
+            <div className="w-12 h-12 rounded-2xl bg-[#F2EFE9] border border-[#E5E0D5] dark:bg-slate-800 dark:border-slate-700 flex items-center justify-center">
+              <ShoppingBag className="h-5 w-5 text-[#64748B] dark:text-slate-400" />
+            </div>
+            <p className="mt-3 text-sm font-extrabold text-[#0B2545] dark:text-white">
+              Giỏ hàng trống
             </p>
           </div>
         ) : (
@@ -276,305 +230,210 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             onSubmit={handleCheckout}
             className="flex flex-1 flex-col overflow-hidden"
           >
-            <div className="flex-1 space-y-5 overflow-y-auto p-6">
-              {/* Item List */}
-              <div className="space-y-3">
+            <div className="flex-1 space-y-3.5 overflow-y-auto p-4 sm:p-5">
+              {/* Minimal Item Cards */}
+              <div className="space-y-2.5">
                 {items.map((item) => (
                   <div
                     key={item.cartItemId}
-                    className="flex flex-col justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-800/50"
+                    className="flex flex-col gap-2 rounded-2xl border border-[#E6E0D5] bg-white p-3 dark:border-slate-800 dark:bg-slate-900"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <span className="text-[11px] font-medium text-sky-600 dark:text-sky-400">
-                          {item.categoryLabel} · +{item.pointsReward * item.quantity} điểm
-                        </span>
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                      <div className="min-w-0">
+                        <h4 className="text-xs font-extrabold text-[#0B2545] dark:text-white truncate">
                           {item.name}
                         </h4>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                          Phân loại: {item.variantLabel}
+                        <p className="text-[11px] text-[#64748B] dark:text-slate-400 truncate">
+                          {item.variantLabel}
                         </p>
-                        {item.customMeta && (
-                          <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
-                            {item.customMeta}
-                          </p>
-                        )}
                       </div>
                       <button
                         type="button"
                         onClick={() => onRemoveItem(item.cartItemId)}
-                        className="text-slate-400 hover:text-rose-500"
-                        title="Xóa khỏi giỏ"
+                        className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer shrink-0"
+                        title="Xóa"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between pt-1">
-                      <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-2 py-1 dark:border-slate-700 dark:bg-slate-800">
                         <button
                           type="button"
                           onClick={() => onUpdateQty(item.cartItemId, -1)}
-                          className="text-slate-600 hover:text-slate-900 dark:text-slate-300"
+                          className="text-[#0B2545] dark:text-slate-200 cursor-pointer"
                         >
-                          <Minus className="h-3.5 w-3.5" />
+                          <Minus className="h-3 w-3" />
                         </button>
-                        <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
+                        <span className="font-mono text-xs font-extrabold text-[#0B2545] dark:text-white min-w-[16px] text-center">
                           {item.quantity}
                         </span>
                         <button
                           type="button"
                           onClick={() => onUpdateQty(item.cartItemId, 1)}
-                          className="text-slate-600 hover:text-slate-900 dark:text-slate-300"
+                          className="text-[#0B2545] dark:text-slate-200 cursor-pointer"
                         >
-                          <Plus className="h-3.5 w-3.5" />
+                          <Plus className="h-3 w-3" />
                         </button>
                       </div>
 
-                      <span className="font-mono text-sm font-bold text-slate-900 dark:text-white">
-                        {(item.price * item.quantity).toLocaleString("vi-VN")}đ
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                          +{item.pointsReward * item.quantity}đ
+                        </span>
+                        <span className="font-mono text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white">
+                          {(item.price * item.quantity).toLocaleString("vi-VN")}đ
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Redeem VIP Points Directly in Cart */}
-              <div className="rounded-xl border border-[#E5DEC9] bg-[#F3EFE6]/70 p-3.5 dark:border-slate-700 dark:bg-slate-800/70 space-y-2">
+              {/* Compact Points + Coupon Row */}
+              <div className="rounded-2xl border border-[#E6E0D5] bg-white p-3 dark:border-slate-800 dark:bg-slate-900 space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <span className="block text-xs font-extrabold text-[#0B2545] dark:text-white">
-                      Đổi Điểm VIP Giảm Giá Trực Tiếp
-                    </span>
-                    <span className="text-[11px] text-slate-600 dark:text-slate-300">
-                      Đang có:{" "}
-                      <strong className="font-mono text-[#D95326] dark:text-amber-400">
-                        {student.points} điểm VIP
-                      </strong>{" "}
-                      ({getMembershipTierLabel(student.points)})
-                    </span>
-                  </div>
+                  <span className="text-xs font-bold text-[#0B2545] dark:text-white">
+                    Điểm khả dụng:{" "}
+                    <strong className="font-mono text-[#D95326] dark:text-amber-400">
+                      {student.points}đ
+                    </strong>
+                  </span>
                   <button
                     type="button"
                     disabled={redeemablePoints < 10}
                     onClick={() => setUseVipPointsDiscount((prev) => !prev)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-extrabold transition cursor-pointer disabled:opacity-50 ${
+                    className={`rounded-xl px-2.5 py-1.5 text-[11px] font-extrabold transition cursor-pointer disabled:opacity-40 ${
                       useVipPointsDiscount
                         ? "bg-[#D95326] text-white"
-                        : "bg-[#0B2545] text-white hover:bg-[#163A66] dark:bg-amber-400 dark:text-slate-950"
+                        : "bg-[#F2EFE9] text-[#0B2545] hover:bg-[#E6E0D5] dark:bg-slate-800 dark:text-amber-300"
                     }`}
                   >
                     {useVipPointsDiscount
-                      ? `Đang dùng -${activePointsRedeemed}đ VIP ✓`
+                      ? `Đã dùng -${activePointsRedeemed}đ ✓`
                       : redeemablePoints >= 10
-                      ? `Đổi ${redeemablePoints} điểm (-${(
+                      ? `Dùng ${redeemablePoints}đ (-${(
                           redeemablePoints * 200
                         ).toLocaleString("vi-VN")}đ)`
-                      : "Cần tối thiểu 10đ"}
+                      : "Tối thiểu 10đ"}
                   </button>
                 </div>
-                {useVipPointsDiscount && activePointsRedeemed > 0 && (
-                  <p className="text-[11px] font-semibold text-[#D95326] dark:text-amber-300">
-                    ✓ Sẽ trừ {activePointsRedeemed} điểm VIP (giảm{" "}
-                    {pointsDiscountAmount.toLocaleString("vi-VN")}đ) khi xác nhận đơn hàng.
-                  </p>
-                )}
-              </div>
 
-              {/* Discount Code Box */}
-              <div className="rounded-xl border border-slate-200 p-3.5 dark:border-slate-800">
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Mã giảm giá sinh viên (Thử: FORUSKHTN hoặc CSC00006)
-                </label>
-                <div className="mt-2 flex gap-2">
+                <div className="flex gap-1.5">
                   <input
                     type="text"
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
-                    placeholder="Nhập mã ưu đãi..."
-                    className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 font-mono text-xs uppercase text-slate-900 focus:border-sky-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    placeholder="Mã giảm giá (VD: FORUSKHTN)"
+                    className="flex-1 rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-3 py-1.5 font-mono text-xs uppercase text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                   <button
                     type="button"
                     onClick={handleApplyCoupon}
-                    className="rounded-lg bg-slate-900 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-slate-700 whitespace-nowrap shrink-0 cursor-pointer"
+                    className="rounded-xl bg-[#0B2545] px-3 py-1.5 text-xs font-extrabold text-white hover:bg-[#163A66] shrink-0 cursor-pointer"
                   >
-                    Áp Dụng
+                    Áp dụng
                   </button>
                 </div>
                 {couponError && (
-                  <p className="mt-1.5 text-[11px] text-rose-500">
-                    {couponError}
-                  </p>
+                  <p className="text-[11px] text-rose-500">{couponError}</p>
                 )}
                 {activeDiscountObj && (
-                  <p className="mt-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-                    ✓ Đã áp dụng {activeDiscountObj.code}:{" "}
-                    {activeDiscountObj.desc}
+                  <p className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    ✓ {activeDiscountObj.code} (-
+                    {activeDiscountObj.discountAmount.toLocaleString("vi-VN")}đ)
                   </p>
                 )}
               </div>
 
-              {/* Campus Room Delivery Selection */}
-              <div className="space-y-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
-                  <MapPin className="h-4 w-4 text-[#D95326]" />
-                  <span>Giao Tận Phòng Học — Cơ Sở 1 (227 Nguyễn Văn Cừ)</span>
+              {/* Compact Delivery Box */}
+              <div className="space-y-2.5 rounded-2xl border border-[#E6E0D5] bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#0B2545] dark:text-white">
+                  <MapPin className="h-3.5 w-3.5 text-[#D95326]" />
+                  <span>Nhận tại CS1 (227 NVC)</span>
                 </div>
 
-                <div>
-                  <label className="block text-[11px] text-slate-500 dark:text-slate-400">
-                    Chọn Tòa nhà / Dãy phòng học
-                  </label>
-                  <select
-                    value={building}
-                    onChange={(e) => setBuilding(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                  >
-                    {CAMPUS_BUILDINGS_CS1.map((b) => (
-                      <option key={b} value={b}>
-                        {b}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={building}
+                  onChange={(e) => setBuilding(e.target.value)}
+                  className="w-full rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-3 py-2 text-xs font-semibold text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                >
+                  {CAMPUS_BUILDINGS_CS1.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
 
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-[11px] text-slate-500 dark:text-slate-400">
-                      Số phòng &amp; Khung giờ nhận
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={roomNumber}
-                      onChange={(e) => setRoomNumber(e.target.value)}
-                      placeholder="VD: Phòng E302 - 9h10"
-                      className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] text-slate-500 dark:text-slate-400">
-                      Tên người nhận (Biệt danh/Tên)
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={recipientName}
-                      onChange={(e) => setRecipientName(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                    />
-                  </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    required
+                    value={roomNumber}
+                    onChange={(e) => setRoomNumber(e.target.value)}
+                    placeholder="Phòng & giờ nhận"
+                    className="w-full rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-3 py-1.5 text-xs text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                  <input
+                    type="text"
+                    required
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    placeholder="Tên người nhận"
+                    className="w-full rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-3 py-1.5 text-xs text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
                 </div>
               </div>
 
-              {/* Sandbox Payment Options (per Đồ án 1 requirement) */}
-              <div className="space-y-2.5 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
-                    <CreditCard className="h-4 w-4 text-[#D95326]" />
-                    <span>Phương Thức Thanh Toán (Chế Độ Thử)</span>
-                  </span>
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400">
-                    An toàn 100%
-                  </span>
+              {/* Minimal Segmented Payment Selector */}
+              <div className="space-y-2 rounded-2xl border border-[#E6E0D5] bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#0B2545] dark:text-white">
+                  <CreditCard className="h-3.5 w-3.5 text-[#D95326]" />
+                  <span>Thanh toán</span>
                 </div>
 
-                <div className="space-y-2 text-xs">
+                <div className="grid grid-cols-3 gap-1.5">
                   {[
-                    {
-                      id: "momo-sandbox",
-                      label: "Ví MoMo Sinh Viên (Chế độ Thử - Không trừ tiền thật)",
-                    },
-                    {
-                      id: "vietqr-sandbox",
-                      label: "Quét mã VietQR Ngân hàng (Chế độ Thử Nghiệm)",
-                    },
-                    {
-                      id: "cod-room",
-                      label: "Tiền mặt khi nhận đồ tại cửa phòng học CS1",
-                    },
+                    { id: "momo-sandbox", label: "MoMo" },
+                    { id: "vietqr-sandbox", label: "VietQR" },
+                    { id: "cod-room", label: "Tiền mặt" },
                   ].map((opt) => (
-                    <label
+                    <button
                       key={opt.id}
-                      className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-2.5 transition ${
+                      type="button"
+                      onClick={() =>
+                        setPaymentMethod(opt.id as typeof paymentMethod)
+                      }
+                      className={`rounded-xl py-2 text-xs font-extrabold transition cursor-pointer ${
                         paymentMethod === opt.id
-                          ? "border-[#0B2545] bg-[#F3EFE6]/70 dark:border-amber-400 dark:bg-slate-800"
-                          : "border-slate-200 dark:border-slate-800"
+                          ? "bg-[#0B2545] text-white dark:bg-amber-400 dark:text-slate-950"
+                          : "border border-[#E5E0D5] bg-[#FAF8F5] text-[#4A5568] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        checked={paymentMethod === opt.id}
-                        onChange={() =>
-                          setPaymentMethod(opt.id as typeof paymentMethod)
-                        }
-                        className="text-[#0B2545]"
-                      />
-                      <span className="font-medium text-slate-800 dark:text-slate-200">
-                        {opt.label}
-                      </span>
-                    </label>
+                      {opt.label}
+                    </button>
                   ))}
                 </div>
-
-                <p className="flex items-center gap-1.5 pt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                  <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                  <span>
-                    Tuân thủ tiêu chí Đồ án 1 (CSC00006): Thanh toán ở chế độ thử nghiệm, không thu thông tin thẻ hay tài khoản cá nhân thật.
-                  </span>
-                </p>
               </div>
             </div>
 
-            {/* Footer Totals & Submit */}
-            <div className="border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                  <span>Tạm tính ({items.length} mục):</span>
-                  <span className="font-mono">
-                    {subtotal.toLocaleString("vi-VN")}đ
-                  </span>
-                </div>
-                {couponDiscountAmount > 0 && (
-                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                    <span>Giảm giá mã ({appliedCoupon}):</span>
-                    <span className="font-mono">
-                      -{couponDiscountAmount.toLocaleString("vi-VN")}đ
-                    </span>
-                  </div>
-                )}
-                {pointsDiscountAmount > 0 && (
-                  <div className="flex justify-between text-[#D95326] dark:text-amber-400 font-semibold">
-                    <span>Đổi {activePointsRedeemed} điểm VIP:</span>
-                    <span className="font-mono">
-                      -{pointsDiscountAmount.toLocaleString("vi-VN")}đ
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                  <span>Cộng điểm VIP trong hạng thành viên:</span>
-                  <span className="font-mono font-bold">
-                    +{totalPointsEarned} điểm VIP
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between border-t border-slate-200 pt-2 dark:border-slate-800">
-                  <span className="text-sm font-bold text-slate-900 dark:text-white">
-                    Tổng cộng:
-                  </span>
-                  <span className="font-mono text-xl font-extrabold text-[#0B2545] dark:text-amber-400">
-                    {finalTotal.toLocaleString("vi-VN")}đ
-                  </span>
-                </div>
+            {/* Minimalist Footer */}
+            <div className="border-t border-[#E5DEC9] bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between text-xs mb-2">
+                <span className="text-[#64748B] dark:text-slate-400">
+                  Tổng ({items.length} mục · +{totalPointsEarned}đ)
+                </span>
+                <span className="font-mono text-lg font-extrabold text-[#0B2545] dark:text-amber-400">
+                  {finalTotal.toLocaleString("vi-VN")}đ
+                </span>
               </div>
 
               <button
                 type="submit"
-                className="mt-3 w-full rounded-xl bg-[#D95326] py-3 text-xs font-extrabold text-white shadow-xs transition hover:bg-[#C0441B] cursor-pointer"
+                className="w-full rounded-xl bg-[#D95326] py-3 text-xs font-extrabold text-white shadow-xs transition hover:bg-[#C0441B] cursor-pointer"
               >
-                Xác Nhận Mua Hàng &amp; Cộng +{totalPointsEarned} Điểm VIP
+                Xác nhận đặt đơn
               </button>
             </div>
           </form>

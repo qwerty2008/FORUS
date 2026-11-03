@@ -40,3 +40,61 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.6);
 }
+
+@keyframes forusFloatSlow {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(24px, -18px, 0) scale(1.06);
+  }
+  66% {
+    transform: translate3d(-18px, 14px, 0) scale(0.96);
+  }
+}
+
+@keyframes forusFloatReverse {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-26px, -20px, 0) scale(1.08);
+  }
+}
+
+@keyframes forusPulseGlow {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes forusSpinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-forus-float-slow {
+  animation: forusFloatSlow 14s ease-in-out infinite;
+}
+
+.animate-forus-float-reverse {
+  animation: forusFloatReverse 18s ease-in-out infinite;
+}
+
+.animate-forus-pulse-glow {
+  animation: forusPulseGlow 9s ease-in-out infinite;
+}
+
+.animate-forus-spin-slow {
+  animation: forusSpinSlow 36s linear infinite;
+}
+

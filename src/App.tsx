@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Utensils,
+  Calendar,
   Printer,
   GraduationCap,
   ShoppingBag,
@@ -42,8 +42,8 @@ import {
   BRAND_ASSETS,
   CAMPUS_BUILDINGS_CS1,
   GEAR_AND_RENTAL_PRODUCTS,
-  BREAKFAST_AND_DRINK_MENU,
 } from "./data/forusData";
+import { HCMUS_DOCUMENT_EVENTS } from "./data/hcmusEventsData";
 import {
   ActiveTab,
   CartItem,
@@ -62,15 +62,9 @@ import { ProductVisual } from "./components/ProductVisual";
 import { PrintConfigurator } from "./components/PrintConfigurator";
 import { TutorHub } from "./components/TutorHub";
 import { VipHub } from "./components/VipHub";
+import { EventsHub } from "./components/EventsHub";
 import { AboutAndContactView } from "./components/AboutAndContactView";
 import { FormattedAiMessage } from "./components/FormattedAiMessage";
-
-const DELIVERY_TIME_SLOTS = [
-  "07:00 - 07:25 (Trước tiết 1)",
-  "09:15 - 09:35 (Giải lao ca sáng)",
-  "11:30 - 12:15 (Nghỉ trưa tại lớp/thư viện)",
-  "14:45 - 15:05 (Giải lao ca chiều)",
-];
 
 const HCMUS_FACULTIES = [
   "Khoa Công nghệ Thông tin (FIT)",
@@ -109,16 +103,16 @@ const INITIAL_ORDER_HISTORY: OrderHistoryEntry[] = [
     pickupSpot: "Sảnh Tòa I (Khoa Công nghệ Thông tin)",
     pointsEarned: 20,
     status: "shipping",
-    totalAmount: 70000,
+    totalAmount: 55000,
     promoCode: "KHTN227",
     items: [
       {
-        productId: "food-banh-mi-op-la",
-        name: "Bánh Mì Ốp La Lòng Đào & Cà Phê Muối 227",
+        productId: "thue-mua-giao-trinh-dai-cuong",
+        name: "Giáo Trình Đại Cương KHTN (Vi Tích Phân 1B)",
         quantity: 1,
-        price: 35000,
-        imageUrl: BREAKFAST_AND_DRINK_MENU[0]?.imageUrl,
-        badgeText: "227 Express",
+        price: 20000,
+        imageUrl: GEAR_AND_RENTAL_PRODUCTS[7]?.imageUrl,
+        badgeText: "Giáo trình",
       },
       {
         productId: "forus-01-ipad-sv",
@@ -160,29 +154,62 @@ const INITIAL_ORDER_HISTORY: OrderHistoryEntry[] = [
 ];
 
 const INITIAL_STUDENT: StudentProfile = {
-  isLoggedIn: true,
-  email: "24120001@student.hcmus.edu.vn",
-  studentId: "24120001",
-  fullName: "Nguyễn Minh Khoa",
+  isLoggedIn: false,
+  email: "",
+  studentId: "",
+  fullName: "",
   faculty: "Khoa Công nghệ Thông tin (FIT)",
-  points: 65,
-  pointHistory: [
-    {
-      id: "pt-init-1",
-      action: 'Thuê Combo "iPad Sinh Viên" (1 tuần)',
-      points: 10,
-      timestamp: "Hôm qua, 08:30",
-    },
-    {
-      id: "pt-init-2",
-      action: "Đặt Bánh mì ốp la + Cà phê muối giao phòng I.42",
-      points: 10,
-      timestamp: "Hôm nay, 07:10",
-    },
-  ],
-  remindedEventIds: ["evt-ai-hackathon-2026"],
+  avatarUrl: "",
+  phone: "",
+  academicYear: "Khóa K25 (Năm 1)",
+  gpa: "",
+  bio: "",
+  tutorSubjects: "",
+  personalAchievements: "",
+  isTutorActive: false,
+  points: 0,
+  pointHistory: [],
+  remindedEventIds: [],
   eventPersonalNotes: {},
 };
+
+const PRESET_AVATARS = [
+  {
+    id: "initials",
+    label: "Chữ viết tắt",
+    url: "",
+  },
+  {
+    id: "forus-emblem",
+    label: "Huy hiệu FORUS",
+    url: "/assets/aistudio/c837a9a8-73eb-40b4-bbbe-701efae040ef_f48d9132.png",
+  },
+  {
+    id: "sv-male",
+    label: "SV Tự Nhiên 1",
+    url: "https://api.dicebear.com/9.x/adventurer/svg?seed=KhoaHCMUS&backgroundColor=b6e3f4",
+  },
+  {
+    id: "sv-female",
+    label: "SV Tự Nhiên 2",
+    url: "https://api.dicebear.com/9.x/adventurer/svg?seed=LinhHCMUS&backgroundColor=c0aede",
+  },
+  {
+    id: "sv-mentor",
+    label: "Gia Sư KHTN",
+    url: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=ForusMentor&backgroundColor=d1d4f9",
+  },
+];
+
+const QUICK_ACHIEVEMENT_TAGS = [
+  "Điểm A+ Vi tích phân 1B",
+  "Điểm A+ Đại số tuyến tính",
+  "IELTS 7.0+",
+  "Giải HSG Cấp Tỉnh/Quốc Gia",
+  "Học bổng KKHT ĐH KHTN",
+  "Kinh nghiệm 1+ năm Gia sư",
+  "Vững C++ / Python / CTDL",
+];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("home");
@@ -192,10 +219,10 @@ export default function App() {
   });
 
   const [student, setStudent] = useState<StudentProfile>(() => {
-    const saved = localStorage.getItem("forus_student_profile");
+    const saved = localStorage.getItem("forus_student_profile_v3");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        return { ...INITIAL_STUDENT, ...JSON.parse(saved) };
       } catch {
         return INITIAL_STUDENT;
       }
@@ -206,37 +233,68 @@ export default function App() {
   const [gearProducts, setGearProducts] = useState<ProductItem[]>(
     GEAR_AND_RENTAL_PRODUCTS
   );
-  const [foodProducts, setFoodProducts] = useState<ProductItem[]>(
-    BREAKFAST_AND_DRINK_MENU
-  );
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(
     null
   );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [copiedQrLink, setCopiedQrLink] = useState(false);
+  const [heroGlowPos, setHeroGlowPos] = useState<{ x: number; y: number }>({
+    x: 35,
+    y: 45,
+  });
+  const [activeHeroPillar, setActiveHeroPillar] = useState<number>(0);
+  const [aboutActiveTab, setAboutActiveTab] = useState<
+    "ecosystem" | "events" | "smart-tools" | "mission"
+  >("ecosystem");
 
-  // Quick account edit state inside Menu Drawer
+  // Login form state inside Avatar Profile Popover when !student.isLoggedIn
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginStudentId, setLoginStudentId] = useState("");
+  const [loginFullName, setLoginFullName] = useState("");
+  const [loginFaculty, setLoginFaculty] = useState(HCMUS_FACULTIES[0]);
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Quick account & tutor profile edit state inside Avatar Account Panel
   const [editName, setEditName] = useState(student.fullName);
   const [editStudentId, setEditStudentId] = useState(student.studentId);
   const [editEmail, setEditEmail] = useState(student.email);
   const [editFaculty, setEditFaculty] = useState(student.faculty);
+  const [editAvatarUrl, setEditAvatarUrl] = useState(student.avatarUrl || "");
+  const [editPhone, setEditPhone] = useState(student.phone || "");
+  const [editAcademicYear, setEditAcademicYear] = useState(
+    student.academicYear || "Khóa K25 (Năm 1)"
+  );
+  const [editGpa, setEditGpa] = useState(student.gpa || "");
+  const [editBio, setEditBio] = useState(student.bio || "");
+  const [editTutorSubjects, setEditTutorSubjects] = useState(
+    student.tutorSubjects || ""
+  );
+  const [editPersonalAchievements, setEditPersonalAchievements] = useState(
+    student.personalAchievements || ""
+  );
+  const [editIsTutorActive, setEditIsTutorActive] = useState(
+    student.isTutorActive ?? false
+  );
   const [isEditingAccount, setIsEditingAccount] = useState(false);
+  const avatarFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Home Unified Catalog Filters, Search & Sort (Matches Screenshot 2)
+  // Home Unified Catalog Filters, Search & Sort
   const [homeCatalogFilter, setHomeCatalogFilter] = useState<
-    "all" | "food" | "tech-gear" | "rental"
+    "all" | "tech-gear" | "study-aid" | "rental"
   >("all");
   const [homeSearchQuery, setHomeSearchQuery] = useState("");
   const [homeSortBy, setHomeSortBy] = useState<
     "featured" | "price-asc" | "points-desc"
   >("featured");
 
-  // Order History & Reorder State (Matches Screenshot 4)
+  // Order History & Reorder State
   const [orderHistory, setOrderHistory] = useState<OrderHistoryEntry[]>(
     INITIAL_ORDER_HISTORY
   );
@@ -245,20 +303,12 @@ export default function App() {
   >("all");
   const [trackingOrderId, setTrackingOrderId] = useState<string | null>(null);
 
-  // Home Voucher & Group Lab Mode State (Matches Screenshot 3)
+  // Home Voucher & Group Lab Mode State
   const [redeemedHomeVouchers, setRedeemedHomeVouchers] = useState<string[]>(
     []
   );
   const [homeLabCode, setHomeLabCode] = useState("LAB-TOA-F-09");
   const [isHomeGroupOrderOn, setIsHomeGroupOrderOn] = useState(false);
-
-  // Dedicated Tab Filters & Selections
-  const [foodFilter, setFoodFilter] = useState<"all" | "food" | "drink">("all");
-  const [selectedBuilding, setSelectedBuilding] = useState(
-    CAMPUS_BUILDINGS_CS1[0]
-  );
-  const [selectedRoomCode, setSelectedRoomCode] = useState("Phòng I.42");
-  const [selectedSlot, setSelectedSlot] = useState(DELIVERY_TIME_SLOTS[0]);
 
   const [gearFilter, setGearFilter] = useState<
     "all" | "tech-gear" | "study-aid" | "rental"
@@ -271,7 +321,26 @@ export default function App() {
   >({});
   const [notifiedProductIds, setNotifiedProductIds] = useState<string[]>([]);
 
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage((prev) => (prev === msg ? null : prev));
+    }, 3600);
+  };
+
+  const requireLogin = (featureName?: string): boolean => {
+    if (student.isLoggedIn) return true;
+    setIsAccountMenuOpen(true);
+    showToast(
+      `🔒 Vui lòng đăng nhập tài khoản Sinh viên ĐH KHTN để sử dụng ${
+        featureName || "tính năng này"
+      }!`
+    );
+    return false;
+  };
+
   const handleNotifyWhenAvailable = (item: ProductItem) => {
+    if (!requireLogin("tính năng Nhận thông báo có hàng")) return;
     setNotifiedProductIds((prev) => {
       const already = prev.includes(item.id);
       if (already) {
@@ -286,6 +355,7 @@ export default function App() {
   };
 
   const handleToggleGearAvailability = (productId: string) => {
+    if (!requireLogin("tính năng Cập nhật trạng thái kho")) return;
     setGearProducts((prev) =>
       prev.map((p) => {
         if (p.id !== productId) return p;
@@ -336,12 +406,15 @@ export default function App() {
         }
       : chosenVariant;
 
+    const activeImageUrl = chosenModel?.imageUrl || item.imageUrl;
+
     return {
       chosenVariant,
       chosenModel,
       finalPrice,
       customMeta,
       variantForCart,
+      activeImageUrl,
     };
   };
 
@@ -369,7 +442,11 @@ export default function App() {
   >([
     {
       role: "model",
-      text: `Chào ${student.fullName.split(" ").slice(-1)[0] || "bạn"}! Mình là **Trợ lý AI FORUS** dành cho sinh viên ĐH Khoa học Tự nhiên (Cơ sở 1 - 227 Nguyễn Văn Cừ).\n\nBạn có thể hỏi mình ngay tại đây về:\n- Giải bài tập **Vi tích phân 1B, Đại số tuyến tính, Xác suất thống kê, Nhập môn lập trình C/C++**\n- Cú pháp **LaTeX** gõ báo cáo Đồ án 1 (CSC00006)\n- Tòa nhà, phòng học, căn tin & sự kiện săn Điểm Rèn Luyện tại Cơ sở 1!`,
+      text: `Chào ${
+        student.isLoggedIn && student.fullName
+          ? student.fullName.split(" ").slice(-1)[0]
+          : "bạn"
+      }! Mình là **Trợ lý AI FORUS** dành cho sinh viên ĐH Khoa học Tự nhiên (Cơ sở 1 - 227 Nguyễn Văn Cừ).\n\nBạn có thể hỏi mình ngay tại đây về:\n- Giải bài tập **Vi tích phân 1B, Đại số tuyến tính, Xác suất thống kê, Nhập môn lập trình C/C++**\n- Cú pháp **LaTeX** gõ báo cáo Đồ án 1 (CSC00006)\n- Tòa nhà, phòng học, căn tin & sự kiện săn Điểm Rèn Luyện tại Cơ sở 1!`,
     },
   ]);
   const [floatingChatInput, setFloatingChatInput] = useState("");
@@ -386,6 +463,7 @@ export default function App() {
   }, [floatingChatMessages, isFloatingSending, isFloatingAiOpen]);
 
   const handleSendFloatingChat = async (customPrompt?: string) => {
+    if (!requireLogin("Trợ lý AI FORUS")) return;
     const promptText = (customPrompt ?? floatingChatInput).trim();
     if (!promptText || isFloatingSending) return;
 
@@ -469,12 +547,111 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    localStorage.setItem("forus_student_profile", JSON.stringify(student));
+    localStorage.setItem("forus_student_profile_v3", JSON.stringify(student));
+    if (student.isLoggedIn && student.email) {
+      try {
+        const rawMap = localStorage.getItem("forus_saved_accounts_map_v1");
+        const map: Record<string, StudentProfile> = rawMap
+          ? JSON.parse(rawMap)
+          : {};
+        map[student.email.toLowerCase()] = student;
+        if (student.studentId) {
+          map[student.studentId.toLowerCase()] = student;
+        }
+        localStorage.setItem(
+          "forus_saved_accounts_map_v1",
+          JSON.stringify(map)
+        );
+      } catch {
+        // ignore storage errors
+      }
+    }
     setEditName(student.fullName);
     setEditStudentId(student.studentId);
     setEditEmail(student.email);
     setEditFaculty(student.faculty);
+    setEditAvatarUrl(student.avatarUrl || "");
+    setEditPhone(student.phone || "");
+    setEditAcademicYear(student.academicYear || "Khóa K25 (Năm 1)");
+    setEditGpa(student.gpa || "");
+    setEditBio(student.bio || "");
+    setEditTutorSubjects(student.tutorSubjects || "");
+    setEditPersonalAchievements(student.personalAchievements || "");
+    setEditIsTutorActive(student.isTutorActive ?? false);
   }, [student]);
+
+  const handleProfileLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = loginEmail.trim().toLowerCase();
+    const isValidHcmusDomain =
+      cleanEmail.endsWith("@student.hcmus.edu.vn") ||
+      cleanEmail.endsWith("@hcmus.edu.vn") ||
+      cleanEmail.endsWith("@fit.hcmus.edu.vn") ||
+      cleanEmail.endsWith("@clc.hcmus.edu.vn");
+
+    if (!isValidHcmusDomain) {
+      setLoginError(
+        "Vui lòng đăng nhập bằng Email Sinh viên ĐH KHTN (VD: MSSV@student.hcmus.edu.vn)."
+      );
+      return;
+    }
+
+    if (!loginFullName.trim() || !loginStudentId.trim()) {
+      setLoginError("Vui lòng nhập đầy đủ Họ và tên và Mã số sinh viên (MSSV).");
+      return;
+    }
+
+    if (!loginPassword.trim()) {
+      setLoginError("Vui lòng nhập mật khẩu tài khoản sinh viên.");
+      return;
+    }
+
+    setLoginError(null);
+    const derivedId = loginStudentId.trim() || cleanEmail.split("@")[0];
+
+    // Restore any previously saved profile for this email/studentId if user logged in before
+    let restoredProfile: Partial<StudentProfile> = {};
+    try {
+      const rawMap = localStorage.getItem("forus_saved_accounts_map_v1");
+      if (rawMap) {
+        const map: Record<string, StudentProfile> = JSON.parse(rawMap);
+        const match =
+          map[cleanEmail] || map[derivedId.toLowerCase()];
+        if (match) {
+          restoredProfile = match;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    setStudent((prev) => ({
+      ...prev,
+      ...restoredProfile,
+      isLoggedIn: true,
+      email: cleanEmail,
+      studentId: derivedId,
+      fullName: loginFullName.trim(),
+      faculty: loginFaculty,
+    }));
+    setLoginPassword("");
+    showToast(
+      `✅ Đăng nhập thành công: ${loginFullName.trim()} (${derivedId})! Đã lưu phiên đăng nhập tự động.`
+    );
+  };
+
+  const handleLogout = () => {
+    setStudent(INITIAL_STUDENT);
+    setIsEditingAccount(false);
+    setIsFloatingAiOpen(false);
+    setIsCartOpen(false);
+    setLoginEmail("");
+    setLoginStudentId("");
+    setLoginFullName("");
+    setLoginPassword("");
+    setLoginError(null);
+    showToast("Đã đăng xuất khỏi tài khoản Sinh viên FORUS.");
+  };
 
   // Always scroll to top when switching sections/tabs
   useEffect(() => {
@@ -486,13 +663,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage((prev) => (prev === msg ? null : prev));
-    }, 3600);
-  };
-
   const getMembershipTierName = (pts: number) => {
     if (pts >= 100) return "VIP FORUS (Đã mở khóa)";
     if (pts >= 50) return "Hạng Bạc FORUS";
@@ -500,6 +670,7 @@ export default function App() {
   };
 
   const earnPoints = (pointsToAdd: number, reason: string) => {
+    if (!student.isLoggedIn) return;
     setStudent((prev) => {
       const nextPoints = Math.max(0, prev.points + pointsToAdd);
       const unlockedVipNow = prev.points < 100 && nextPoints >= 100;
@@ -541,6 +712,7 @@ export default function App() {
     voucherTitle: string,
     voucherId?: string
   ): boolean => {
+    if (!requireLogin("tính năng Đổi điểm Voucher VIP")) return false;
     if (student.points < pointsCost) {
       showToast(
         `⚠️ Không đủ điểm VIP! Bạn hiện có ${student.points} điểm VIP, cần đủ ${pointsCost} điểm để đổi "${voucherTitle}".`
@@ -588,12 +760,12 @@ export default function App() {
   };
 
   const handleActivateDemoVip = () => {
+    if (!requireLogin("tính năng Kích hoạt VIP")) return;
     setStudent((prev) => {
       const targetPoints = Math.max(prev.points, 100);
       const added = Math.max(100 - prev.points, 10);
       return {
         ...prev,
-        isLoggedIn: true,
         points: targetPoints,
         pointHistory: [
           {
@@ -613,6 +785,36 @@ export default function App() {
     );
   };
 
+  const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2.5 * 1024 * 1024) {
+      showToast("⚠️ Ảnh đại diện quá lớn (tối đa 2.5MB). Vui lòng chọn ảnh nhẹ hơn!");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setEditAvatarUrl(reader.result);
+        setStudent((prev) => ({
+          ...prev,
+          avatarUrl: reader.result as string,
+        }));
+        showToast("✅ Đã cập nhật ảnh đại diện sinh viên!");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAppendAchievementTag = (tag: string) => {
+    setEditPersonalAchievements((prev) => {
+      const current = prev.trim();
+      if (!current) return tag;
+      if (current.toLowerCase().includes(tag.toLowerCase())) return current;
+      return `${current} · ${tag}`;
+    });
+  };
+
   const handleSaveInlineAccount = (e: React.FormEvent) => {
     e.preventDefault();
     const formattedEmail = editEmail.includes("@")
@@ -623,12 +825,20 @@ export default function App() {
       ...prev,
       isLoggedIn: true,
       fullName: editName.trim() || "Sinh viên KHTN",
-      studentId: editStudentId.trim() || "24120001",
+      studentId: editStudentId.trim(),
       email: formattedEmail,
       faculty: editFaculty,
+      avatarUrl: editAvatarUrl.trim(),
+      phone: editPhone.trim(),
+      academicYear: editAcademicYear.trim(),
+      gpa: editGpa.trim(),
+      bio: editBio.trim(),
+      tutorSubjects: editTutorSubjects.trim(),
+      personalAchievements: editPersonalAchievements.trim(),
+      isTutorActive: editIsTutorActive,
     }));
     setIsEditingAccount(false);
-    showToast("Đã lưu thiết lập tài khoản sinh viên!");
+    showToast("✅ Đã lưu thông tin cá nhân, ảnh đại diện & hồ sơ thành tích gia sư!");
   };
 
   const handleAddProductToCart = (
@@ -636,6 +846,7 @@ export default function App() {
     variant?: PricingVariant,
     customMeta?: string
   ) => {
+    if (!requireLogin("tính năng Thuê & Mua học cụ")) return;
     const chosenVariant =
       variant ||
       product.variants.find((v) => v.id === selectedVariantMap[product.id]) ||
@@ -662,9 +873,7 @@ export default function App() {
           quantity: 1,
           pointsReward: product.pointsReward,
           categoryLabel:
-            product.category === "food" || product.category === "drink"
-              ? "FORUS 227 Express · Ăn sáng"
-              : chosenVariant.type === "rent"
+            chosenVariant.type === "rent"
               ? "FORUS PassBook · Thuê học cụ"
               : "FORUS Tech · Thiết bị học tập",
           customMeta,
@@ -681,7 +890,8 @@ export default function App() {
   };
 
   const handleReorderPastOrder = (order: OrderHistoryEntry) => {
-    const allProducts = [...foodProducts, ...gearProducts];
+    if (!requireLogin("tính năng Đặt lại đơn hàng")) return;
+    const allProducts = [...gearProducts];
     order.items.forEach((orderItem) => {
       const matched = allProducts.find((p) => p.id === orderItem.productId);
       if (matched) {
@@ -696,6 +906,7 @@ export default function App() {
     calculatedPrice: number,
     pointsEarned: number
   ) => {
+    if (!requireLogin("dịch vụ Đặt in ấn tài liệu A1–A5")) return;
     const cartItemId = `print-${config.paperSize}-${Date.now()}`;
     setCart((prev) => [
       ...prev,
@@ -759,21 +970,17 @@ export default function App() {
   };
 
   const handleCompleteOrder = (receipt: OrderReceipt) => {
-    // Calculate any uncredited points + group lab order bonus (x2)
+    if (!requireLogin("xác nhận đặt đơn hàng")) return;
     const uncreditedPoints = receipt.items.reduce(
       (sum, it) =>
         it.pointsAlreadyCredited ? sum : sum + it.pointsReward * it.quantity,
       0
     );
-    const groupBonusPoints = isHomeGroupOrderOn ? receipt.earnedPoints : 0;
-    const totalAdditionalEarned = uncreditedPoints + groupBonusPoints;
 
-    if (totalAdditionalEarned > 0) {
+    if (uncreditedPoints > 0) {
       earnPoints(
-        totalAdditionalEarned,
-        `Hoàn tất đơn #${receipt.orderId}${
-          isHomeGroupOrderOn ? " (Nhân đôi điểm Gom Đơn Lab)" : ""
-        }`
+        uncreditedPoints,
+        `Hoàn tất đơn #${receipt.orderId}`
       );
     }
 
@@ -785,11 +992,11 @@ export default function App() {
     }
 
     if (
-      totalAdditionalEarned === 0 &&
+      uncreditedPoints === 0 &&
       (!receipt.pointsRedeemed || receipt.pointsRedeemed === 0)
     ) {
       showToast(
-        `✅ Đã xác nhận đơn #${receipt.orderId}! Đã cộng +${receipt.earnedPoints} điểm VIP vào Hạng thành viên (${getMembershipTierName(
+        `✅ Đã xác nhận đơn #${receipt.orderId}! Đã cộng +${receipt.earnedPoints} điểm vào Hạng thành viên (${getMembershipTierName(
           student.points
         )} · ${student.points}/100đ).`
       );
@@ -799,8 +1006,7 @@ export default function App() {
       orderId: receipt.orderId,
       timeLabel: "Vừa xong",
       pickupSpot: receipt.deliveryLocation,
-      pointsEarned:
-        receipt.earnedPoints + (isHomeGroupOrderOn ? receipt.earnedPoints : 0),
+      pointsEarned: receipt.earnedPoints,
       status: "shipping",
       totalAmount: receipt.totalAmount ?? receipt.total ?? 0,
       promoCode: receipt.pointsRedeemed
@@ -820,12 +1026,12 @@ export default function App() {
   };
 
   const handleAddReview = (productId: string, review: ProductReview) => {
+    if (!requireLogin("tính năng Đánh giá sản phẩm")) return;
     const updateList = (list: ProductItem[]) =>
       list.map((p) =>
         p.id === productId ? { ...p, reviews: [review, ...p.reviews] } : p
       );
     setGearProducts((prev) => updateList(prev));
-    setFoodProducts((prev) => updateList(prev));
     setSelectedProduct((prev) =>
       prev && prev.id === productId
         ? { ...prev, reviews: [review, ...prev.reviews] }
@@ -835,6 +1041,7 @@ export default function App() {
   };
 
   const handleToggleEventReminder = (eventId: string, eventTitle: string) => {
+    if (!requireLogin("tính năng Nhắc tham gia sự kiện")) return;
     setStudent((prev) => {
       const exists = prev.remindedEventIds.includes(eventId);
       const nextIds = exists
@@ -853,6 +1060,7 @@ export default function App() {
   };
 
   const handleSaveEventNote = (eventId: string, note: string) => {
+    if (!requireLogin("tính năng Lưu ghi chú sự kiện")) return;
     setStudent((prev) => ({
       ...prev,
       eventPersonalNotes: {
@@ -860,7 +1068,7 @@ export default function App() {
         [eventId]: note,
       },
     }));
-    showToast("Đã lưu ghi chú cá nhân cho sự kiện Điểm Rèn Luyện!");
+    showToast("Đã lưu ghi chú cá nhân cho sự kiện!");
   };
 
   const appOrigin =
@@ -886,7 +1094,7 @@ export default function App() {
   const progressPercent = Math.min(100, Math.round((currentPoints / 100) * 100));
   const totalCartItems = cart.reduce((sum, i) => sum + i.quantity, 0);
 
-  // Navigation items (Concise labels as requested)
+  // Navigation items (6 Service Tabs — Events Hub replaces Food)
   const navItems: {
     id: ActiveTab;
     label: string;
@@ -900,10 +1108,10 @@ export default function App() {
       icon: <Sparkles className="w-4 h-4" />,
     },
     {
-      id: "food",
-      label: "Ăn uống",
-      shortLabel: "Ăn uống",
-      icon: <Utensils className="w-4 h-4" />,
+      id: "gear",
+      label: "Thuê & Bán",
+      shortLabel: "Thuê & Bán",
+      icon: <ShoppingBag className="w-4 h-4" />,
     },
     {
       id: "print",
@@ -918,31 +1126,27 @@ export default function App() {
       icon: <GraduationCap className="w-4 h-4" />,
     },
     {
-      id: "gear",
-      label: "Thuê & Bán",
-      shortLabel: "Thuê & Bán",
-      icon: <ShoppingBag className="w-4 h-4" />,
+      id: "events",
+      label: "Sự kiện",
+      shortLabel: "Sự kiện",
+      icon: <Calendar className="w-4 h-4" />,
     },
     {
       id: "vip",
-      label: "VIP",
-      shortLabel: "VIP",
+      label: "Tính năng",
+      shortLabel: "Tính năng",
       icon: <Crown className="w-4 h-4" />,
     },
   ];
 
-  // Combined catalog for Home Tab (Matches Screenshot 2)
-  const allCatalogProducts = [...foodProducts, ...gearProducts];
+  // Equipment & Study Gear catalog for Home Tab (No food items)
+  const allCatalogProducts = [...gearProducts];
   const filteredHomeCatalog = allCatalogProducts
     .filter((item) => {
       const matchesCat =
         homeCatalogFilter === "all"
           ? true
-          : homeCatalogFilter === "food"
-          ? item.category === "food" || item.category === "drink"
-          : homeCatalogFilter === "tech-gear"
-          ? item.category === "tech-gear" || item.category === "study-aid"
-          : item.category === "rental";
+          : item.category === homeCatalogFilter;
       const matchesSearch =
         !homeSearchQuery.trim() ||
         item.name.toLowerCase().includes(homeSearchQuery.toLowerCase()) ||
@@ -958,10 +1162,6 @@ export default function App() {
       }
       return 0;
     });
-
-  const filteredFoodList = foodProducts.filter((item) =>
-    foodFilter === "all" ? true : item.category === foodFilter
-  );
 
   const filteredGearList = gearProducts.filter((item) =>
     gearFilter === "all" ? true : item.category === gearFilter
@@ -1006,7 +1206,7 @@ export default function App() {
       <header className="fixed top-0 left-0 right-0 z-40 backdrop-blur-xl bg-[#FAF8F5]/95 dark:bg-[#0D1525]/95 border-b border-[#E5DEC9] dark:border-slate-800 shadow-2xs transition-colors">
         <div className="max-w-[1360px] mx-auto px-3 sm:px-6">
           <div className="h-20 sm:h-24 flex items-center justify-between gap-2 sm:gap-4">
-            {/* Left: FORUS Brand Logo (Enlarged as requested) */}
+            {/* Left: FORUS Brand Logo (Horizontal logo with FORUS text in both Light & Dark modes) */}
             <button
               onClick={() => switchTab("home")}
               className="flex items-center gap-2.5 text-left group shrink-0 cursor-pointer py-1"
@@ -1014,7 +1214,7 @@ export default function App() {
               <img
                 src={isDark ? BRAND_ASSETS.logoDark : BRAND_ASSETS.logoLight}
                 alt="FORUS Logo"
-                className="h-14 sm:h-18 lg:h-20 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+                className="h-12 sm:h-15 lg:h-16 w-auto object-contain transition-transform duration-200 group-hover:scale-105 dark:drop-shadow-[0_1px_8px_rgba(255,255,255,0.22)]"
               />
             </button>
 
@@ -1045,22 +1245,55 @@ export default function App() {
               })}
             </nav>
 
-            {/* Right Controls: [VIP Badge] -> [1. Icon-only Sun/Moon] -> [2. Cart] -> [3. Icon-only Menu Button] */}
+            {/* Right Controls: [Student Avatar] -> [1. Icon-only Sun/Moon] -> [2. Cart] -> [3. Icon-only Menu Button] */}
             <div className="flex items-center gap-2 shrink-0">
-              {/* Live VIP Membership Tier & Points Pill */}
+              {/* Student Avatar Button (Requires Login when !student.isLoggedIn, Opens Profile when Logged In) */}
               <button
                 type="button"
-                onClick={() => setIsMenuOpen(true)}
-                title="Xem Hạng thành viên & Điểm VIP của bạn"
-                className="hidden sm:flex items-center gap-1.5 px-3 h-10 rounded-xl border border-[#E5DEC9] bg-[#F3EFE6] hover:bg-[#E8E2D5] dark:border-slate-700 dark:bg-slate-800 text-[#0B2545] dark:text-white text-xs font-extrabold transition cursor-pointer"
+                onClick={() => setIsAccountMenuOpen((prev) => !prev)}
+                aria-label={
+                  student.isLoggedIn
+                    ? "Hồ sơ cá nhân & Thành tích Gia sư"
+                    : "Đăng nhập tài khoản Sinh viên"
+                }
+                title={
+                  student.isLoggedIn
+                    ? `${student.fullName} (${student.studentId}) — Hồ sơ & Gia sư`
+                    : "Chưa đăng nhập — Bấm để đăng nhập tài khoản Sinh viên"
+                }
+                className="relative w-10 h-10 rounded-full p-0.5 bg-gradient-to-tr from-[#0B2545] via-[#0284C7] to-[#10B981] hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-sm group"
               >
-                <Crown className="w-3.5 h-3.5 text-[#D95326] dark:text-amber-400 shrink-0" />
-                <span className="hidden xl:inline">
-                  {getMembershipTierName(currentPoints).split(" (")[0]}:
-                </span>
-                <span className="font-mono text-[#D95326] dark:text-amber-300 tabular-nums">
-                  {currentPoints}/100đ VIP
-                </span>
+                {student.isLoggedIn && student.avatarUrl ? (
+                  <img
+                    src={student.avatarUrl}
+                    alt={student.fullName}
+                    className="w-full h-full rounded-full object-cover bg-white dark:bg-slate-900"
+                  />
+                ) : student.isLoggedIn && student.fullName ? (
+                  <div className="w-full h-full rounded-full bg-[#FAF8F5] dark:bg-slate-900 flex items-center justify-center text-[#0B2545] dark:text-white font-extrabold text-xs tracking-tighter group-hover:bg-sky-50 dark:group-hover:bg-slate-800 transition-colors">
+                    {student.fullName
+                      .trim()
+                      .split(/\s+/)
+                      .slice(-2)
+                      .map((part) => part[0])
+                      .join("")
+                      .toUpperCase()}
+                  </div>
+                ) : (
+                  <div className="w-full h-full rounded-full bg-[#FAF8F5] dark:bg-slate-900 flex items-center justify-center text-[#0B2545] dark:text-white group-hover:bg-sky-50 dark:group-hover:bg-slate-800 transition-colors">
+                    <UserCheck className="w-4 h-4 text-[#0B2545] dark:text-slate-200" />
+                  </div>
+                )}
+                <span
+                  className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center ${
+                    student.isLoggedIn ? "bg-emerald-500" : "bg-amber-400"
+                  }`}
+                  title={
+                    student.isLoggedIn
+                      ? "Đã đăng nhập Email SV"
+                      : "Chưa đăng nhập"
+                  }
+                />
               </button>
 
               {/* 1. Icon-only Light/Dark Mode Toggle (Left of Cart) */}
@@ -1085,23 +1318,30 @@ export default function App() {
                 )}
               </button>
 
-              {/* 2. Cart Button */}
+              {/* 2. Minimalist Icon-only Cart Button matched to Header Surface */}
               <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative flex items-center gap-2 px-3.5 sm:px-4 h-10 rounded-xl bg-[#0B2545] hover:bg-[#163A66] text-white font-extrabold text-xs transition cursor-pointer whitespace-nowrap shadow-2xs"
+                onClick={() => {
+                  if (requireLogin("Giỏ hàng FORUS")) {
+                    setIsCartOpen(true);
+                  }
+                }}
+                aria-label="Giỏ hàng"
+                title={`Giỏ hàng (${totalCartItems})`}
+                className="relative w-10 h-10 rounded-xl bg-[#F2EFE9] hover:bg-[#E6E0D5] dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0B2545] dark:text-slate-100 border border-[#E5E0D5] dark:border-slate-700 flex items-center justify-center transition cursor-pointer"
               >
-                <ShoppingCart className="w-4 h-4 shrink-0 text-amber-300" />
-                <span className="hidden sm:inline">Giỏ hàng</span>
-                <span className="px-1.5 py-0.5 rounded-md bg-[#D95326] text-white font-mono font-extrabold text-[11px] tabular-nums">
-                  {totalCartItems}
-                </span>
+                <ShoppingCart className="w-5 h-5 text-[#0B2545] dark:text-slate-100" />
+                {totalCartItems > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#D95326] text-white font-mono font-extrabold text-[10px] flex items-center justify-center tabular-nums border-2 border-[#FAF8F5] dark:border-[#0D1525]">
+                    {totalCartItems}
+                  </span>
+                )}
               </button>
 
               {/* 3. Icon-only Menu Button (Next to Cart: No text or logo) */}
               <button
                 onClick={() => setIsMenuOpen(true)}
-                aria-label="Mở Menu Tài khoản, VIP & Mã QR"
-                title="Tài khoản Sinh viên, Trạng thái VIP, Điểm tích lũy & Mã QR"
+                aria-label="Mở Menu VIP, Mã QR & Liên hệ"
+                title="Trạng thái VIP, Điểm tích lũy, Mã QR & Liên hệ"
                 className="w-10 h-10 rounded-xl bg-[#F2EFE9] hover:bg-[#E6E0D5] dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0B2545] dark:text-slate-100 border border-[#E5E0D5] dark:border-slate-700 flex items-center justify-center transition cursor-pointer"
               >
                 <Menu className="w-5 h-5 text-[#D95326] dark:text-amber-300" />
@@ -1111,6 +1351,710 @@ export default function App() {
         </div>
       </header>
       <div className="h-20 sm:h-24 shrink-0" aria-hidden="true" />
+
+      {/* Hidden File Input for Avatar Upload */}
+      <input
+        ref={avatarFileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleAvatarFileUpload}
+        className="hidden"
+      />
+
+      {/* ================= AVATAR ACCOUNT, LOGIN REQUIRED, EDIT PROFILE & TUTOR ACHIEVEMENTS MODAL ================= */}
+      {isAccountMenuOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-end pt-20 sm:pt-24 px-3 sm:px-6 lg:px-10">
+          {/* Backdrop */}
+          <div
+            onClick={() => setIsAccountMenuOpen(false)}
+            className="fixed inset-0 bg-slate-950/45 backdrop-blur-[2px] transition-opacity"
+          />
+
+          {/* Popover Card */}
+          <div className="relative z-10 w-full max-w-lg rounded-3xl bg-[#FAF8F5] dark:bg-slate-900 text-[#0B2545] dark:text-slate-100 shadow-2xl border border-[#E5DEC9] dark:border-slate-700 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {!student.isLoggedIn ? (
+              /* ================= UNAUTHENTICATED VIEW: REQUIRE LOGIN FIRST ================= */
+              <>
+                <div className="p-5 bg-gradient-to-br from-[#0B2545] via-[#0F3156] to-[#134E5E] text-white flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="w-13 h-13 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                      <GraduationCap className="w-7 h-7 text-amber-300" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-400/20 text-amber-200 border border-amber-300/30">
+                        Chưa đăng nhập
+                      </span>
+                      <h2 className="font-extrabold text-base text-white truncate mt-1">
+                        Đăng nhập Tài khoản Sinh viên
+                      </h2>
+                      <p className="text-xs text-sky-200/90 truncate">
+                        Vui lòng đăng nhập để xem &amp; chỉnh sửa Hồ sơ FORUS
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setIsAccountMenuOpen(false)}
+                    aria-label="Đóng khung đăng nhập"
+                    className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form
+                  onSubmit={handleProfileLoginSubmit}
+                  className="p-5 space-y-3.5 max-h-[76vh] overflow-y-auto text-xs"
+                >
+                  <div className="rounded-2xl bg-[#F3EFE6] dark:bg-slate-800/90 border border-[#E5DEC9] dark:border-slate-700 p-3.5 text-[#334155] dark:text-slate-300 leading-relaxed">
+                    <p className="font-extrabold text-[#0B2545] dark:text-white mb-0.5">
+                      Xác thực tài khoản Sinh viên ĐH Khoa học Tự nhiên
+                    </p>
+                    <p className="text-[11px]">
+                      Sử dụng email sinh viên trường (<span className="font-mono font-bold text-[#D95326] dark:text-amber-300">@student.hcmus.edu.vn</span>) để truy cập hồ sơ cá nhân, đăng ký làm Gia sư KHTN, thuê học cụ không cần cọc CCCD và tích điểm VIP.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                      Email Sinh viên HCMUS <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={loginEmail}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setLoginEmail(val);
+                        if (!loginStudentId && val.includes("@")) {
+                          setLoginStudentId(val.split("@")[0]);
+                        }
+                      }}
+                      placeholder="Nhập email SV (VD: MSSV@student.hcmus.edu.vn)"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 font-mono text-xs text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block text-[11px] font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                        Mã số sinh viên (MSSV) <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={loginStudentId}
+                        onChange={(e) => setLoginStudentId(e.target.value)}
+                        placeholder="Nhập MSSV của bạn"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 font-mono font-bold text-xs text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                        Họ và tên sinh viên <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={loginFullName}
+                        onChange={(e) => setLoginFullName(e.target.value)}
+                        placeholder="Nhập họ và tên đầy đủ"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 font-semibold text-xs text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block text-[11px] font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                        Khoa đào tạo (Cơ sở 1)
+                      </label>
+                      <select
+                        value={loginFaculty}
+                        onChange={(e) => setLoginFaculty(e.target.value)}
+                        className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 font-semibold text-xs text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
+                      >
+                        {HCMUS_FACULTIES.map((f) => (
+                          <option key={f} value={f}>
+                            {f}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                        Mật khẩu tài khoản <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        placeholder="Nhập mật khẩu"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 text-xs text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {loginError && (
+                    <div className="rounded-xl bg-rose-500/10 border border-rose-500/25 p-3 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                      {loginError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full py-3 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-sm"
+                  >
+                    <UserCheck className="w-4 h-4" />
+                    <span>Đăng Nhập Vào Hồ Sơ Sinh Viên</span>
+                  </button>
+                </form>
+              </>
+            ) : (
+              /* ================= AUTHENTICATED VIEW: PROFILE & TUTOR ACHIEVEMENTS ================= */
+              <>
+                {/* Header with Avatar, Quick Change Avatar Button & Login Status */}
+                <div className="p-5 bg-gradient-to-br from-[#0B2545] via-[#0F3156] to-[#134E5E] text-white flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="relative group shrink-0">
+                      <div className="w-15 h-15 rounded-full p-0.5 bg-gradient-to-tr from-sky-400 via-emerald-400 to-amber-300">
+                        {student.avatarUrl ? (
+                          <img
+                            src={student.avatarUrl}
+                            alt={student.fullName}
+                            className="w-full h-full rounded-full object-cover bg-white"
+                          />
+                        ) : (
+                          <div className="w-full h-full rounded-full bg-[#0B2545] flex items-center justify-center text-white font-extrabold text-lg">
+                            {student.fullName
+                              .trim()
+                              .split(/\s+/)
+                              .slice(-2)
+                              .map((part) => part[0])
+                              .join("")
+                              .toUpperCase() || "SV"}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => avatarFileInputRef.current?.click()}
+                        title="Đổi ảnh đại diện từ máy"
+                        className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full bg-[#D95326] hover:bg-[#C0441B] text-white text-[9px] font-extrabold border border-white/80 shadow-xs cursor-pointer transition"
+                      >
+                        Đổi ảnh
+                      </button>
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-400/20 text-emerald-200 border border-emerald-400/30">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-300" />
+                          Đã đăng nhập Email SV
+                        </span>
+                        {student.isTutorActive && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-400/20 text-amber-200 border border-amber-300/30">
+                            <GraduationCap className="w-3 h-3 text-amber-300" />
+                            Gia sư KHTN
+                          </span>
+                        )}
+                      </div>
+                      <h2 className="font-extrabold text-base text-white truncate mt-1">
+                        {student.fullName}
+                      </h2>
+                      <p className="text-xs font-mono text-sky-200/90 truncate">
+                        {student.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setIsAccountMenuOpen(false)}
+                    aria-label="Đóng thông tin tài khoản"
+                    className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="p-5 space-y-4 max-h-[76vh] overflow-y-auto">
+                  {/* 1. LOGIN & AUTHENTICATION STATUS BOX */}
+                  <div className="rounded-2xl bg-[#F3EFE6] dark:bg-slate-800/90 border border-[#E5DEC9] dark:border-slate-700 p-3.5 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 block">
+                        Phiên đăng nhập hiện tại
+                      </span>
+                      <p className="text-xs font-bold text-[#0B2545] dark:text-white truncate mt-0.5">
+                        MSSV:{" "}
+                        <span className="font-mono text-[#D95326] dark:text-amber-300">
+                          {student.studentId}
+                        </span>{" "}
+                        · {getMembershipTierName(currentPoints).split(" (")[0]} (
+                        {currentPoints}đ)
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/25 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shrink-0"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+
+                  {/* 2. ACCOUNT DETAILS, PERSONAL INFO & TUTOR ACHIEVEMENTS SECTION */}
+                  <div className="rounded-2xl bg-white dark:bg-slate-800 border border-[#E6E0D5] dark:border-slate-700 p-4 space-y-3.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Settings className="w-4 h-4 text-[#D95326]" />
+                        <h3 className="font-extrabold text-xs sm:text-sm text-[#0B2545] dark:text-slate-100">
+                          {isEditingAccount
+                            ? "Chỉnh sửa Hồ sơ Cá nhân & Thành tích Gia sư"
+                            : "Thông tin Cá nhân & Hồ sơ Gia sư"}
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingAccount((prev) => !prev)}
+                        className="px-3 py-1 rounded-xl bg-[#D95326]/10 hover:bg-[#D95326]/20 text-xs font-extrabold text-[#D95326] dark:text-amber-300 transition cursor-pointer"
+                      >
+                        {isEditingAccount ? "Đóng chỉnh sửa" : "Edit Profile"}
+                      </button>
+                    </div>
+
+                    {!isEditingAccount ? (
+                      <div className="space-y-3.5 text-xs">
+                        {/* Personal Info List */}
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between py-1.5 border-b border-[#EAE5DC] dark:border-slate-700">
+                            <span className="text-[#64748B] dark:text-slate-300">
+                              Họ và tên
+                            </span>
+                            <span className="font-bold text-[#0B2545] dark:text-white">
+                              {student.fullName}
+                            </span>
+                          </div>
+                          <div className="flex justify-between py-1.5 border-b border-[#EAE5DC] dark:border-slate-700">
+                            <span className="text-[#64748B] dark:text-slate-300">
+                              Mã số SV · Khóa
+                            </span>
+                            <span className="font-mono font-bold text-[#D95326] dark:text-amber-300 tabular-nums">
+                              {student.studentId} ·{" "}
+                              {student.academicYear || "Khóa K25 (Năm 1)"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between py-1.5 border-b border-[#EAE5DC] dark:border-slate-700">
+                            <span className="text-[#64748B] dark:text-slate-300">
+                              Email trường
+                            </span>
+                            <span className="font-mono text-[#0B2545] dark:text-slate-200 truncate max-w-[230px]">
+                              {student.email}
+                            </span>
+                          </div>
+                          <div className="flex justify-between py-1.5 border-b border-[#EAE5DC] dark:border-slate-700">
+                            <span className="text-[#64748B] dark:text-slate-300">
+                              Số ĐT / Zalo liên hệ
+                            </span>
+                            <span className="font-mono font-semibold text-[#0B2545] dark:text-slate-200">
+                              {student.phone || "Chưa cập nhật"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between py-1.5">
+                            <span className="text-[#64748B] dark:text-slate-300">
+                              Khoa
+                            </span>
+                            <span className="font-semibold text-[#0B2545] dark:text-slate-200 text-right">
+                              {student.faculty}
+                            </span>
+                          </div>
+                          {student.bio && (
+                            <div className="pt-1.5 border-t border-[#EAE5DC] dark:border-slate-700">
+                              <span className="text-[11px] font-bold text-[#64748B] dark:text-slate-400 block mb-0.5">
+                                Giới thiệu cá nhân:
+                              </span>
+                              <p className="text-xs text-[#334155] dark:text-slate-300 leading-relaxed">
+                                {student.bio}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Personal Achievements for Tutor Service Box */}
+                        <div className="rounded-2xl bg-[#F3EFE6]/80 dark:bg-slate-900/90 border border-[#E5DEC9] dark:border-slate-700 p-3.5 space-y-2.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <Award className="w-4 h-4 text-[#D95326] dark:text-amber-400 shrink-0" />
+                              <span className="font-extrabold text-xs text-[#0B2545] dark:text-white">
+                                Hồ sơ &amp; Thành tích Gia sư KHTN
+                              </span>
+                            </div>
+                            {student.gpa && (
+                              <span className="px-2 py-0.5 rounded-md bg-[#0B2545] text-amber-300 font-mono text-[10px] font-extrabold">
+                                GPA: {student.gpa}
+                              </span>
+                            )}
+                          </div>
+
+                          {student.tutorSubjects && (
+                            <div className="text-[11px] text-[#4A5568] dark:text-slate-300">
+                              <strong className="text-[#0B2545] dark:text-slate-100">
+                                Môn nhận dạy:
+                              </strong>{" "}
+                              {student.tutorSubjects}
+                            </div>
+                          )}
+
+                          <div className="space-y-1.5">
+                            <span className="text-[11px] font-bold text-[#0B2545] dark:text-slate-200 block">
+                              Thành tích cá nhân nổi bật:
+                            </span>
+                            {student.personalAchievements ? (
+                              <div className="flex flex-wrap gap-1.5">
+                                {student.personalAchievements
+                                  .split(/[·•,;|\n]+/)
+                                  .map((item) => item.trim())
+                                  .filter(Boolean)
+                                  .map((ach, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-[#E5DEC9] dark:border-slate-700 text-[11px] font-semibold text-[#0B2545] dark:text-slate-200"
+                                    >
+                                      <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                      {ach}
+                                    </span>
+                                  ))}
+                              </div>
+                            ) : (
+                              <p className="text-[11px] italic text-[#64748B] dark:text-slate-400">
+                                Chưa có thành tích cá nhân. Bấm &ldquo;Edit Profile&rdquo; để thêm thành tích khi sử dụng dịch vụ Gia sư!
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="pt-1 flex items-center justify-between gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setIsEditingAccount(true)}
+                              className="text-[11px] font-extrabold text-[#D95326] dark:text-amber-300 hover:underline cursor-pointer"
+                            >
+                              + Bổ sung thành tích / Đổi ảnh đại diện
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsAccountMenuOpen(false);
+                                switchTab("tutor");
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-[#0B2545] hover:bg-[#163A66] text-white font-bold text-[11px] flex items-center gap-1 transition cursor-pointer"
+                            >
+                              <GraduationCap className="w-3.5 h-3.5 text-amber-300" />
+                              Mở dịch vụ Gia sư
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <form
+                        onSubmit={handleSaveInlineAccount}
+                        className="space-y-3.5 text-xs"
+                      >
+                        {/* Section A: Change Avatar */}
+                        <div className="rounded-2xl bg-[#F3EFE6]/70 dark:bg-slate-900/70 border border-[#E5DEC9] dark:border-slate-700 p-3 space-y-2.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <label className="text-[11px] font-extrabold text-[#0B2545] dark:text-white">
+                              1. Đổi ảnh đại diện (Avatar)
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => avatarFileInputRef.current?.click()}
+                              className="px-2.5 py-1 rounded-lg bg-[#0B2545] hover:bg-[#163A66] text-white font-bold text-[11px] transition cursor-pointer"
+                            >
+                              Tải ảnh từ thiết bị
+                            </button>
+                          </div>
+
+                          {/* Quick Preset Avatars */}
+                          <div className="grid grid-cols-5 gap-1.5">
+                            {PRESET_AVATARS.map((preset) => {
+                              const isSelected = editAvatarUrl === preset.url;
+                              return (
+                                <button
+                                  key={preset.id}
+                                  type="button"
+                                  onClick={() => setEditAvatarUrl(preset.url)}
+                                  className={`p-1.5 rounded-xl border flex flex-col items-center gap-1 transition cursor-pointer ${
+                                    isSelected
+                                      ? "border-[#D95326] bg-amber-500/10 ring-1 ring-[#D95326]"
+                                      : "border-[#E5DEC9] dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-[#0B2545]"
+                                  }`}
+                                >
+                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-[#0B2545] text-white flex items-center justify-center font-extrabold text-[10px]">
+                                    {preset.url ? (
+                                      <img
+                                        src={preset.url}
+                                        alt={preset.label}
+                                        className="w-full h-full object-cover bg-white"
+                                      />
+                                    ) : (
+                                      editName
+                                        .trim()
+                                        .split(/\s+/)
+                                        .slice(-2)
+                                        .map((p) => p[0])
+                                        .join("")
+                                        .toUpperCase() || "SV"
+                                    )}
+                                  </div>
+                                  <span className="text-[9px] font-bold text-[#0B2545] dark:text-slate-200 truncate w-full text-center">
+                                    {preset.label}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          <input
+                            type="text"
+                            value={editAvatarUrl}
+                            onChange={(e) => setEditAvatarUrl(e.target.value)}
+                            placeholder="Hoặc dán link URL ảnh đại diện tại đây..."
+                            className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-[11px] font-mono text-[#0B2545] dark:text-white"
+                          />
+                        </div>
+
+                        {/* Section B: Personal Information */}
+                        <div className="space-y-2.5">
+                          <p className="text-[11px] font-extrabold text-[#0B2545] dark:text-white">
+                            2. Thông tin cá nhân Sinh viên
+                          </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                                Họ và tên sinh viên
+                              </label>
+                              <input
+                                type="text"
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-semibold text-[#0B2545] dark:text-white"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                                Số điện thoại / Zalo
+                              </label>
+                              <input
+                                type="text"
+                                value={editPhone}
+                                onChange={(e) => setEditPhone(e.target.value)}
+                                placeholder="VD: 0908 227 124"
+                                className="w-full px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-mono font-semibold text-[#0B2545] dark:text-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                                MSSV
+                              </label>
+                              <input
+                                type="text"
+                                value={editStudentId}
+                                onChange={(e) => {
+                                  setEditStudentId(e.target.value);
+                                  setEditEmail(
+                                    `${e.target.value}@student.hcmus.edu.vn`
+                                  );
+                                }}
+                                className="w-full px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-mono font-bold text-[#0B2545] dark:text-white"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                                Khóa / Năm học
+                              </label>
+                              <select
+                                value={editAcademicYear}
+                                onChange={(e) => setEditAcademicYear(e.target.value)}
+                                className="w-full px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-semibold text-[#0B2545] dark:text-white"
+                              >
+                                <option value="Khóa K25 (Năm 1)">Khóa K25 (Năm 1)</option>
+                                <option value="Khóa K24 (Năm 2)">Khóa K24 (Năm 2)</option>
+                                <option value="Khóa K23 (Năm 3)">Khóa K23 (Năm 3)</option>
+                                <option value="Khóa K22 (Năm 4)">Khóa K22 (Năm 4)</option>
+                                <option value="Cao học / Nghiên cứu sinh">Cao học / NCS</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                                Khoa đào tạo
+                              </label>
+                              <select
+                                value={editFaculty}
+                                onChange={(e) => setEditFaculty(e.target.value)}
+                                className="w-full px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-semibold text-[#0B2545] dark:text-white"
+                              >
+                                {HCMUS_FACULTIES.map((f) => (
+                                  <option key={f} value={f}>
+                                    {f}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                                Email SV (@student.hcmus.edu.vn)
+                              </label>
+                              <input
+                                type="email"
+                                value={editEmail}
+                                onChange={(e) => setEditEmail(e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-mono text-[#0B2545] dark:text-white"
+                                required
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                              Giới thiệu bản thân ngắn gọn
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={editBio}
+                              onChange={(e) => setEditBio(e.target.value)}
+                              placeholder="Giới thiệu ngắn về định hướng học tập, phong cách làm việc..."
+                              className="w-full px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 text-[#0B2545] dark:text-white"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Section C: Personal Achievements for Tutor Service */}
+                        <div className="rounded-2xl bg-[#F3EFE6]/75 dark:bg-slate-900/80 border border-[#E5DEC9] dark:border-slate-700 p-3 space-y-2.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <Award className="w-4 h-4 text-[#D95326]" />
+                              <span className="text-[11px] font-extrabold text-[#0B2545] dark:text-white">
+                                3. Thành tích cá nhân &amp; Hồ sơ Gia sư
+                              </span>
+                            </div>
+                            <label className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#0B2545] dark:text-slate-200 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={editIsTutorActive}
+                                onChange={(e) =>
+                                  setEditIsTutorActive(e.target.checked)
+                                }
+                                className="rounded accent-[#D95326]"
+                              />
+                              Bật hồ sơ Gia sư
+                            </label>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                                GPA / Điểm TB
+                              </label>
+                              <input
+                                type="text"
+                                value={editGpa}
+                                onChange={(e) => setEditGpa(e.target.value)}
+                                placeholder="VD: 3.68 / 4.0"
+                                className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 font-mono font-bold text-[#0B2545] dark:text-white"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                                Môn nhận Gia sư / Mentor Đại cương
+                              </label>
+                              <input
+                                type="text"
+                                value={editTutorSubjects}
+                                onChange={(e) =>
+                                  setEditTutorSubjects(e.target.value)
+                                }
+                                placeholder="Vi tích phân, Đại số, C++/Python, Toán 12..."
+                                className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 font-semibold text-[#0B2545] dark:text-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
+                              Thành tích cá nhân nổi bật (ngăn cách bằng dấu · hoặc phẩy)
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={editPersonalAchievements}
+                              onChange={(e) =>
+                                setEditPersonalAchievements(e.target.value)
+                              }
+                              placeholder="VD: Giải Nhì HSG Toán Tỉnh · IELTS 7.5 · Điểm A+ Vi tích phân 1B..."
+                              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-[#0B2545] dark:text-white"
+                            />
+                            <div className="pt-1.5 flex flex-wrap gap-1">
+                              {QUICK_ACHIEVEMENT_TAGS.map((tag) => (
+                                <button
+                                  key={tag}
+                                  type="button"
+                                  onClick={() => handleAppendAchievementTag(tag)}
+                                  className="px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-[#0B2545] hover:text-white border border-[#DDD6C7] dark:border-slate-700 text-[10px] font-semibold text-[#4A5568] dark:text-slate-300 transition cursor-pointer"
+                                >
+                                  + {tag}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setIsEditingAccount(false)}
+                            className="px-4 py-2.5 rounded-xl border border-[#DDD6C7] dark:border-slate-700 text-[#4A5568] dark:text-slate-300 font-bold text-xs hover:bg-[#F3EFE6] dark:hover:bg-slate-800 transition cursor-pointer"
+                          >
+                            Hủy
+                          </button>
+                          <button
+                            type="submit"
+                            className="flex-1 py-2.5 rounded-xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs transition cursor-pointer shadow-xs"
+                          >
+                            Lưu Hồ Sơ Cá Nhân &amp; Thành Tích Gia Sư
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+
+                  {/* Persistent Session Note & Full-Width Logout Option */}
+                  <div className="pt-1 flex items-center justify-between gap-3 border-t border-[#EAE5DC] dark:border-slate-700 text-[11px] text-[#64748B] dark:text-slate-400">
+                    <span>
+                      ✓ Đã ghi nhớ phiên đăng nhập tự động trên thiết bị này
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/25 font-extrabold text-xs transition cursor-pointer shrink-0"
+                    >
+                      Đăng xuất tài khoản
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ================= SLIDE-OVER MENU DRAWER (Next to Cart) ================= */}
       {isMenuOpen && (
@@ -1128,10 +2072,10 @@ export default function App() {
               <div className="sticky top-0 z-20 bg-[#FAF8F5]/95 dark:bg-slate-900/95 backdrop-blur-md px-5 py-4 border-b border-[#E5DEC9] dark:border-slate-700 flex items-center justify-between">
                 <div>
                   <h2 className="font-extrabold text-sm sm:text-base text-[#0B2545] dark:text-white">
-                    Menu Tiện Ích · Tài Khoản &amp; Liên Hệ FORUS
+                    Menu Tiện Ích · Điểm VIP &amp; Liên Hệ FORUS
                   </h2>
                   <p className="text-[11px] text-[#64748B] dark:text-slate-300">
-                    Tài khoản SV · Điểm VIP · Mã QR · Liên hệ Trạm CS1
+                    Điểm VIP · Mã QR SV · Lịch sử điểm · Liên hệ Trạm CS1
                   </p>
                 </div>
                 <button
@@ -1143,6 +2087,45 @@ export default function App() {
               </div>
 
               <div className="p-5 space-y-5">
+                {/* 0. ACCOUNT SESSION & LOGOUT / LOGIN QUICK CARD */}
+                <div className="rounded-2xl bg-[#F3EFE6] dark:bg-slate-800 border border-[#E5DEC9] dark:border-slate-700 p-3.5 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-400 block">
+                      {student.isLoggedIn
+                        ? "Đã đăng nhập (Tự động lưu phiên)"
+                        : "Trạng thái tài khoản"}
+                    </span>
+                    <p className="text-xs font-extrabold text-[#0B2545] dark:text-white truncate mt-0.5">
+                      {student.isLoggedIn
+                        ? `${student.fullName} (${student.studentId})`
+                        : "Chưa đăng nhập tài khoản Sinh viên"}
+                    </p>
+                  </div>
+                  {student.isLoggedIn ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/25 font-extrabold text-xs transition cursor-pointer shrink-0"
+                    >
+                      Đăng xuất
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsAccountMenuOpen(true);
+                      }}
+                      className="px-3 py-2 rounded-xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs transition cursor-pointer shrink-0"
+                    >
+                      Đăng nhập SV
+                    </button>
+                  )}
+                </div>
+
                 {/* 1. VIP STATUS & POINTS PROGRESS CARD */}
                 <div className="rounded-3xl p-5 bg-[#0B2545] text-white space-y-3.5">
                   <div className="flex items-center justify-between gap-2">
@@ -1205,13 +2188,13 @@ export default function App() {
                     )}
                     <button
                       onClick={() => {
-                        setActiveTab("vip");
                         setIsMenuOpen(false);
+                        switchTab("vip");
                       }}
                       className="py-2.5 px-3 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-white/20 transition cursor-pointer"
                     >
                       <Crown className="w-3.5 h-3.5 text-amber-300" />
-                      Vào Đặc quyền VIP
+                      Mở mục Tính năng
                     </button>
                   </div>
 
@@ -1225,7 +2208,7 @@ export default function App() {
                       onClick={() =>
                         redeemPoints(
                           50,
-                          "Voucher Giảm 10.000đ Đơn Ăn Sáng Express",
+                          "Voucher Giảm 10.000đ Đơn In Ấn & Giáo Trình",
                           "hv-50"
                         )
                       }
@@ -1236,146 +2219,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* 2. ACCOUNT SETTINGS SECTION */}
-                <div className="rounded-3xl bg-white dark:bg-slate-800 border border-[#E6E0D5] dark:border-slate-700 p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Settings className="w-4 h-4 text-[#D95326]" />
-                      <h3 className="font-extrabold text-xs sm:text-sm text-[#0B2545] dark:text-slate-100">
-                        Thiết lập Tài khoản Sinh viên
-                      </h3>
-                    </div>
-                    <button
-                      onClick={() => setIsEditingAccount((prev) => !prev)}
-                      className="text-xs font-bold text-[#D95326] hover:underline cursor-pointer"
-                    >
-                      {isEditingAccount ? "Đóng" : "Chỉnh sửa"}
-                    </button>
-                  </div>
-
-                  {!isEditingAccount ? (
-                    <div className="space-y-2 text-xs">
-                      <div className="flex justify-between py-1.5 border-b border-[#EAE5DC] dark:border-slate-700">
-                        <span className="text-[#64748B] dark:text-slate-300">
-                          Họ và tên
-                        </span>
-                        <span className="font-bold text-[#0B2545] dark:text-white">
-                          {student.fullName}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1.5 border-b border-[#EAE5DC] dark:border-slate-700">
-                        <span className="text-[#64748B] dark:text-slate-300">
-                          Mã số SV (MSSV)
-                        </span>
-                        <span className="font-mono font-bold text-[#D95326] dark:text-amber-300 tabular-nums">
-                          {student.studentId}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1.5 border-b border-[#EAE5DC] dark:border-slate-700">
-                        <span className="text-[#64748B] dark:text-slate-300">
-                          Email trường
-                        </span>
-                        <span className="font-mono text-[#0B2545] dark:text-slate-200 truncate max-w-[200px]">
-                          {student.email}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1.5">
-                        <span className="text-[#64748B] dark:text-slate-300">
-                          Khoa
-                        </span>
-                        <span className="font-semibold text-[#0B2545] dark:text-slate-200 text-right">
-                          {student.faculty}
-                        </span>
-                      </div>
-
-                      <div className="pt-2 flex gap-2">
-                        <button
-                          onClick={() => {
-                            setIsMenuOpen(false);
-                            setIsAuthOpen(true);
-                          }}
-                          className="flex-1 py-2.5 px-3 rounded-xl bg-[#0B2545] hover:bg-[#163A66] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-                        >
-                          <UserCheck className="w-3.5 h-3.5" />
-                          Đổi tài khoản Email SV
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <form
-                      onSubmit={handleSaveInlineAccount}
-                      className="space-y-2.5 text-xs"
-                    >
-                      <div>
-                        <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
-                          Họ và tên sinh viên
-                        </label>
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-semibold text-[#0B2545] dark:text-white"
-                          required
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
-                            MSSV
-                          </label>
-                          <input
-                            type="text"
-                            value={editStudentId}
-                            onChange={(e) => {
-                              setEditStudentId(e.target.value);
-                              setEditEmail(
-                                `${e.target.value}@student.hcmus.edu.vn`
-                              );
-                            }}
-                            className="w-full px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-mono font-bold text-[#0B2545] dark:text-white"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
-                            Khoa
-                          </label>
-                          <select
-                            value={editFaculty}
-                            onChange={(e) => setEditFaculty(e.target.value)}
-                            className="w-full px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-semibold text-[#0B2545] dark:text-white"
-                          >
-                            {HCMUS_FACULTIES.map((f) => (
-                              <option key={f} value={f}>
-                                {f}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-[#4A5568] dark:text-slate-300 mb-1">
-                          Email Sinh viên (@student.hcmus.edu.vn)
-                        </label>
-                        <input
-                          type="email"
-                          value={editEmail}
-                          onChange={(e) => setEditEmail(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-mono text-[#0B2545] dark:text-white"
-                          required
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        className="w-full py-2.5 rounded-xl bg-[#D95326] hover:bg-[#C0441B] text-white font-bold text-xs transition cursor-pointer"
-                      >
-                        Lưu thông tin tài khoản
-                      </button>
-                    </form>
-                  )}
-                </div>
-
-                {/* 3. STUDENT & WEBSITE QR CODE SECTION */}
+                {/* 2. STUDENT & WEBSITE QR CODE SECTION */}
                 <div className="rounded-3xl bg-[#F3EFE6] dark:bg-slate-800 border border-[#E5DEC9] dark:border-slate-700 p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -1400,12 +2244,13 @@ export default function App() {
                     </div>
                     <div className="space-y-2 text-center sm:text-left flex-1 min-w-0">
                       <p className="text-xs font-bold text-[#0B2545] dark:text-white">
-                        Thẻ Định Danh Nhanh: {student.studentId}
+                        Thẻ Định Danh Nhanh:{" "}
+                        {student.isLoggedIn && student.studentId
+                          ? student.studentId
+                          : "Chưa đăng nhập"}
                       </p>
                       <p className="text-[11px] text-[#64748B] dark:text-slate-300 leading-relaxed">
-                        Đưa mã QR này tại trạm FORUS sảnh tòa I để nhận đồ ăn
-                        sáng, bản in A1–A4 hoặc mượn/trả thiết bị tích điểm tức
-                        thì.
+                        Đưa mã QR này tại trạm FORUS sảnh tòa I để nhận bản in A1–A5, giáo trình hoặc mượn/trả thiết bị tích điểm tức thì.
                       </p>
                       <button
                         onClick={handleCopyQrLink}
@@ -1475,8 +2320,12 @@ export default function App() {
                 {/* 5. CONTACT STATION FORUS — CS1 (Moved inside Menu as requested) */}
                 <AboutAndContactView
                   theme={theme}
-                  defaultName={`${student.fullName} - ${student.studentId}`}
-                  defaultEmail={student.email}
+                  defaultName={
+                    student.isLoggedIn && student.fullName
+                      ? `${student.fullName} - ${student.studentId}`
+                      : ""
+                  }
+                  defaultEmail={student.isLoggedIn ? student.email : ""}
                 />
               </div>
             </div>
@@ -1489,158 +2338,277 @@ export default function App() {
         {/* ================= HOME TAB (REFERENCE EDITORIAL THEME & LAYOUT) ================= */}
         {activeTab === "home" && (
           <div className="space-y-10 sm:space-y-14">
-            {/* 1. INTEGRATED HOME INTRODUCTION: FORUS — "TIỆN ÍCH TRONG TAY, HỌC HAY MỖI NGÀY" & MOBILE QR CARD (Matches Attached Screenshot) */}
-            <section className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 lg:p-10 dark:border-slate-700/80 dark:bg-slate-800/90">
-              <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:items-center">
-                {/* Left Column: Startup Story, 3 Key Highlights & Quick Service Actions */}
-                <div className="space-y-4 lg:col-span-7">
-                  <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
-                    VỀ STARTUP SINH VIÊN FORUS · ĐỒ ÁN 1 (CSC00006) · 227 NGUYỄN VĂN CỪ
-                  </p>
-                  <h1 className="text-2xl sm:text-4xl lg:text-[40px] font-extrabold tracking-tight text-[#0B2545] dark:text-white leading-[1.15]">
-                    FORUS — “Tiện ích trong tay, học hay mỗi ngày”
+            {/* Guest Mode Notice Banner when not logged in */}
+            {!student.isLoggedIn && (
+              <div className="rounded-2xl border border-[#E5DEC9] bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-800/90 px-4 py-3 sm:px-5 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#0B2545] text-amber-300 flex items-center justify-center shrink-0">
+                    <UserCheck className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white">
+                      Chưa đăng nhập tài khoản Sinh viên — Đăng nhập 1 lần để mở khóa mọi tính năng
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-[#4A5568] dark:text-slate-300">
+                      Sau khi đăng nhập, phiên tài khoản sẽ được giữ tự động (không cần đăng nhập lại) cho đến khi bạn chọn <strong>Đăng xuất</strong>.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAccountMenuOpen(true)}
+                  className="px-4 py-2.5 rounded-xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shrink-0 shadow-xs"
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>Đăng Nhập Ngay</span>
+                </button>
+              </div>
+            )}
+
+            {/* 1. INTERACTIVE & ANIMATED HOME INTRODUCTION HERO */}
+            <section
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+                const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+                setHeroGlowPos({ x, y });
+              }}
+              className="group relative overflow-hidden rounded-3xl border border-[#1E3A5F]/40 bg-gradient-to-br from-[#061527] via-[#0B2545] to-[#0D3B4E] p-5 sm:p-8 lg:px-10 lg:py-9 text-white shadow-xl"
+            >
+              {/* Interactive Cursor-Following Spotlight + Animated Orbital Background */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+              >
+                {/* Dynamic Cursor Spotlight */}
+                <div
+                  className="absolute inset-0 transition-opacity duration-300"
+                  style={{
+                    background: `radial-gradient(560px circle at ${heroGlowPos.x}% ${heroGlowPos.y}%, rgba(217, 83, 38, 0.28), rgba(56, 189, 248, 0.14) 45%, transparent 72%)`,
+                  }}
+                />
+
+                {/* Architectural Grid Mesh */}
+                <div
+                  className="absolute inset-0 opacity-[0.16]"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(to right, rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.12) 1px, transparent 1px)",
+                    backgroundSize: "36px 36px",
+                  }}
+                />
+
+                {/* Animated Drifting Aurora Orbs */}
+                <div className="animate-forus-float-slow absolute -top-24 -left-16 h-80 w-80 rounded-full bg-gradient-to-br from-[#D95326]/35 via-amber-400/20 to-transparent blur-3xl" />
+                <div className="animate-forus-float-reverse absolute -right-20 -bottom-24 h-96 w-96 rounded-full bg-gradient-to-tr from-emerald-400/25 via-sky-400/20 to-transparent blur-3xl" />
+
+                {/* Rotating Geometric Orbital Rings */}
+                <div className="animate-forus-spin-slow absolute -top-28 right-1/4 h-72 w-72 rounded-full border border-white/10" />
+                <div className="animate-forus-spin-slow absolute -bottom-36 left-1/3 h-80 w-80 rounded-full border border-dashed border-amber-300/20" />
+
+                {/* Subtle Parallax Floating Campus Coordinates */}
+                <div
+                  className="hidden lg:block absolute top-5 right-[34%] font-mono text-[10px] tracking-widest uppercase text-sky-200/40 transition-transform duration-300"
+                  style={{
+                    transform: `translate3d(${(heroGlowPos.x - 50) * -0.18}px, ${(heroGlowPos.y - 50) * -0.18}px, 0)`,
+                  }}
+                >
+                  227 NVC · 10.7626°N 106.6824°E
+                </div>
+                <div
+                  className="hidden lg:block absolute bottom-4 right-[36%] font-mono text-[10px] tracking-widest uppercase text-amber-200/40 transition-transform duration-300"
+                  style={{
+                    transform: `translate3d(${(heroGlowPos.x - 50) * 0.22}px, ${(heroGlowPos.y - 50) * 0.22}px, 0)`,
+                  }}
+                >
+                  ∫ f(x)dx · LaTeX · TechRescue · AI 24/7
+                </div>
+              </div>
+
+              <div className="relative z-10 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center">
+                {/* Left Column: High-Impact Headline + Interactive 4-Pillar Dock */}
+                <div className="space-y-4 lg:col-span-8">
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono font-bold tracking-wider uppercase text-amber-300/90">
+                    <span>ĐH KHOA HỌC TỰ NHIÊN · ĐHQG-HCM</span>
+                    <span aria-hidden="true" className="text-white/30">·</span>
+                    <span className="text-emerald-300">CS1 · 227 NGUYỄN VĂN CỪ</span>
+                  </div>
+
+                  <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-extrabold tracking-tight text-white leading-[1.12]">
+                    FORUS — “Tiện ích trong tay,{" "}
+                    <span className="bg-gradient-to-r from-amber-300 via-orange-300 to-emerald-300 bg-clip-text text-transparent">
+                      học hay mỗi ngày”
+                    </span>
                   </h1>
-                  <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                    Xuất phát từ chính trải nghiệm thực tế của sinh viên{" "}
-                    <strong className="font-bold text-[#0B2545] dark:text-white">
-                      Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM (Cơ sở 1 — 227 Nguyễn Văn Cừ, Quận 5)
-                    </strong>
-                    : những buổi sáng vội vã vào ca 1 chưa kịp ăn sáng, những giờ Giải tích &amp; Đại số tuyến tính phải chép hàng chục trang công thức mỏi nhừ tay, hay những lần quên mang máy tính Casio, áo blouse trước giờ thi và thực hành.
-                  </p>
-                  <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                    <strong className="font-bold text-[#0B2545] dark:text-white">
-                      FORUS
-                    </strong>{" "}
-                    ra đời như một trạm tiện ích khép kín ngay tại khuôn viên Cơ sở 1: cung cấp thiết bị ghi chép số giá sinh viên (Combo Bảng vẽ iPad Sinh Viên, Bàn phím MacroPad OneTap LaTeX, Flashcard chống nước), cho thuê &amp; bán máy tính cầm tay / giáo trình / áo blouse (mới 100%, 90%, 80%), giao đồ ăn sáng và bản in A1–A5 tận cửa phòng học, kết nối gia sư uy tín và thưởng điểm mở khóa công cụ Săn Điểm Rèn Luyện + Trợ lý AI.
+
+                  <p className="max-w-xl text-xs sm:text-sm text-sky-100/85 leading-relaxed">
+                    Trạm học cụ tuần hoàn, in ấn tốc hành tận phòng học, đồng hồ đếm ngược sự kiện &amp; Trợ lý AI học thuật dành riêng cho sinh viên KHTN.
                   </p>
 
-                  {/* Nút Giới thiệu nằm dưới đoạn văn và ngay trên ô 35.000đ */}
-                  <div className="pt-1 flex justify-center">
+                  {/* Interactive 4-Pillar Live Dock (Hover to preview, Click to launch) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                    {[
+                      {
+                        id: "gear" as ActiveTab,
+                        stat: `${gearProducts.length} Danh Mục`,
+                        title: "Thuê & Bán Học Cụ",
+                        sub: "TechRescue, Casio, Giáo trình",
+                        detail:
+                          "Thuê ngắn hạn theo buổi thuyết trình (từ 15k) hoặc mua mới 80% · 90% · 100% nhận ngay tại Sảnh Tòa I.",
+                        accent: "from-[#D95326] to-amber-500",
+                      },
+                      {
+                        id: "events" as ActiveTab,
+                        stat: "20 Sự Kiện",
+                        title: "Đếm Ngược HCMUS",
+                        sub: "Học bổng, Seminar & ĐRL",
+                        detail:
+                          "Theo dõi đồng hồ đếm ngược thời gian thực tới sự kiện gần nhất và bật thông báo nhắc tham gia.",
+                        accent: "from-emerald-500 to-teal-400",
+                      },
+                      {
+                        id: "print" as ActiveTab,
+                        stat: "Khổ A1 – A5",
+                        title: "In Ấn Tốc Hành",
+                        sub: "Giao tận phòng 15 phút",
+                        detail:
+                          "Đặt in tài liệu đại cương, báo cáo đồ án & Poster A1 đóng ống nhựa giao tận Tòa I, B, C, E, F.",
+                        accent: "from-sky-500 to-cyan-400",
+                      },
+                      {
+                        id: "vip" as ActiveTab,
+                        stat: "B1–L11 & AI",
+                        title: "Sơ Đồ & LaTeX AI",
+                        sub: "11 tầng CS1 · 18 mẫu LaTeX",
+                        detail:
+                          "Tra cứu sơ đồ phòng học các tầng CS1, copy 18 khung LaTeX chuẩn và hỏi đáp Trợ lý AI 24/7.",
+                        accent: "from-amber-400 to-orange-500",
+                      },
+                    ].map((pillar, idx) => {
+                      const isActivePillar = activeHeroPillar === idx;
+                      return (
+                        <button
+                          key={pillar.id}
+                          type="button"
+                          onMouseEnter={() => setActiveHeroPillar(idx)}
+                          onFocus={() => setActiveHeroPillar(idx)}
+                          onClick={() => switchTab(pillar.id)}
+                          className={`group/card relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-200 cursor-pointer ${
+                            isActivePillar
+                              ? "border-amber-300/80 bg-white/15 shadow-lg -translate-y-0.5"
+                              : "border-white/15 bg-white/[0.07] hover:border-white/35 hover:bg-white/10"
+                          }`}
+                        >
+                          <div
+                            className={`h-1 w-8 rounded-full bg-gradient-to-r ${pillar.accent} mb-2 transition-all duration-300 ${
+                              isActivePillar ? "w-14" : "group-hover/card:w-12"
+                            }`}
+                          />
+                          <span className="block font-mono text-xs sm:text-sm font-extrabold text-amber-300">
+                            {pillar.stat}
+                          </span>
+                          <span className="mt-0.5 block text-xs font-extrabold text-white truncate">
+                            {pillar.title}
+                          </span>
+                          <span className="mt-0.5 block text-[10px] text-sky-100/75 truncate">
+                            {pillar.sub}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Standalone Prominent Introduction CTA Button (Non-orange Emerald-Cyan Glow) */}
+                  <div className="pt-1">
                     <button
                       type="button"
                       onClick={() => switchTab("about")}
-                      className="inline-flex items-center gap-2 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-xs transition hover:-translate-y-0.5 cursor-pointer"
+                      className="group/btn inline-flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-300 px-5 py-3 text-xs sm:text-sm font-extrabold text-[#05192D] ring-2 ring-emerald-200/50 shadow-[0_6px_24px_rgba(52,211,153,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_10px_30px_rgba(56,189,248,0.5)] cursor-pointer"
                     >
-                      <Sparkles className="h-4 w-4 text-amber-200 shrink-0" />
-                      <span>Giới thiệu chi tiết về FORUS</span>
-                      <ArrowRight className="h-4 w-4 shrink-0" />
-                    </button>
-                  </div>
-
-                  {/* 3 Highlight Metric Cards (Matches Screenshot) */}
-                  <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3 sm:gap-4">
-                    <div className="rounded-2xl border border-[#E6E0D5] bg-white p-4 shadow-2xs dark:border-slate-700 dark:bg-slate-900">
-                      <span className="font-mono text-lg sm:text-xl font-extrabold text-[#D95326] dark:text-amber-400">
-                        15 phút
+                      <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#05192D] text-emerald-300">
+                        <Sparkles className="h-3.5 w-3.5" />
                       </span>
-                      <span className="mt-0.5 block text-xs font-medium text-[#4A5568] dark:text-slate-300">
-                        Giao tận phòng học Tòa I, B, C, E, F
-                      </span>
-                    </div>
-                    <div className="rounded-2xl border border-[#E6E0D5] bg-white p-4 shadow-2xs dark:border-slate-700 dark:bg-slate-900">
-                      <span className="font-mono text-lg sm:text-xl font-extrabold text-[#0B2545] dark:text-white">
-                        35.000đ
-                      </span>
-                      <span className="mt-0.5 block text-xs font-medium text-[#4A5568] dark:text-slate-300">
-                        Thuê trọn bộ Bảng vẽ + Găng tay / tuần
-                      </span>
-                    </div>
-                    <div className="rounded-2xl border border-[#E6E0D5] bg-white p-4 shadow-2xs dark:border-slate-700 dark:bg-slate-900">
-                      <span className="font-mono text-lg sm:text-xl font-extrabold text-[#D95326] dark:text-amber-400">
-                        100 điểm
-                      </span>
-                      <span className="mt-0.5 block text-xs font-medium text-[#4A5568] dark:text-slate-300">
-                        Mở khóa Săn ĐRL &amp; Trợ lý AI 24/7
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Quick Navigation CTA Buttons */}
-                  <div className="flex flex-wrap items-center gap-3 pt-1">
-                    <button
-                      onClick={() => switchTab("food")}
-                      className="px-5 py-3 rounded-2xl bg-[#0B2545] hover:bg-[#163A66] text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 transition cursor-pointer shadow-xs"
-                    >
-                      <Utensils className="w-4 h-4 text-amber-300" />
-                      <span>Đặt Ăn Sáng Express</span>
-                    </button>
-                    <button
-                      onClick={() => switchTab("gear")}
-                      className="px-5 py-3 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 transition cursor-pointer shadow-xs"
-                    >
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>Thuê &amp; Bán ({gearProducts.length} Mục)</span>
-                    </button>
-                    <button
-                      onClick={() => switchTab("print")}
-                      className="px-4 py-3 rounded-2xl bg-white hover:bg-[#FAF8F5] text-[#0B2545] border border-[#E6E0D5] font-extrabold text-xs sm:text-sm flex items-center gap-2 transition cursor-pointer dark:bg-slate-900 dark:text-white dark:border-slate-700"
-                    >
-                      <Printer className="w-4 h-4 text-[#D95326]" />
-                      <span>In Tài Liệu &amp; Poster A1–A5</span>
+                      <span>Khám phá Giới thiệu chi tiết về FORUS</span>
+                      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/btn:translate-x-1" />
                     </button>
                   </div>
                 </div>
 
-                {/* Right Column: FORUS Logo & Mobile QR Access Card (Matches Attached Screenshot) */}
-                <div className="flex flex-col items-center justify-center rounded-2xl border border-[#E6E0D5] bg-white p-6 text-center shadow-2xs dark:border-slate-700 dark:bg-slate-900 lg:col-span-5">
-                  <img
-                    src={
-                      isDark ? BRAND_ASSETS.logoDark : BRAND_ASSETS.logoLight
-                    }
-                    alt="FORUS Logo"
-                    referrerPolicy="no-referrer"
-                    className="h-16 w-auto object-contain sm:h-20"
-                  />
-
-                  <div className="mt-4 rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] p-3.5 dark:border-slate-700 dark:bg-slate-800">
+                {/* Right Column: Interactive Parallax Glassmorphic QR PassCard */}
+                <div className="lg:col-span-4 flex justify-center lg:justify-end">
+                  <div
+                    className="w-full max-w-[236px] sm:max-w-[248px] flex flex-col items-center rounded-3xl border border-white/25 bg-white/95 p-4 text-center text-[#0B2545] shadow-2xl backdrop-blur-xl transition-transform duration-200 dark:border-slate-700 dark:bg-slate-900/95 dark:text-white"
+                    style={{
+                      transform: `perspective(900px) rotateY(${
+                        (heroGlowPos.x - 50) * 0.08
+                      }deg) rotateX(${(50 - heroGlowPos.y) * 0.08}deg)`,
+                    }}
+                  >
                     <img
-                      src={qrDataUrl}
-                      alt="Mã QR truy cập FORUS trên điện thoại"
+                      src={
+                        isDark ? BRAND_ASSETS.logoDark : BRAND_ASSETS.logoLight
+                      }
+                      alt="FORUS Logo"
                       referrerPolicy="no-referrer"
-                      className="h-36 w-36 object-contain sm:h-40 sm:w-40"
+                      className="h-8 sm:h-9 w-auto object-contain"
                     />
-                  </div>
 
-                  <div className="mt-3.5 flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white">
-                    <QrCode className="h-4 w-4 text-[#D95326]" />
-                    <span>Quét Mã QR Trải Nghiệm Trên Điện Thoại</span>
-                  </div>
-                  <p className="mt-1 max-w-xs text-[11px] sm:text-xs text-[#64748B] dark:text-slate-300 leading-relaxed">
-                    Tối ưu hóa hiển thị di động cho khách tham quan quét mã tại buổi trình bày Poster Đồ án 1.
-                  </p>
+                    <div className="mt-2.5 rounded-2xl border border-[#E6E0D5] bg-white p-2 shadow-2xs dark:border-slate-700">
+                      <img
+                        src={qrDataUrl}
+                        alt="Mã QR truy cập FORUS trên điện thoại"
+                        referrerPolicy="no-referrer"
+                        className="h-24 w-24 sm:h-28 sm:w-28 object-contain"
+                      />
+                    </div>
 
-                  {/* Student Points & Quick Menu Contact Trigger */}
-                  <div className="mt-4 pt-3.5 border-t border-[#EAE5DC] dark:border-slate-800 w-full flex flex-wrap items-center justify-between gap-2 text-xs">
-                    <span className="font-mono font-bold text-[#0B2545] dark:text-slate-200">
-                      SV: {student.studentId} ·{" "}
-                      <strong className="text-[#D95326] dark:text-amber-400">
-                        {currentPoints}/100đ VIP
-                      </strong>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setIsMenuOpen(true)}
-                      className="font-extrabold text-[#D95326] dark:text-amber-300 hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Liên hệ Trạm CS1</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="mt-2.5 flex items-center gap-1 text-xs font-extrabold text-[#0B2545] dark:text-white">
+                      <QrCode className="h-3.5 w-3.5 text-[#D95326] shrink-0" />
+                      <span>Quét QR Trải Nghiệm</span>
+                    </div>
+                    <p className="mt-0.5 text-[10px] text-[#64748B] dark:text-slate-400">
+                      Trạm FORUS · Sảnh Tòa I (227 NVC)
+                    </p>
+
+                    <div className="mt-2.5 pt-2 border-t border-[#EAE5DC] dark:border-slate-800 w-full flex items-center justify-between gap-1.5 text-[11px]">
+                      {student.isLoggedIn ? (
+                        <span className="font-mono font-bold text-[#0B2545] dark:text-slate-200 truncate">
+                          {student.studentId} ·{" "}
+                          <strong className="text-[#D95326] dark:text-amber-400">
+                            {currentPoints}đ
+                          </strong>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setIsAccountMenuOpen(true)}
+                          className="font-extrabold text-[#0B2545] dark:text-amber-300 hover:underline truncate cursor-pointer"
+                        >
+                          Đăng nhập SV
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setIsMenuOpen(true)}
+                        className="font-extrabold text-[#D95326] dark:text-amber-300 hover:underline inline-flex items-center gap-0.5 shrink-0 cursor-pointer"
+                      >
+                        <span>Thẻ SV</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* 2. UNIFIED PRODUCT & BREAKFAST CATALOG (Matches Screenshot 2 Layout 100%) */}
+            {/* 2. UNIFIED EQUIPMENT, CALCULATOR, TEXTBOOK & BLOUSE CATALOG */}
             <section className="space-y-6">
               {/* Top Title + Search + Sort Row */}
               <div className="flex flex-col justify-between gap-4 border-b border-[#E5DEC9] pb-5 dark:border-slate-800 lg:flex-row lg:items-end">
                 <div>
-                  <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
-                    DANH MỤC SẢN PHẨM &amp; DỊCH VỤ LẺ · MỖI ĐƠN ĐỀU ĐƯỢC TÍCH ĐIỂM FORUS POINT
-                  </p>
-                  <h2 className="mt-1.5 text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0B2545] dark:text-white leading-[1.15]">
-                    Thực Đơn Sáng Giảng Đường
-                    <br className="hidden sm:inline" /> &amp; Tủ Thiết Bị Học Cụ FORUS
+                  <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0B2545] dark:text-white leading-[1.15]">
+                    Tủ Thiết Bị Học Cụ, Máy Tính, Giáo Trình
+                    <br className="hidden sm:inline" /> &amp; Áo Blouse Phòng Lab FORUS
                   </h2>
                 </div>
 
@@ -1652,7 +2620,7 @@ export default function App() {
                       type="text"
                       value={homeSearchQuery}
                       onChange={(e) => setHomeSearchQuery(e.target.value)}
-                      placeholder="Tìm bánh mì, cà phê, iPad, LaTeX..."
+                      placeholder="Tìm Casio 580, Vi tích phân, iPad, LaTeX..."
                       className="w-full rounded-2xl border border-[#E5E0D5] bg-white py-2.5 pr-4 pl-10 text-xs sm:text-sm text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     />
                   </div>
@@ -1675,15 +2643,15 @@ export default function App() {
 
               {/* Segmented Filter Pill Bar + Count Summary Row */}
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                <div className="inline-flex flex-wrap items-center gap-1 rounded-2xl border border-[#E5E0D5] bg-[#F2EFE9] p-1.5 dark:border-slate-700 dark:bg-slate-800">
+                <div className="grid grid-cols-2 sm:inline-flex sm:flex-wrap items-center gap-1.5 rounded-2xl border border-[#E5E0D5] bg-[#F2EFE9] p-1.5 dark:border-slate-700 dark:bg-slate-800 w-full sm:w-auto">
                   {[
                     {
                       id: "all",
                       label: `Tất cả (${allCatalogProducts.length})`,
                     },
-                    { id: "food", label: "Ăn sáng & Cà phê" },
-                    { id: "tech-gear", label: "Thiết bị & LaTeX" },
-                    { id: "rental", label: "Máy tính, Giáo trình & Blouse" },
+                    { id: "tech-gear", label: "Bảng vẽ & LaTeX" },
+                    { id: "study-aid", label: "Flashcard & Giá đỡ" },
+                    { id: "rental", label: "Máy tính & Giáo trình" },
                   ].map((tab) => (
                     <button
                       key={tab.id}
@@ -1693,7 +2661,7 @@ export default function App() {
                           tab.id as typeof homeCatalogFilter
                         )
                       }
-                      className={`rounded-xl px-4 py-2 text-xs font-extrabold transition cursor-pointer ${
+                      className={`w-full sm:w-auto rounded-xl px-2.5 sm:px-4 py-2 text-[11px] sm:text-xs font-extrabold transition cursor-pointer text-center truncate ${
                         homeCatalogFilter === tab.id
                           ? "bg-white text-[#0B2545] shadow-2xs dark:bg-slate-900 dark:text-white"
                           : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-300"
@@ -1716,7 +2684,7 @@ export default function App() {
                 </p>
               </div>
 
-              {/* 3-Column Editorial Product Cards Grid (Matches Screenshot 2 Card Design) */}
+              {/* 3-Column Editorial Product Cards Grid */}
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredHomeCatalog.map((item, idx) => {
                   const {
@@ -1725,9 +2693,8 @@ export default function App() {
                     finalPrice,
                     customMeta,
                     variantForCart,
+                    activeImageUrl,
                   } = getCardSelection(item);
-                  const isFood =
-                    item.category === "food" || item.category === "drink";
                   const ratingStats = getProductRatingStats(item, idx);
                   const hasConditionBadges = item.variants.some(
                     (v) => v.conditionBadge
@@ -1740,15 +2707,19 @@ export default function App() {
                     >
                       <div>
                         {/* Card Top Photo */}
-                        <div className="relative h-52 overflow-hidden bg-[#F3EFE6] dark:bg-slate-900">
+                        <div className="relative h-56 overflow-hidden bg-[#F3EFE6] dark:bg-slate-900">
                           <ProductVisual
-                            imageUrl={item.imageUrl}
-                            alt={item.name}
+                            imageUrl={activeImageUrl}
+                            alt={
+                              chosenModel
+                                ? `${item.name} - ${chosenModel.name}`
+                                : item.name
+                            }
                             fallbackIcon={item.fallbackIcon}
                             fallbackGradient={item.fallbackGradient}
                             code={
-                              isFood
-                                ? `${item.name.split(" (")[0]} · 227 Express`
+                              chosenModel
+                                ? `${item.code} · ${chosenModel.name}`
                                 : `${item.code} · FORUS CS1`
                             }
                             className="h-full w-full"
@@ -1759,16 +2730,18 @@ export default function App() {
                         <div className="p-5 sm:p-6 space-y-2.5">
                           {/* Clean Unboxed Metadata Kicker Line */}
                           <p className="text-xs text-[#64748B] dark:text-slate-400 truncate">
-                            {isFood
-                              ? "FORUS 227 Express · Ăn sáng · Giao sảnh Tòa I · Giảng đường B"
-                              : item.category === "rental"
+                            {item.category === "rental"
                               ? "FIT PassBook · Thuê & Mua (80% / 90% / Mới 100%) · Sảnh Tòa I"
                               : "FORUS PassBook · Học cụ & LaTeX · Nhận tại Thư viện · Sảnh Tòa I"}
                           </p>
 
                           {/* Deep Navy Product Title */}
                           <h3
-                            onClick={() => setSelectedProduct(item)}
+                            onClick={() => {
+                              if (requireLogin("Xem chi tiết & Đánh giá học cụ")) {
+                                setSelectedProduct(item);
+                              }
+                            }}
                             className="text-lg font-extrabold text-[#0B2545] leading-snug group-hover:text-[#D95326] transition cursor-pointer dark:text-white line-clamp-2"
                           >
                             {item.name}
@@ -1796,7 +2769,7 @@ export default function App() {
 
                           {/* Interactive Model Selector (Calculator type / Textbook subject / Blouse size) */}
                           {item.modelOptions && item.modelOptions.length > 0 && (
-                            <div className="pt-2 space-y-1">
+                            <div className="pt-2 space-y-2">
                               <label className="block text-[11px] font-bold text-[#0B2545] dark:text-slate-200">
                                 {item.modelSelectorLabel || "Chọn phân loại:"}
                               </label>
@@ -1813,14 +2786,65 @@ export default function App() {
                                 {item.modelOptions.map((mod) => (
                                   <option key={mod.id} value={mod.id}>
                                     {mod.name} ({mod.spec})
-                                    {mod.priceDelta > 0
+                                    {mod.priceDelta && mod.priceDelta > 0
                                       ? ` [+${mod.priceDelta.toLocaleString("vi-VN")}đ]`
-                                      : mod.priceDelta < 0
+                                      : mod.priceDelta && mod.priceDelta < 0
                                       ? ` [${mod.priceDelta.toLocaleString("vi-VN")}đ]`
                                       : ""}
                                   </option>
                                 ))}
                               </select>
+
+                              {/* Quick Image Thumbnail Selector when modelOptions have imageUrl */}
+                              {item.modelOptions.some((m) => Boolean(m.imageUrl)) && (
+                                <div className="grid grid-cols-5 gap-1.5 pt-0.5">
+                                  {item.modelOptions.map((mod) => {
+                                    const isSelectedMod =
+                                      (chosenModel?.id || item.modelOptions?.[0]?.id) ===
+                                      mod.id;
+                                    return (
+                                      <button
+                                        key={mod.id}
+                                        type="button"
+                                        onClick={() =>
+                                          setSelectedModelMap((prev) => ({
+                                            ...prev,
+                                            [item.id]: mod.id,
+                                          }))
+                                        }
+                                        title={mod.name}
+                                        className={`flex flex-col items-center rounded-xl border p-1 transition cursor-pointer ${
+                                          isSelectedMod
+                                            ? "border-2 border-[#D95326] bg-[#FFF8F3] shadow-2xs dark:border-amber-400 dark:bg-slate-900"
+                                            : "border-[#E5E0D5] bg-[#FAF8F5] hover:border-[#0B2545]/50 dark:border-slate-700 dark:bg-slate-900/60"
+                                        }`}
+                                      >
+                                        {mod.imageUrl && (
+                                          <div className="h-9 w-full overflow-hidden rounded-md bg-white dark:bg-slate-950 flex items-center justify-center p-0.5">
+                                            <img
+                                              src={mod.imageUrl}
+                                              alt={mod.name}
+                                              className="h-full w-full object-contain"
+                                            />
+                                          </div>
+                                        )}
+                                        <span
+                                          className={`mt-0.5 line-clamp-1 text-[9px] font-extrabold leading-tight ${
+                                            isSelectedMod
+                                              ? "text-[#D95326] dark:text-amber-300"
+                                              : "text-[#0B2545] dark:text-slate-300"
+                                          }`}
+                                        >
+                                          {mod.name
+                                            .replace("Giáo trình ", "")
+                                            .replace("Toán cao cấp: ", "")
+                                            .replace("Tài liệu hướng dẫn học tập ", "")}
+                                        </span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -1898,7 +2922,11 @@ export default function App() {
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => setSelectedProduct(item)}
+                            onClick={() => {
+                              if (requireLogin("Xem chi tiết & Đánh giá học cụ")) {
+                                setSelectedProduct(item);
+                              }
+                            }}
                             className="px-3 py-2 rounded-xl border border-[#E5E0D5] bg-white hover:bg-[#F5F2EB] text-xs font-bold text-[#0B2545] transition cursor-pointer dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                           >
                             Chi tiết
@@ -1907,13 +2935,9 @@ export default function App() {
                             type="button"
                             onClick={() =>
                               handleAddProductToCart(
-                                item,
+                                { ...item, imageUrl: activeImageUrl },
                                 variantForCart,
-                                isFood
-                                  ? `Giao: ${selectedRoomCode} (${
-                                      selectedBuilding.split(" (")[0]
-                                    })`
-                                  : customMeta
+                                customMeta
                               )
                             }
                             className="px-4 py-2 rounded-xl bg-[#0B2545] hover:bg-[#163A66] text-white text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer dark:bg-[#D95326] dark:hover:bg-[#C0441B]"
@@ -1929,22 +2953,19 @@ export default function App() {
               </div>
             </section>
 
-            {/* 3. ORDER HISTORY, TRACKING & QUICK REORDER SECTION (Matches Screenshot 4 Layout 100%) */}
+            {/* 3. ORDER HISTORY, TRACKING & QUICK REORDER SECTION */}
             <section className="space-y-6">
               {/* Warm Sand Header Box */}
               <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
-                <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
-                  LỊCH SỬ MUA HÀNG (ĐẶT LẠI NHANH) · TRA CỨU ĐƠN &amp; SƠ ĐỒ ĐIỂM NHẬN 227 NVC
-                </p>
-                <h2 className="mt-1.5 text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0B2545] dark:text-white">
+                <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0B2545] dark:text-white">
                   Lịch Sử Mua Hàng, Tra Cứu Đơn &amp; Sơ Đồ Điểm Nhận Cơ Sở 1
                 </h2>
                 <p className="mt-2 max-w-3xl text-sm sm:text-base leading-relaxed text-[#4A5568] dark:text-slate-300">
-                  Xem lại các đơn đồ ăn sáng, bản in và thiết bị bạn đã đặt, bấm{" "}
+                  Xem lại các đơn thuê học cụ, bản in A1–A5 và giáo trình bạn đã đặt, bấm{" "}
                   <strong className="font-bold text-[#0B2545] dark:text-white">
                     Đặt lại (Reorder)
                   </strong>{" "}
-                  để thêm nhanh các món quen thuộc vào giỏ hàng rồi chọn lại tòa nhà học hôm nay, hoặc theo dõi lộ trình giao hàng tại{" "}
+                  để thêm nhanh các mục quen thuộc vào giỏ hàng rồi chọn lại tòa nhà học hôm nay, hoặc theo dõi lộ trình giao hàng tại{" "}
                   <strong className="font-bold text-[#0B2545] dark:text-white">
                     227 Nguyễn Văn Cừ, Q.5
                   </strong>
@@ -1967,7 +2988,7 @@ export default function App() {
                       <strong className="text-[#0B2545] dark:text-white">
                         “Đặt lại đơn này”
                       </strong>
-                      , hệ thống chỉ thêm lại các món ăn và thiết bị vào giỏ hàng để bạn chọn Tòa nhà mới theo lịch học hôm nay.
+                      , hệ thống thêm lại các thiết bị và tài liệu vào giỏ hàng để bạn chọn Tòa nhà mới theo lịch học hôm nay.
                     </p>
                   </div>
 
@@ -2118,11 +3139,12 @@ export default function App() {
                         <div className="flex items-center gap-2.5">
                           <button
                             type="button"
-                            onClick={() =>
+                            onClick={() => {
+                              if (!requireLogin("Tra cứu tiến trình đơn hàng")) return;
                               setTrackingOrderId((prev) =>
                                 prev === ord.orderId ? null : ord.orderId
-                              )
-                            }
+                              );
+                            }}
                             className="rounded-xl border border-[#E5E0D5] bg-white hover:bg-[#F5F2EB] px-4 py-2.5 text-xs font-extrabold text-[#0B2545] transition cursor-pointer dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                           >
                             {trackingOrderId === ord.orderId
@@ -2146,435 +3168,293 @@ export default function App() {
               </div>
             </section>
 
-            {/* 4. VOUCHER REDEMPTION & LAB GROUP ORDER SECTION (Matches Screenshot 3 Layout 100%) */}
-            <section className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-stretch">
-                {/* Left 7 Cols: 3 Voucher Cards */}
-                <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-6 dark:border-slate-700 dark:bg-slate-900 lg:col-span-7">
-                  <div>
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0B2545] px-3.5 py-1.5 font-mono text-xs font-bold text-white">
-                        <Gift className="h-3.5 w-3.5 text-amber-300" />
-                        Đổi Điểm VIP FORUS ({currentPoints} điểm khả dụng ·{" "}
-                        {getMembershipTierName(currentPoints)})
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => switchTab("vip")}
-                        className="text-xs font-extrabold text-[#D95326] hover:underline cursor-pointer"
-                      >
-                        Mở Trung tâm VIP →
-                      </button>
-                    </div>
-
-                    <p className="mt-3.5 text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                      Khi{" "}
-                      <strong className="text-[#0B2545] dark:text-white">
-                        mua hàng
-                      </strong>{" "}
-                      (đồ ăn sáng, in tài liệu, thuê học cụ), hệ thống sẽ{" "}
-                      <strong className="text-emerald-700 dark:text-emerald-400">
-                        cộng điểm VIP
-                      </strong>{" "}
-                      trực tiếp vào hạng thành viên. Khi{" "}
-                      <strong className="text-[#D95326] dark:text-amber-400">
-                        đổi điểm
-                      </strong>{" "}
-                      nhận các gói Voucher bên dưới, hệ thống sẽ{" "}
-                      <strong className="text-[#D95326] dark:text-amber-400">
-                        trừ điểm VIP
-                      </strong>{" "}
-                      tương ứng:
-                    </p>
-
-                    <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
-                      {[
-                        {
-                          id: "hv-50",
-                          cost: 50,
-                          req: "Cần 50 điểm VIP · Trị giá 10.000đ",
-                          title: "Voucher Giảm 10.000đ Đơn Ăn Sáng Express",
-                          desc: "Áp dụng cho mọi món bánh mì, xôi lá chuối, cà phê muối giao tại Tòa I, F, B, C.",
-                          btnLabel: "Đổi 50 điểm ngay (-50đ VIP)",
-                        },
-                        {
-                          id: "hv-60",
-                          cost: 60,
-                          req: "Cần 60 điểm VIP · Trị giá 15.000đ",
-                          title: "Voucher Giảm 15.000đ Thuê Thiết Bị & Sổ Tay AI",
-                          desc: "Dùng khi thuê Combo iPad Sinh Viên, MacroPad LaTeX hoặc Sổ tay Toán cho AI CSC00006.",
-                          btnLabel: "Đổi 60 điểm ngay (-60đ VIP)",
-                        },
-                        {
-                          id: "hv-100",
-                          cost: 100,
-                          req: "Cần 100 điểm VIP · Giảm 15% tổng đơn",
-                          title: "Đặc Quyền Giảm 15% Toàn Bộ Giỏ Hàng Tuần Này",
-                          desc: "Ưu đãi cao nhất dành cho thành viên tích điểm năng nổ tại Cơ sở 1 (227 NVC).",
-                          btnLabel: "Đổi 100 điểm ngay (-100đ VIP)",
-                        },
-                      ].map((v) => {
-                        const isRedeemed = redeemedHomeVouchers.includes(v.id);
-                        const canAfford = currentPoints >= v.cost;
-                        return (
-                          <div
-                            key={v.id}
-                            className="flex flex-col justify-between rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] p-4 dark:border-slate-700 dark:bg-slate-800/80"
-                          >
-                            <div>
-                              <span className="block font-mono text-[11px] font-bold text-[#D95326] dark:text-amber-400">
-                                {v.req}
-                              </span>
-                              <h4 className="mt-1.5 text-sm font-extrabold text-[#0B2545] leading-snug dark:text-white">
-                                {v.title}
-                              </h4>
-                              <p className="mt-1.5 text-xs leading-relaxed text-[#64748B] dark:text-slate-300">
-                                {v.desc}
-                              </p>
-                            </div>
-
-                            <div className="mt-4 space-y-1.5">
-                              {isRedeemed && (
-                                <span className="block text-center font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                                  ✓ Đã đổi ưu đãi này
-                                </span>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  redeemPoints(v.cost, v.title, v.id)
-                                }
-                                className={`w-full rounded-xl py-2.5 px-2 text-xs font-extrabold transition cursor-pointer ${
-                                  isRedeemed
-                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                                    : canAfford
-                                    ? "bg-[#0B2545] hover:bg-[#163A66] text-white dark:bg-amber-400 dark:text-slate-950"
-                                    : "bg-slate-200 hover:bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
-                                }`}
-                              >
-                                {isRedeemed
-                                  ? `Đổi thêm lần nữa (-${v.cost}đ VIP)`
-                                  : canAfford
-                                  ? v.btnLabel
-                                  : `Thiếu ${v.cost - currentPoints} điểm VIP`}
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right 5 Cols: Gom Đơn Nhóm Phòng Lab */}
-                <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-6 dark:border-slate-700 dark:bg-slate-900 lg:col-span-5">
-                  <div className="space-y-3.5">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-[#D95326]" />
-                      <h3 className="text-base sm:text-lg font-extrabold text-[#0B2545] dark:text-white">
-                        Chế Độ Gom Đơn Nhóm Phòng Lab (CS1)
-                      </h3>
-                    </div>
-
-                    <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                      Đang làm đồ án nhóm tại phòng máy hoặc{" "}
-                      <strong className="text-[#0B2545] dark:text-white">
-                        Thư viện Cơ sở 1
-                      </strong>
-                      ? Bật chế độ Gom Đơn Nhóm để được{" "}
-                      <strong className="text-[#0B2545] dark:text-white">
-                        miễn phí giao nội khu 100%
-                      </strong>{" "}
-                      và{" "}
-                      <strong className="text-[#0B2545] dark:text-white">
-                        nhân đôi (x2) số điểm tích lũy
-                      </strong>{" "}
-                      cho toàn bộ đơn hàng!
-                    </p>
-
-                    <div className="rounded-2xl border border-[#E5DEC9] bg-[#F5F2EB] p-4 dark:border-slate-700 dark:bg-slate-800">
-                      <label className="block text-xs font-bold text-[#0B2545] dark:text-white mb-2">
-                        Mã phòng học / Nhóm đồ án của bạn:
-                      </label>
-                      <input
-                        type="text"
-                        value={homeLabCode}
-                        onChange={(e) =>
-                          setHomeLabCode(e.target.value.toUpperCase())
-                        }
-                        className="w-full rounded-xl border border-[#DDD6C7] bg-white px-3.5 py-2.5 font-mono text-xs sm:text-sm font-bold text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
-                      />
-                      <p className="mt-2 text-[11px] leading-relaxed text-[#64748B] dark:text-slate-300">
-                        Khi bật gom đơn, đơn hàng của bạn sẽ gắn nhãn nhóm{" "}
-                        <strong className="font-mono text-[#0B2545] dark:text-amber-300">
-                          {homeLabCode || "LAB-TOA-F-09"}
-                        </strong>{" "}
-                        để shipper giao cùng lúc.
-                      </p>
-                    </div>
-                  </div>
-
+            {/* 4. VOUCHER REDEMPTION & EXTENSIBLE FEATURES HUB SECTION (GOM ĐƠN LAB REMOVED) */}
+            <section className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90 space-y-6">
+              <div className="rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-7 dark:border-slate-700 dark:bg-slate-900">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0B2545] px-3.5 py-1.5 font-mono text-xs font-bold text-white">
+                    <Gift className="h-3.5 w-3.5 text-amber-300" />
+                    Kho Đổi Điểm &amp; Voucher FORUS ({currentPoints} điểm khả dụng ·{" "}
+                    {getMembershipTierName(currentPoints)})
+                  </span>
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsHomeGroupOrderOn((prev) => !prev);
-                      showToast(
-                        !isHomeGroupOrderOn
-                          ? `Đã bật Gom Đơn Nhóm (${homeLabCode}) — Nhân đôi điểm & Freeship nội khu!`
-                          : "Đã tắt chế độ Gom Đơn Nhóm."
-                      );
-                    }}
-                    className={`mt-4 w-full rounded-2xl py-3.5 px-4 text-xs sm:text-sm font-extrabold text-white transition cursor-pointer shadow-xs ${
-                      isHomeGroupOrderOn
-                        ? "bg-emerald-600 hover:bg-emerald-500"
-                        : "bg-[#D95326] hover:bg-[#C0441B]"
-                    }`}
+                    onClick={() => switchTab("vip")}
+                    className="text-xs font-extrabold text-[#D95326] hover:underline cursor-pointer"
                   >
-                    {isHomeGroupOrderOn
-                      ? `Đang Bật Gom Đơn Nhóm ${homeLabCode} (x2 Điểm + Freeship ✓)`
-                      : "Bật Chế Độ Gom Đơn Nhóm Phòng Lab (x2 Điểm + Freeship)"}
+                    Mở mục Tính năng &amp; Trợ lý AI →
                   </button>
+                </div>
+
+                <p className="mt-3.5 text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
+                  Khi{" "}
+                  <strong className="text-[#0B2545] dark:text-white">
+                    mua hàng / thuê học cụ
+                  </strong>{" "}
+                  (in tài liệu, thuê học cụ, kết nối gia sư), hệ thống sẽ{" "}
+                  <strong className="text-emerald-700 dark:text-emerald-400">
+                    cộng điểm
+                  </strong>{" "}
+                  trực tiếp vào tài khoản sinh viên. Khi{" "}
+                  <strong className="text-[#D95326] dark:text-amber-400">
+                    đổi điểm
+                  </strong>{" "}
+                  nhận các gói Voucher bên dưới, hệ thống sẽ{" "}
+                  <strong className="text-[#D95326] dark:text-amber-400">
+                    trừ điểm
+                  </strong>{" "}
+                  tương ứng:
+                </p>
+
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  {[
+                    {
+                      id: "hv-50",
+                      cost: 50,
+                      req: "Cần 50 điểm · Trị giá 10.000đ",
+                      title: "Voucher Giảm 10.000đ Đơn In Ấn & Giáo Trình",
+                      desc: "Áp dụng cho mọi đơn in tài liệu A1–A5, thuê máy tính Casio hoặc mua giáo trình đại cương tại Tòa I, F, B, C.",
+                      btnLabel: "Đổi 50 điểm ngay (-50đ)",
+                    },
+                    {
+                      id: "hv-60",
+                      cost: 60,
+                      req: "Cần 60 điểm · Trị giá 15.000đ",
+                      title: "Voucher Giảm 15.000đ Thuê Thiết Bị & Sổ Tay AI",
+                      desc: "Dùng khi thuê Combo iPad Sinh Viên, MacroPad LaTeX hoặc Sổ tay Toán cho AI CSC00006.",
+                      btnLabel: "Đổi 60 điểm ngay (-60đ)",
+                    },
+                    {
+                      id: "hv-100",
+                      cost: 100,
+                      req: "Cần 100 điểm · Giảm 15% tổng đơn",
+                      title: "Đặc Quyền Giảm 15% Toàn Bộ Giỏ Hàng Tuần Này",
+                      desc: "Ưu đãi cao nhất dành cho thành viên tích điểm năng nổ tại Cơ sở 1 (227 NVC).",
+                      btnLabel: "Đổi 100 điểm ngay (-100đ)",
+                    },
+                  ].map((v) => {
+                    const isRedeemed = redeemedHomeVouchers.includes(v.id);
+                    const canAfford = currentPoints >= v.cost;
+                    return (
+                      <div
+                        key={v.id}
+                        className="flex flex-col justify-between rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] p-4 dark:border-slate-700 dark:bg-slate-800/80"
+                      >
+                        <div>
+                          <span className="block font-mono text-[11px] font-bold text-[#D95326] dark:text-amber-400">
+                            {v.req}
+                          </span>
+                          <h4 className="mt-1.5 text-sm font-extrabold text-[#0B2545] leading-snug dark:text-white">
+                            {v.title}
+                          </h4>
+                          <p className="mt-1.5 text-xs leading-relaxed text-[#64748B] dark:text-slate-300">
+                            {v.desc}
+                          </p>
+                        </div>
+
+                        <div className="mt-4 space-y-1.5">
+                          {isRedeemed && (
+                            <span className="block text-center font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                              ✓ Đã đổi ưu đãi này
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              redeemPoints(v.cost, v.title, v.id)
+                            }
+                            className={`w-full rounded-xl py-2.5 px-2 text-xs font-extrabold transition cursor-pointer ${
+                              isRedeemed
+                                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                : canAfford
+                                ? "bg-[#0B2545] hover:bg-[#163A66] text-white dark:bg-amber-400 dark:text-slate-950"
+                                : "bg-slate-200 hover:bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                            }`}
+                          >
+                            {isRedeemed
+                              ? `Đổi thêm lần nữa (-${v.cost}đ)`
+                              : canAfford
+                              ? v.btnLabel
+                              : `Thiếu ${v.cost - currentPoints} điểm`}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </section>
           </div>
         )}
 
-        {/* ================= BREAKFAST & DRINKS TAB ================= */}
-        {activeTab === "food" && (
-          <div className="space-y-5 sm:space-y-8 w-full max-w-full overflow-x-hidden">
-            <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-4 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
-                <div className="space-y-2 max-w-xl min-w-0">
-                  <p className="font-mono text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400 break-words">
-                    FORUS 227 EXPRESS · GIAO TẬN PHÒNG HỌC CƠ SỞ 1 NGUYỄN VĂN CỪ
-                  </p>
-                  <h2 className="text-xl sm:text-4xl font-extrabold text-[#0B2545] dark:text-white leading-[1.2] break-words">
-                    Thực Đơn Ăn Sáng &amp; Cà Phê Tỉnh Táo Giảng Đường
-                  </h2>
-                  <p className="text-xs sm:text-sm text-[#4A5568] dark:text-slate-300 leading-relaxed break-words">
-                    Chọn tòa nhà, số phòng và khung giờ bên dưới — Shipper sinh
-                    viên FORUS giao tận bàn trước khi giảng viên vào lớp.
-                  </p>
+        {/* ================= AUTHENTICATION GATE FOR FEATURE TABS WHEN LOGGED OUT ================= */}
+        {!student.isLoggedIn &&
+          (activeTab === "events" ||
+            activeTab === "print" ||
+            activeTab === "tutor" ||
+            activeTab === "gear" ||
+            activeTab === "vip") && (
+            <div className="max-w-xl mx-auto my-4 sm:my-8 rounded-3xl border border-[#E5DEC9] bg-white dark:border-slate-700 dark:bg-slate-900 shadow-xl overflow-hidden">
+              <div className="p-6 bg-gradient-to-br from-[#0B2545] via-[#0F3156] to-[#134E5E] text-white space-y-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-amber-400/20 text-amber-200 border border-amber-300/30">
+                  Yêu cầu đăng nhập tài khoản Sinh viên
+                </span>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-snug">
+                  Đăng nhập 1 lần để sử dụng tính năng{" "}
+                  {navItems.find((n) => n.id === activeTab)?.label || "FORUS"}
+                </h2>
+                <p className="text-xs sm:text-sm text-sky-100/90 leading-relaxed">
+                  Chỉ sinh viên đã đăng nhập mới được sử dụng các tính năng của FORUS. Sau khi đăng nhập lần đầu, hệ thống tự động lưu phiên của bạn — không cần đăng nhập lại cho đến khi bạn bấm <strong>Đăng xuất</strong>.
+                </p>
+              </div>
+
+              <form
+                onSubmit={handleProfileLoginSubmit}
+                className="p-6 space-y-4 text-xs sm:text-sm"
+              >
+                <div>
+                  <label className="block text-xs font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                    Email Sinh viên HCMUS <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={loginEmail}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setLoginEmail(val);
+                      if (!loginStudentId && val.includes("@")) {
+                        setLoginStudentId(val.split("@")[0]);
+                      }
+                    }}
+                    placeholder="Nhập email SV (VD: MSSV@student.hcmus.edu.vn)"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 font-mono text-xs sm:text-sm text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
+                  />
                 </div>
 
-                {/* Room & Time Pickers */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white dark:bg-slate-900 p-3.5 sm:p-4 rounded-2xl border border-[#E6E0D5] dark:border-slate-700 shadow-2xs w-full lg:w-auto min-w-0">
-                  <div className="min-w-0">
-                    <label className="block text-[11px] font-bold text-[#64748B] dark:text-slate-300 mb-1 flex items-center gap-1">
-                      <Building2 className="w-3.5 h-3.5 text-[#D95326] shrink-0" />{" "}
-                      Tòa nhà CS1:
-                    </label>
-                    <select
-                      value={selectedBuilding}
-                      onChange={(e) => setSelectedBuilding(e.target.value)}
-                      className="w-full max-w-full min-w-0 truncate px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-xs font-bold text-[#0B2545] dark:text-slate-100"
-                    >
-                      {CAMPUS_BUILDINGS_CS1.map((b) => (
-                        <option key={b} value={b}>
-                          {b}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="min-w-0">
-                    <label className="block text-[11px] font-bold text-[#64748B] dark:text-slate-300 mb-1">
-                      Số phòng cụ thể:
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                      Mã số sinh viên (MSSV) <span className="text-rose-500">*</span>
                     </label>
                     <input
                       type="text"
-                      value={selectedRoomCode}
-                      onChange={(e) => setSelectedRoomCode(e.target.value)}
-                      placeholder="VD: Phòng I.42, E.302..."
-                      className="w-full max-w-full min-w-0 px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-xs font-bold text-[#0B2545] dark:text-slate-100"
+                      required
+                      value={loginStudentId}
+                      onChange={(e) => setLoginStudentId(e.target.value)}
+                      placeholder="Nhập MSSV của bạn"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 font-mono font-bold text-xs sm:text-sm text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
                     />
                   </div>
-                  <div className="min-w-0">
-                    <label className="block text-[11px] font-bold text-[#64748B] dark:text-slate-300 mb-1 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-[#0B2545] dark:text-amber-400 shrink-0" />{" "}
-                      Khung giờ giao:
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                      Họ và tên sinh viên <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={loginFullName}
+                      onChange={(e) => setLoginFullName(e.target.value)}
+                      placeholder="Nhập họ và tên đầy đủ"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 font-semibold text-xs sm:text-sm text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                      Khoa đào tạo (Cơ sở 1)
                     </label>
                     <select
-                      value={selectedSlot}
-                      onChange={(e) => setSelectedSlot(e.target.value)}
-                      className="w-full max-w-full min-w-0 truncate px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-600 text-xs font-bold text-[#0B2545] dark:text-slate-100"
+                      value={loginFaculty}
+                      onChange={(e) => setLoginFaculty(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl bg-[#FAF8F5] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 font-semibold text-xs sm:text-sm text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
                     >
-                      {DELIVERY_TIME_SLOTS.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {slot}
+                      {HCMUS_FACULTIES.map((f) => (
+                        <option key={f} value={f}>
+                          {f}
                         </option>
                       ))}
                     </select>
                   </div>
-                </div>
-              </div>
 
-              {/* Interactive Segmented Filter Bar */}
-              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-3 mt-5 sm:mt-6 pt-4 border-t border-[#E5DEC9] dark:border-slate-700/80">
-                <div className="flex flex-wrap sm:inline-flex items-center gap-1.5 w-full sm:w-auto rounded-2xl border border-[#E5E0D5] bg-white/70 p-1.5 dark:border-slate-700 dark:bg-slate-900">
-                  {[
-                    {
-                      id: "all",
-                      label: `Tất cả thực đơn (${foodProducts.length})`,
-                    },
-                    { id: "food", label: "Đồ ăn sáng nóng" },
-                    { id: "drink", label: "Cà phê & Trà trái cây" },
-                  ].map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setFoodFilter(cat.id as typeof foodFilter)}
-                      className={`flex-1 sm:flex-initial text-center px-3 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-extrabold transition cursor-pointer ${
-                        foodFilter === cat.id
-                          ? "bg-[#0B2545] text-white shadow-2xs dark:bg-amber-400 dark:text-slate-950"
-                          : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-300"
-                      }`}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
-
-                <span className="font-mono text-[11px] sm:text-xs text-[#64748B] dark:text-slate-300 break-words">
-                  Điểm giao đang chọn:{" "}
-                  <strong className="text-[#D95326] dark:text-amber-400">
-                    {selectedRoomCode} · {selectedBuilding.split(" (")[0]}
-                  </strong>
-                </span>
-              </div>
-            </div>
-
-            {/* 3-Column Editorial Food Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-              {filteredFoodList.map((food, idx) => {
-                const chosenVariant =
-                  food.variants.find(
-                    (v) => v.id === selectedVariantMap[food.id]
-                  ) || food.variants[0];
-                const ratingStats = getProductRatingStats(food, idx);
-
-                return (
-                  <div
-                    key={food.id}
-                    className="min-w-0 bg-white dark:bg-slate-800/95 rounded-3xl border border-[#E6E0D5] dark:border-slate-700/80 hover:border-[#C8C0B0] overflow-hidden flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group"
-                  >
-                    <div>
-                      <div className="relative h-48 sm:h-52 overflow-hidden bg-[#F3EFE6] dark:bg-slate-900">
-                        <ProductVisual
-                          imageUrl={food.imageUrl}
-                          alt={food.name}
-                          fallbackIcon={food.fallbackIcon}
-                          fallbackGradient={food.fallbackGradient}
-                          code={`${food.name.split(" (")[0]} · 227 Express`}
-                          className="w-full h-full"
-                        />
-                      </div>
-
-                      <div className="p-4 sm:p-6 space-y-2.5">
-                        <p className="text-xs text-[#64748B] dark:text-slate-400 truncate">
-                          FORUS 227 Express · Ăn sáng · Giao{" "}
-                          {selectedBuilding.split(" (")[0]}
-                        </p>
-
-                        <h3 className="font-extrabold text-base sm:text-lg text-[#0B2545] dark:text-white leading-snug break-words">
-                          {food.name}
-                        </h3>
-
-                        <p className="text-xs sm:text-sm text-[#4A5568] dark:text-slate-300 leading-relaxed line-clamp-2">
-                          {food.subtitle}
-                        </p>
-
-                        <div className="pt-1 flex flex-wrap items-center gap-1.5 text-xs">
-                          <Star className="h-3.5 w-3.5 fill-[#D95326] text-[#D95326] shrink-0" />
-                          <span className="font-mono font-bold text-[#D95326]">
-                            {ratingStats.avg}
-                          </span>
-                          <span className="text-[#64748B] dark:text-slate-400">
-                            ({ratingStats.count} đánh giá)
-                          </span>
-                          <span className="text-[#64748B]">·</span>
-                          <span className="font-mono font-bold text-[#D95326]">
-                            +{food.pointsReward} điểm FORUS
-                          </span>
-                        </div>
-
-                        {food.variants.length > 1 && (
-                          <div className="pt-2">
-                            <select
-                              value={chosenVariant.id}
-                              onChange={(e) =>
-                                setSelectedVariantMap((prev) => ({
-                                  ...prev,
-                                  [food.id]: e.target.value,
-                                }))
-                              }
-                              className="w-full max-w-full min-w-0 truncate px-3 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-900 border border-[#DDD6C7] dark:border-slate-700 text-xs font-bold text-[#0B2545] dark:text-slate-200"
-                            >
-                              {food.variants.map((v) => (
-                                <option key={v.id} value={v.id}>
-                                  {v.label} — {v.price.toLocaleString("vi-VN")}đ
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="px-4 sm:px-6 pb-4 sm:pb-5 pt-3 border-t border-[#EAE5DC] dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 min-w-0">
-                      <span className="font-mono font-extrabold text-[#0B2545] dark:text-white text-base sm:text-lg tabular-nums">
-                        {chosenVariant.price.toLocaleString("vi-VN")}đ
-                      </span>
-
-                      <div className="flex items-center gap-2 min-w-0">
-                        <button
-                          onClick={() => setSelectedProduct(food)}
-                          className="px-3 py-2 rounded-xl border border-[#E5E0D5] dark:border-slate-600 text-[#0B2545] dark:text-slate-200 hover:bg-[#F5F2EB] font-bold text-xs transition shrink-0 cursor-pointer"
-                        >
-                          Chi tiết
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleAddProductToCart(
-                              food,
-                              chosenVariant,
-                              `Giao: ${selectedRoomCode} (${
-                                selectedBuilding.split(" (")[0]
-                              }) • ${selectedSlot.split(" (")[0]}`
-                            )
-                          }
-                          className="px-3.5 sm:px-4 py-2 rounded-xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition min-w-0 cursor-pointer"
-                        >
-                          <Plus className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate max-w-[130px] sm:max-w-none">
-                            Giao {selectedRoomCode}
-                          </span>
-                        </button>
-                      </div>
-                    </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#0B2545] dark:text-slate-200 mb-1">
+                      Mật khẩu tài khoản <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      placeholder="Nhập mật khẩu"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5] dark:bg-slate-800 border border-[#DDD6C7] dark:border-slate-700 text-xs sm:text-sm text-[#0B2545] dark:text-white focus:border-[#0B2545] focus:outline-none"
+                    />
                   </div>
-                );
-              })}
+                </div>
+
+                {loginError && (
+                  <div className="rounded-xl bg-rose-500/10 border border-rose-500/25 p-3 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                    {loginError}
+                  </div>
+                )}
+
+                <div className="pt-1 flex flex-col sm:flex-row items-center gap-2.5">
+                  <button
+                    type="submit"
+                    className="w-full sm:flex-1 py-3 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-sm"
+                  >
+                    <UserCheck className="w-4 h-4" />
+                    <span>Đăng Nhập &amp; Mở Khóa Tính Năng</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => switchTab("home")}
+                    className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-[#DDD6C7] dark:border-slate-700 text-[#4A5568] dark:text-slate-300 font-bold text-xs hover:bg-[#F3EFE6] dark:hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    Về Trang chủ
+                  </button>
+                </div>
+              </form>
             </div>
-          </div>
+          )}
+
+        {/* ================= EVENTS HUB TAB (REPLACES FOOD TAB) ================= */}
+        {student.isLoggedIn && activeTab === "events" && (
+          <EventsHub
+            student={student}
+            onToggleReminder={handleToggleEventReminder}
+            onSaveEventNote={handleSaveEventNote}
+            onEarnPoints={earnPoints}
+            onShowToast={showToast}
+          />
         )}
 
         {/* ================= PRINT CONFIGURATOR TAB ================= */}
-        {activeTab === "print" && (
+        {student.isLoggedIn && activeTab === "print" && (
           <PrintConfigurator onAddPrintToCart={handleAddPrintToCart} />
         )}
 
         {/* ================= TUTOR HUB TAB ================= */}
-        {activeTab === "tutor" && <TutorHub onEarnPoints={earnPoints} />}
+        {student.isLoggedIn && activeTab === "tutor" && (
+          <TutorHub
+            onEarnPoints={earnPoints}
+            student={student}
+            onOpenEditProfile={() => {
+              setIsAccountMenuOpen(true);
+              setIsEditingAccount(true);
+            }}
+          />
+        )}
 
         {/* ================= RENT & BUY (9 ITEMS) TAB ================= */}
-        {activeTab === "gear" && (
+        {student.isLoggedIn && activeTab === "gear" && (
           <div className="space-y-6 sm:space-y-8">
             <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
               <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
                 <div className="space-y-2 max-w-2xl">
-                  <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
-                    FORUS PASSBOOK &amp; TECH GEAR · GIẢI PHÁP GHI CHÉP &amp; HỌC CỤ TẠI 227 NVC
-                  </p>
                   <h2 className="text-2xl sm:text-4xl font-extrabold text-[#0B2545] dark:text-white leading-[1.15]">
                     Trạm Thuê &amp; Bán Thiết Bị, Máy Tính, Giáo Trình &amp; Áo Blouse ({gearProducts.length} Danh Mục)
                   </h2>
@@ -2599,23 +3479,23 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="inline-flex flex-wrap items-center gap-1 rounded-2xl border border-[#E5E0D5] bg-white/80 p-1.5 dark:border-slate-700 dark:bg-slate-900">
+                <div className="grid grid-cols-2 sm:inline-flex sm:flex-wrap items-center gap-1.5 rounded-2xl border border-[#E5E0D5] bg-white/90 p-1.5 dark:border-slate-700 dark:bg-slate-900 w-full lg:w-auto">
                   {[
                     { id: "all", label: `Tất cả (${gearProducts.length} mục)` },
                     { id: "tech-gear", label: "Bảng vẽ & LaTeX" },
                     { id: "study-aid", label: "Flashcard & Giá đỡ" },
                     {
                       id: "rental",
-                      label: "Máy tính, Giáo trình & Áo Blouse",
+                      label: "Máy tính & Giáo trình",
                     },
                   ].map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => setGearFilter(tab.id as typeof gearFilter)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition whitespace-nowrap cursor-pointer ${
+                      className={`w-full sm:w-auto px-2.5 sm:px-3.5 py-2 rounded-xl text-[11px] sm:text-xs font-extrabold transition text-center truncate cursor-pointer ${
                         gearFilter === tab.id
                           ? "bg-[#0B2545] text-white shadow-2xs dark:bg-amber-400 dark:text-slate-950"
-                          : "text-[#5A6578] hover:text-[#0B2545] dark:text-slate-300"
+                          : "bg-[#FAF8F5] sm:bg-transparent text-[#5A6578] hover:text-[#0B2545] dark:bg-slate-800/70 sm:dark:bg-transparent dark:text-slate-300"
                       }`}
                     >
                       {tab.label}
@@ -2633,6 +3513,7 @@ export default function App() {
                   finalPrice,
                   customMeta,
                   variantForCart,
+                  activeImageUrl,
                 } = getCardSelection(item);
                 const ratingStats = getProductRatingStats(item, idx);
                 const hasConditionBadges = item.variants.some(
@@ -2652,13 +3533,21 @@ export default function App() {
                     }`}
                   >
                     <div>
-                      <div className="relative h-56 bg-[#F3EFE6] dark:bg-slate-900/75">
+                      <div className="relative h-60 bg-[#F3EFE6] dark:bg-slate-900/75">
                         <ProductVisual
-                          imageUrl={item.imageUrl}
-                          alt={item.name}
+                          imageUrl={activeImageUrl}
+                          alt={
+                            chosenModel
+                              ? `${item.name} - ${chosenModel.name}`
+                              : item.name
+                          }
                           fallbackIcon={item.fallbackIcon}
                           fallbackGradient={item.fallbackGradient}
-                          code={`${item.code} · FORUS CS1`}
+                          code={
+                            chosenModel
+                              ? `${item.code} · ${chosenModel.name}`
+                              : `${item.code} · FORUS CS1`
+                          }
                           className="w-full h-full"
                         />
 
@@ -2749,10 +3638,17 @@ export default function App() {
 
                         {/* Step 1: Select Calculator Model / Textbook Combo / Lab Coat Size */}
                         {item.modelOptions && item.modelOptions.length > 0 && (
-                          <div className="pt-2 border-t border-[#EAE5DC] dark:border-slate-700 space-y-1.5">
-                            <label className="block text-[11px] font-extrabold text-[#0B2545] dark:text-slate-200">
-                              1. {item.modelSelectorLabel || "Chọn phân loại:"}
-                            </label>
+                          <div className="pt-2 border-t border-[#EAE5DC] dark:border-slate-700 space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="block text-[11px] font-extrabold text-[#0B2545] dark:text-slate-200">
+                                1. {item.modelSelectorLabel || "Chọn phân loại:"}
+                              </label>
+                              {chosenModel && (
+                                <span className="font-mono text-[10px] font-bold text-[#D95326] dark:text-amber-300 truncate max-w-[160px]">
+                                  {chosenModel.name}
+                                </span>
+                              )}
+                            </div>
                             <select
                               value={chosenModel?.id || item.modelOptions[0].id}
                               disabled={isRented}
@@ -2767,14 +3663,66 @@ export default function App() {
                               {item.modelOptions.map((mod) => (
                                 <option key={mod.id} value={mod.id}>
                                   {mod.name} — {mod.spec}
-                                  {mod.priceDelta > 0
+                                  {mod.priceDelta && mod.priceDelta > 0
                                     ? ` (+${mod.priceDelta.toLocaleString("vi-VN")}đ)`
-                                    : mod.priceDelta < 0
+                                    : mod.priceDelta && mod.priceDelta < 0
                                     ? ` (${mod.priceDelta.toLocaleString("vi-VN")}đ)`
                                     : ""}
                                 </option>
                               ))}
                             </select>
+
+                            {/* Interactive Product Thumbnail Grid when modelOptions have imageUrl */}
+                            {item.modelOptions.some((m) => Boolean(m.imageUrl)) && (
+                              <div className="grid grid-cols-5 gap-1.5 pt-0.5">
+                                {item.modelOptions.map((mod) => {
+                                  const isSelectedMod =
+                                    (chosenModel?.id || item.modelOptions?.[0]?.id) ===
+                                    mod.id;
+                                  return (
+                                    <button
+                                      key={mod.id}
+                                      type="button"
+                                      disabled={isRented}
+                                      onClick={() =>
+                                        setSelectedModelMap((prev) => ({
+                                          ...prev,
+                                          [item.id]: mod.id,
+                                        }))
+                                      }
+                                      title={`${mod.name} — ${mod.spec || ""}`}
+                                      className={`flex flex-col items-center rounded-xl border p-1 transition cursor-pointer disabled:cursor-not-allowed ${
+                                        isSelectedMod
+                                          ? "border-2 border-[#D95326] bg-[#FFF8F3] shadow-2xs dark:border-amber-400 dark:bg-slate-900"
+                                          : "border-[#E5E0D5] bg-[#FAF8F5] hover:border-[#0B2545]/50 dark:border-slate-700 dark:bg-slate-900/60"
+                                      }`}
+                                    >
+                                      {mod.imageUrl && (
+                                        <div className="h-10 w-full overflow-hidden rounded-md bg-white dark:bg-slate-950 flex items-center justify-center p-0.5">
+                                          <img
+                                            src={mod.imageUrl}
+                                            alt={mod.name}
+                                            className="h-full w-full object-contain"
+                                          />
+                                        </div>
+                                      )}
+                                      <span
+                                        className={`mt-1 line-clamp-1 text-[9px] font-extrabold leading-tight ${
+                                          isSelectedMod
+                                            ? "text-[#D95326] dark:text-amber-300"
+                                            : "text-[#0B2545] dark:text-slate-300"
+                                        }`}
+                                      >
+                                        {mod.name
+                                          .replace("Giáo trình ", "")
+                                          .replace("Toán cao cấp: ", "")
+                                          .replace("Tài liệu hướng dẫn học tập ", "")}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         )}
 
@@ -2908,7 +3856,7 @@ export default function App() {
                           type="button"
                           onClick={() =>
                             handleAddProductToCart(
-                              item,
+                              { ...item, imageUrl: activeImageUrl },
                               variantForCart,
                               customMeta
                             )
@@ -2928,7 +3876,7 @@ export default function App() {
         )}
 
         {/* ================= VIP 100 POINTS HUB TAB ================= */}
-        {activeTab === "vip" && (
+        {student.isLoggedIn && activeTab === "vip" && (
           <VipHub
             student={student}
             onUnlockDemoVip={handleActivateDemoVip}
@@ -2944,299 +3892,287 @@ export default function App() {
           />
         )}
 
-        {/* ================= DEDICATED INTRODUCTION PAGE (NOT IN SERVICE BAR) ================= */}
+        {/* ================= DEDICATED INTERACTIVE INTRODUCTION SHOWCASE ================= */}
         {activeTab === "about" && (
-          <div className="space-y-6 sm:space-y-8 max-w-4xl mx-auto w-full">
+          <div className="space-y-6 max-w-5xl mx-auto w-full">
             {/* Top Back Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => switchTab("home")}
-                className="inline-flex items-center gap-2 rounded-2xl border border-[#E5DEC9] bg-white hover:bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 px-4 py-2.5 text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white transition cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-2 rounded-2xl border border-[#E5DEC9] bg-white hover:bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-800 px-4 py-2 text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white transition cursor-pointer shadow-2xs"
               >
                 <span>← Quay lại Trang chủ</span>
               </button>
-              <span className="font-mono text-xs font-semibold uppercase tracking-wider text-[#D95326] dark:text-amber-400">
-                BÀI GIỚI THIỆU HỆ SINH THÁI SINH VIÊN FORUS · HCMUS
+              <span className="font-mono text-xs font-bold text-[#D95326] dark:text-amber-400">
+                HCMUS · CS1 (227 Nguyễn Văn Cừ)
               </span>
             </div>
 
-            {/* Hero Article Header */}
-            <article className="rounded-3xl border border-[#E5DEC9] bg-white dark:border-slate-700/80 dark:bg-slate-800/95 shadow-2xs overflow-hidden">
-              <div className="bg-[#F3EFE6] dark:bg-slate-900/90 border-b border-[#E5DEC9] dark:border-slate-700 p-6 sm:p-10 space-y-4">
-                <p className="font-mono text-xs font-bold tracking-wider uppercase text-[#D95326] dark:text-amber-400">
-                  GIỚI THIỆU DỰ ÁN · TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN, ĐHQG-HCM (HCMUS)
-                </p>
-                <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#0B2545] dark:text-white leading-tight">
-                  FORUS – TIỆN ÍCH TRONG TAY, HỌC HAY MỖI NGÀY
-                </h1>
-                <p className="text-base sm:text-xl font-bold text-[#D95326] dark:text-amber-300 leading-snug">
-                  Hệ sinh thái hỗ trợ học tập và phát triển toàn diện dành cho sinh viên
-                </p>
-
-                <div className="pt-2 space-y-3.5 text-sm sm:text-base leading-relaxed text-[#334155] dark:text-slate-200">
-                  <p>
-                    Trong môi trường đại học, hành trình của mỗi sinh viên không chỉ gói gọn trong những giờ học trên giảng đường mà còn bao gồm việc tự học, nghiên cứu, tham gia hoạt động ngoại khóa và phát triển các kỹ năng cần thiết. Tuy nhiên, việc tìm kiếm công cụ học tập phù hợp, quản lý chi phí và cập nhật thông tin về các hoạt động sinh viên đôi khi vẫn còn nhiều bất tiện.
-                  </p>
-                  <p>
-                    Xuất phát từ những nhu cầu thực tế đó, <strong className="font-extrabold text-[#0B2545] dark:text-white">FORUS</strong> được xây dựng với định hướng trở thành một hệ sinh thái tiện ích dành cho sinh viên, kết hợp giữa nền tảng mua bán, cho thuê dụng cụ học tập và kênh tổng hợp thông tin về các hoạt động ngoại khóa, đặc biệt hướng đến sinh viên <strong className="font-extrabold text-[#0B2545] dark:text-white">Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM (HCMUS)</strong>.
-                  </p>
-                  <p>
-                    Với phương châm <strong className="font-extrabold text-[#D95326] dark:text-amber-300">“Tiện ích trong tay, học hay mỗi ngày”</strong>, FORUS mong muốn đồng hành cùng sinh viên trong cả học tập lẫn các hoạt động phát triển bản thân, mang đến những giải pháp tiện lợi, tiết kiệm và dễ tiếp cận.
-                  </p>
-                </div>
+            {/* Interactive Animated Hero Card */}
+            <div
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+                const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+                setHeroGlowPos({ x, y });
+              }}
+              className="relative overflow-hidden rounded-3xl border border-[#1E3A5F]/40 bg-gradient-to-br from-[#061527] via-[#0B2545] to-[#0D3B4E] p-6 sm:p-10 text-white shadow-xl"
+            >
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+              >
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `radial-gradient(500px circle at ${heroGlowPos.x}% ${heroGlowPos.y}%, rgba(217, 83, 38, 0.30), rgba(56, 189, 248, 0.14) 50%, transparent 75%)`,
+                  }}
+                />
+                <div className="animate-forus-float-slow absolute -top-20 -right-16 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
+                <div className="animate-forus-float-reverse absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+                <div className="animate-forus-spin-slow absolute -top-24 left-1/3 h-64 w-64 rounded-full border border-white/10" />
               </div>
 
-              {/* Article Body Content */}
-              <div className="p-6 sm:p-10 space-y-8 sm:space-y-10 text-sm sm:text-base leading-relaxed text-[#334155] dark:text-slate-200">
-                {/* Section 1 */}
-                <section className="space-y-4">
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
-                    1. Hệ sinh thái sản phẩm hỗ trợ học tập
-                  </h2>
-                  <p>
-                    Một trong những chức năng trọng tâm của FORUS là cung cấp các sản phẩm và thiết bị hỗ trợ học tập thông qua hai hình thức mua và thuê linh hoạt.
-                  </p>
-                  <p>
-                    Thay vì phải bỏ ra một khoản chi phí lớn để sở hữu những thiết bị chỉ sử dụng trong một học phần hoặc một khoảng thời gian ngắn, sinh viên có thể lựa chọn phương án phù hợp với nhu cầu và khả năng tài chính của mình.
-                  </p>
-                  <p className="font-bold text-[#0B2545] dark:text-white">
-                    Các sản phẩm tiêu biểu tại FORUS bao gồm:
-                  </p>
-                  <ul className="space-y-3 rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-6">
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Máy tính cầm tay:</strong> Hỗ trợ tính toán trong các môn Toán học, Vật lý, Thống kê và nhiều học phần chuyên ngành.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Bảng vẽ điện tử:</strong> Giúp sinh viên ghi chú, giải bài tập, vẽ sơ đồ và trình bày ý tưởng trực tiếp trên máy tính.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Bộ Flash Card ghi nhớ công thức:</strong> Tổng hợp các công thức, định lý và kiến thức quan trọng thành những tấm thẻ nhỏ gọn, hỗ trợ ghi nhớ và ôn tập hiệu quả.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Bàn phím MacroPad:</strong> Tích hợp các phím tắt có thể lập trình, giúp nhập nhanh ký hiệu toán học, công thức LaTeX và các mẫu code C++ hoặc Python.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Giá đỡ laptop:</strong> Hỗ trợ điều chỉnh góc nhìn, cải thiện sự thoải mái khi học tập và tối ưu không gian làm việc.
-                      </span>
-                    </li>
-                  </ul>
-                  <p>
-                    Thông qua việc lựa chọn những sản phẩm thiết thực, FORUS hướng đến mục tiêu giúp sinh viên tiếp cận các công cụ học tập hiện đại với chi phí hợp lý, đồng thời khuyến khích việc ứng dụng công nghệ để nâng cao hiệu suất học tập.
-                  </p>
-                </section>
+              <div className="relative z-10 max-w-3xl space-y-4">
+                <span className="font-mono text-xs font-bold uppercase tracking-widest text-amber-300">
+                  HỆ SINH THÁI TIỆN ÍCH SINH VIÊN ĐH KHOA HỌC TỰ NHIÊN
+                </span>
+                <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                  FORUS — “Tiện ích trong tay,{" "}
+                  <span className="bg-gradient-to-r from-amber-300 to-emerald-300 bg-clip-text text-transparent">
+                    học hay mỗi ngày”
+                  </span>
+                </h1>
+                <p className="text-xs sm:text-base text-sky-100/90 leading-relaxed">
+                  Kết hợp trạm thuê &amp; mua học cụ tuần hoàn, in ấn tốc hành giao tận phòng học, bản đồ 11 tầng CS1, tổng hợp sự kiện theo thời gian thực và Trợ lý AI học thuật trên một nền tảng duy nhất.
+                </p>
 
-                {/* Section 2 */}
-                <section className="space-y-4">
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
-                    2. Cập nhật hoạt động sinh viên và cơ hội tích lũy điểm rèn luyện
-                  </h2>
-                  <p>
-                    Bên cạnh việc cung cấp các sản phẩm học tập, FORUS còn đóng vai trò là kênh thông tin tổng hợp những hoạt động dành cho sinh viên HCMUS, đặc biệt chú trọng đến các chương trình có thể giúp sinh viên tích lũy điểm rèn luyện.
-                  </p>
-                  <p>
-                    Điểm rèn luyện là một trong những nội dung đánh giá quá trình tham gia học tập, sinh hoạt và hoạt động tập thể của sinh viên tại trường đại học. Tuy nhiên, với số lượng chương trình được tổ chức bởi nhiều đơn vị khác nhau, sinh viên có thể gặp khó khăn trong việc theo dõi thông tin, nắm bắt thời hạn đăng ký hoặc lựa chọn hoạt động phù hợp với lịch học cá nhân.
-                  </p>
-                  <p className="font-bold text-[#0B2545] dark:text-white">
-                    Nhằm giải quyết vấn đề này, FORUS hướng đến việc tổng hợp và giới thiệu các hoạt động như:
-                  </p>
-                  <ul className="space-y-3 rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-6">
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động học thuật:</strong> Hội thảo chuyên đề, seminar, cuộc thi học thuật, chương trình nghiên cứu khoa học và các buổi chia sẻ kiến thức.
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  {[
+                    { num: "10 Danh Mục", label: "Thuê & mua học cụ 80%–100%" },
+                    { num: "20 Sự Kiện", label: "Đếm ngược & nhắc lịch HCMUS" },
+                    { num: "11 Tầng CS1", label: "Sơ đồ trực quan B1 – L11" },
+                    { num: "18 Mẫu LaTeX", label: "Copy 1 chạm & Trợ lý AI" },
+                  ].map((st, i) => (
+                    <div
+                      key={i}
+                      className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md p-3.5"
+                    >
+                      <span className="block font-mono text-base sm:text-lg font-extrabold text-amber-300">
+                        {st.num}
                       </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động tình nguyện và cộng đồng:</strong> Các chương trình thiện nguyện, hoạt động vì môi trường và những chiến dịch hỗ trợ cộng đồng.
+                      <span className="mt-0.5 block text-[11px] text-sky-100/85">
+                        {st.label}
                       </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động văn hóa, thể thao:</strong> Các cuộc thi, sự kiện giao lưu, hoạt động thể chất và chương trình văn nghệ dành cho sinh viên.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động phát triển kỹ năng:</strong> Workshop, chương trình hướng nghiệp, tập huấn kỹ năng mềm và các buổi giao lưu với doanh nghiệp.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <span className="font-extrabold text-[#D95326] mt-0.5">•</span>
-                      <span>
-                        <strong className="font-extrabold text-[#0B2545] dark:text-white">Hoạt động Đoàn – Hội và câu lạc bộ:</strong> Những chương trình do các tổ chức, câu lạc bộ và đội nhóm sinh viên triển khai.
-                      </span>
-                    </li>
-                  </ul>
-                  <p>
-                    Thông qua FORUS, sinh viên có thể thuận tiện tìm kiếm thông tin về nội dung, thời gian, địa điểm, hình thức đăng ký và các điều kiện tham gia hoạt động.
-                  </p>
-                  <p>
-                    Đối với những chương trình có liên quan đến điểm rèn luyện, FORUS hướng đến việc cung cấp thông tin về khả năng được ghi nhận điểm theo thông báo của đơn vị tổ chức và quy định hiện hành của nhà trường.
-                  </p>
-                  <p>
-                    Quan trọng hơn, việc cập nhật các chương trình này không chỉ nhằm hỗ trợ sinh viên tích lũy điểm rèn luyện mà còn khuyến khích tinh thần chủ động, mở rộng mối quan hệ, phát triển kỹ năng và tích lũy những trải nghiệm ý nghĩa trong quãng đời đại học.
-                  </p>
-                </section>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-                {/* Section 3 */}
-                <section className="space-y-4">
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
-                    3. Vì sao nên lựa chọn FORUS?
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
-                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
-                        Tiết kiệm chi phí
+            {/* Interactive 4-Tab Pillar Explorer (No Long Text Walls) */}
+            <div className="rounded-3xl border border-[#E5DEC9] bg-white p-5 sm:p-8 dark:border-slate-700 dark:bg-slate-900 space-y-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 rounded-2xl bg-[#F2EFE9] p-1.5 dark:bg-slate-800">
+                {[
+                  { id: "ecosystem", label: "1. Học Cụ Tuần Hoàn" },
+                  { id: "events", label: "2. Sự Kiện & ĐRL" },
+                  { id: "smart-tools", label: "3. Sơ Đồ & LaTeX AI" },
+                  { id: "mission", label: "4. Sứ Mệnh FORUS" },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() =>
+                      setAboutActiveTab(t.id as typeof aboutActiveTab)
+                    }
+                    className={`rounded-xl px-3 py-2.5 text-xs font-extrabold transition cursor-pointer ${
+                      aboutActiveTab === t.id
+                        ? "bg-[#0B2545] text-white shadow-xs dark:bg-amber-400 dark:text-slate-950"
+                        : "text-[#4A5568] hover:text-[#0B2545] dark:text-slate-300"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {aboutActiveTab === "ecosystem" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    {
+                      tag: "Thuê theo buổi / tuần",
+                      title: 'Bộ Thuyết Trình "TechRescue" & Máy Tính Casio',
+                      desc: "Cứu nguy tức thì khi quên mang cổng chuyển HDMI, Hub USB-C, chuột không dây hoặc máy tính Casio fx-580VN X / 880BTG trước giờ thi và báo cáo đồ án.",
+                    },
+                    {
+                      tag: "Độ mới 80% · 90% · 100%",
+                      title: "Giáo Trình Đại Cương & Áo Blouse Phòng Lab",
+                      desc: "Tự do chọn thuê ngắn hạn hoặc mua lại sách giáo trình Vi tích phân, Đại số, Xác suất và áo Blouse đã giặt ủi khử khuẩn với chi phí tiết kiệm tới 60%.",
+                    },
+                    {
+                      tag: "Ghi chép số & LaTeX",
+                      title: 'Combo "iPad Sinh Viên", MacroPad & Flashcard',
+                      desc: "Bảng vẽ điện tử kèm găng tay 2 ngón, bàn phím gõ tắt công thức toán OneTap LaTeX, giá đỡ công thái học và bộ Flashcard chống nước.",
+                    },
+                  ].map((c, i) => (
+                    <div
+                      key={i}
+                      className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] p-5 space-y-2 dark:border-slate-700 dark:bg-slate-800/80"
+                    >
+                      <span className="font-mono text-[11px] font-bold text-[#D95326] dark:text-amber-400">
+                        {c.tag}
+                      </span>
+                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-white">
+                        {c.title}
                       </h3>
-                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                        Với hình thức mua và thuê linh hoạt, FORUS giúp sinh viên lựa chọn phương án sử dụng thiết bị phù hợp mà không nhất thiết phải đầu tư toàn bộ chi phí sở hữu sản phẩm.
+                      <p className="text-xs sm:text-sm text-[#4A5568] dark:text-slate-300 leading-relaxed">
+                        {c.desc}
                       </p>
                     </div>
+                  ))}
+                </div>
+              )}
 
-                    <div className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
-                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
-                        Tiện lợi và dễ tiếp cận
+              {aboutActiveTab === "events" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    {
+                      tag: "Thời gian thực",
+                      title: "Đồng Hồ Đếm Ngược Sự Kiện Gần Nhất",
+                      desc: "Tự động làm nổi bật sự kiện sắp diễn ra tại HCMUS theo từng ngày, giờ, phút, giây để sinh viên không bỏ lỡ hạn đăng ký.",
+                    },
+                    {
+                      tag: "Đa dạng lĩnh vực",
+                      title: "Học Thuật, Học Bổng, Tình Nguyện & Kỹ Năng",
+                      desc: "Tổng hợp 20 hoạt động tiêu biểu trong tháng 11–12/2026 từ seminar khoa, cuộc thi học thuật đến hiến máu và ngày hội việc làm.",
+                    },
+                    {
+                      tag: "Cá nhân hóa",
+                      title: "Bật Nhắc Hẹn & Lưu Ghi Chú Riêng",
+                      desc: "Đặt lời nhắc tham gia và ghi chú lịch trình cá nhân cho từng sự kiện ngay trên tài khoản sinh viên của bạn.",
+                    },
+                  ].map((c, i) => (
+                    <div
+                      key={i}
+                      className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] p-5 space-y-2 dark:border-slate-700 dark:bg-slate-800/80"
+                    >
+                      <span className="font-mono text-[11px] font-bold text-[#D95326] dark:text-amber-400">
+                        {c.tag}
+                      </span>
+                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-white">
+                        {c.title}
                       </h3>
-                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                        Thay vì phải tìm kiếm công cụ học tập và thông tin hoạt động trên nhiều nền tảng khác nhau, sinh viên có thể tiếp cận cả hai nhóm tiện ích thông qua một website thống nhất.
+                      <p className="text-xs sm:text-sm text-[#4A5568] dark:text-slate-300 leading-relaxed">
+                        {c.desc}
                       </p>
                     </div>
+                  ))}
+                </div>
+              )}
 
-                    <div className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
-                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
-                        Hỗ trợ học tập hiệu quả
+              {aboutActiveTab === "smart-tools" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    {
+                      tag: "Bản đồ B1 – L11",
+                      title: "Sơ Đồ Chỉ Dẫn Các Tầng CS1 (227 NVC)",
+                      desc: "Mô phỏng trực quan khung các tòa F, C, B, A, E, I và giảng đường theo từng tầng; chạm vào từng phòng để xem vị trí chi tiết.",
+                    },
+                    {
+                      tag: "18 Mẫu chuẩn KHTN",
+                      title: "Thư Viện Code LaTeX Copy 1 Chạm",
+                      desc: "Đầy đủ mẫu ma trận Gauss, tích phân, quy nạp, bảng booktabs, mã giả thuật toán và trang bìa báo cáo Khoa CNTT.",
+                    },
+                    {
+                      tag: "Hỗ trợ 24/7",
+                      title: "Trợ Lý AI Giải Toán & Kết Nối Gia Sư",
+                      desc: "Giải chi tiết từng bước Vi tích phân, Đại số, C++/Python và kết nối gia sư sinh viên KHTN uy tín theo từng môn học.",
+                    },
+                  ].map((c, i) => (
+                    <div
+                      key={i}
+                      className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] p-5 space-y-2 dark:border-slate-700 dark:bg-slate-800/80"
+                    >
+                      <span className="font-mono text-[11px] font-bold text-[#D95326] dark:text-amber-400">
+                        {c.tag}
+                      </span>
+                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-white">
+                        {c.title}
                       </h3>
-                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                        Các sản phẩm được định hướng lựa chọn dựa trên nhu cầu thực tế của sinh viên, hỗ trợ quá trình ghi chú, tính toán, lập trình, ôn tập và nghiên cứu.
+                      <p className="text-xs sm:text-sm text-[#4A5568] dark:text-slate-300 leading-relaxed">
+                        {c.desc}
                       </p>
                     </div>
+                  ))}
+                </div>
+              )}
 
-                    <div className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
-                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
-                        Không bỏ lỡ hoạt động bổ ích
-                      </h3>
-                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                        Việc tổng hợp thông tin về các hoạt động học thuật, ngoại khóa và chương trình có khả năng được ghi nhận điểm rèn luyện giúp sinh viên thuận tiện theo dõi, chủ động sắp xếp thời gian và nắm bắt những cơ hội phù hợp.
-                      </p>
-                    </div>
-
-                    <div className="sm:col-span-2 rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-900/70 p-4 sm:p-5 space-y-1.5">
-                      <h3 className="text-base font-extrabold text-[#0B2545] dark:text-amber-300">
-                        Đồng hành cùng sự phát triển toàn diện
-                      </h3>
-                      <p className="text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
-                        FORUS hướng đến việc hỗ trợ sinh viên trên cả hai phương diện: nâng cao chất lượng học tập và phát triển kỹ năng thông qua hoạt động thực tiễn, qua đó tạo nên trải nghiệm đại học phong phú và ý nghĩa hơn.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Section 4 */}
-                <section className="space-y-4">
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
-                    4. Sứ mệnh và tầm nhìn
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="rounded-2xl border border-[#E5DEC9] bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-900 p-5 space-y-2.5">
-                      <h3 className="text-lg font-extrabold text-[#D95326] dark:text-amber-400">
-                        Sứ mệnh
-                      </h3>
-                      <p className="text-xs sm:text-sm leading-relaxed">
-                        FORUS mang trong mình sứ mệnh xây dựng một hệ sinh thái tiện ích thân thiện, dễ tiếp cận và phù hợp với nhu cầu thực tế của sinh viên.
-                      </p>
-                      <p className="text-xs sm:text-sm leading-relaxed">
-                        Thông qua việc kết hợp các giải pháp học tập và hệ thống thông tin hoạt động ngoại khóa, FORUS mong muốn góp phần giảm bớt những bất tiện trong đời sống sinh viên, tối ưu chi phí học tập và tạo điều kiện để mỗi cá nhân chủ động phát triển bản thân.
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-[#E5DEC9] bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-900 p-5 space-y-2.5">
-                      <h3 className="text-lg font-extrabold text-[#0B2545] dark:text-white">
-                        Tầm nhìn
-                      </h3>
-                      <p className="text-xs sm:text-sm leading-relaxed">
-                        FORUS hướng đến việc trở thành một nền tảng đồng hành đáng tin cậy của cộng đồng sinh viên HCMUS, từng bước mở rộng các dịch vụ và tiện ích nhằm đáp ứng đa dạng nhu cầu trong môi trường đại học.
-                      </p>
-                      <p className="text-xs sm:text-sm leading-relaxed">
-                        Về lâu dài, FORUS kỳ vọng phát triển thành một hệ sinh thái sinh viên toàn diện, nơi các công cụ hỗ trợ học tập, thông tin hoạt động, cơ hội phát triển kỹ năng và những tiện ích thiết thực được kết nối trên cùng một nền tảng.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Section 5 */}
-                <section className="space-y-4">
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] dark:text-white border-l-4 border-[#D95326] pl-3.5">
-                    5. FORUS – Hơn cả một website mua sắm
-                  </h2>
-                  <p>
-                    FORUS không chỉ là nơi sinh viên tìm kiếm một chiếc máy tính cầm tay, một bảng vẽ điện tử hay một bộ Flash Card phục vụ ôn thi. Đây còn là không gian giúp sinh viên khám phá những hoạt động bổ ích, tìm kiếm cơ hội tích lũy điểm rèn luyện, kết nối với môi trường đại học và phát triển các kỹ năng ngoài giảng đường.
-                  </p>
-                  <p>
-                    Chúng tôi tin rằng hành trình đại học sẽ trở nên thuận tiện và ý nghĩa hơn khi sinh viên được tiếp cận đúng công cụ, đúng thông tin và đúng cơ hội vào thời điểm cần thiết.
-                  </p>
-                  <p>
-                    Với định hướng lấy sinh viên làm trung tâm, FORUS mong muốn không ngừng hoàn thiện và mở rộng các tiện ích, để mỗi sinh viên có thể học tập hiệu quả hơn, tiết kiệm hơn và tận dụng tốt hơn những cơ hội mà môi trường đại học mang lại.
-                  </p>
-
-                  {/* Closing Tagline Banner */}
-                  <div className="mt-6 rounded-2xl bg-[#0B2545] text-white p-6 text-center space-y-2">
-                    <p className="text-base sm:text-xl font-extrabold text-amber-300">
-                      FORUS – Tiện ích trong tay, học hay mỗi ngày.
-                    </p>
-                    <p className="text-xs sm:text-sm font-semibold text-slate-200">
-                      Học tập thông minh – Kết nối hoạt động – Phát triển toàn diện.
+              {aboutActiveTab === "mission" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-2xl border border-[#E5DEC9] bg-[#FAF8F5] p-5 space-y-2 dark:border-slate-700 dark:bg-slate-800/80">
+                    <span className="font-mono text-xs font-bold text-[#D95326] dark:text-amber-400">
+                      SỨ MỆNH CỐT LÕI
+                    </span>
+                    <h3 className="text-lg font-extrabold text-[#0B2545] dark:text-white">
+                      Giảm chi phí học tập · Tối ưu trải nghiệm đại học
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#4A5568] dark:text-slate-300 leading-relaxed">
+                      Giúp mỗi sinh viên ĐH KHTN tiếp cận đầy đủ thiết bị công nghệ, học cụ, dịch vụ in ấn và thông tin học thuật ngay tại khuôn viên 227 Nguyễn Văn Cừ với chi phí sinh viên nhất.
                     </p>
                   </div>
-                </section>
+                  <div className="rounded-2xl border border-[#E5DEC9] bg-[#FAF8F5] p-5 space-y-2 dark:border-slate-700 dark:bg-slate-800/80">
+                    <span className="font-mono text-xs font-bold text-[#0B2545] dark:text-sky-300">
+                      TẦM NHÌN PHÁT TRIỂN
+                    </span>
+                    <h3 className="text-lg font-extrabold text-[#0B2545] dark:text-white">
+                      Nền tảng đồng hành toàn diện cùng cộng đồng HCMUS
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#4A5568] dark:text-slate-300 leading-relaxed">
+                      Kết nối công cụ học tập thông minh, cơ hội phát triển kỹ năng và mạng lưới hỗ trợ sinh viên trên một hệ sinh thái số hiện đại, tiện lợi và bền vững.
+                    </p>
+                  </div>
+                </div>
+              )}
 
-                {/* Bottom Navigation Actions */}
-                <div className="pt-4 border-t border-[#EAE5DC] dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+              {/* Bottom Action Bar */}
+              <div className="pt-4 border-t border-[#EAE5DC] dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => switchTab("home")}
+                  className="px-4 py-2.5 rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] hover:bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-800 text-[#0B2545] dark:text-white text-xs font-extrabold transition cursor-pointer"
+                >
+                  ← Về Trang chủ
+                </button>
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => switchTab("home")}
-                    className="px-5 py-2.5 rounded-2xl border border-[#E5E0D5] bg-[#FAF8F5] hover:bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-900 text-[#0B2545] dark:text-white text-xs sm:text-sm font-extrabold transition cursor-pointer"
+                    onClick={() => switchTab("gear")}
+                    className="px-4 py-2.5 rounded-xl bg-[#0B2545] hover:bg-[#163A66] text-white text-xs font-extrabold transition cursor-pointer"
                   >
-                    ← Quay về Trang chủ
+                    Mở Thuê &amp; Bán Thiết Bị →
                   </button>
-
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => switchTab("gear")}
-                      className="px-4 py-2.5 rounded-2xl bg-[#0B2545] hover:bg-[#163A66] text-white text-xs sm:text-sm font-extrabold transition cursor-pointer"
-                    >
-                      Khám phá Thuê &amp; Bán Thiết Bị →
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => switchTab("vip")}
-                      className="px-4 py-2.5 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] text-white text-xs sm:text-sm font-extrabold transition cursor-pointer"
-                    >
-                      Săn Điểm Rèn Luyện &amp; AI →
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => switchTab("vip")}
+                    className="px-4 py-2.5 rounded-xl bg-[#D95326] hover:bg-[#C0441B] text-white text-xs font-extrabold transition cursor-pointer"
+                  >
+                    Mở Tính năng &amp; Sơ đồ tầng →
+                  </button>
                 </div>
               </div>
-            </article>
+            </div>
+
+            {/* FAQ & Contact Station Component */}
+            <AboutAndContactView
+              theme={theme}
+              defaultName={
+                student.isLoggedIn && student.fullName
+                  ? `${student.fullName} - ${student.studentId}`
+                  : ""
+              }
+              defaultEmail={student.isLoggedIn ? student.email : ""}
+            />
           </div>
         )}
       </main>
@@ -3280,10 +4216,10 @@ export default function App() {
                 </li>
                 <li>
                   <button
-                    onClick={() => switchTab("food")}
+                    onClick={() => switchTab("events")}
                     className="hover:text-[#D95326] transition cursor-pointer"
                   >
-                    Đặt đồ ăn sáng &amp; Cà phê muối 227
+                    Tổng hợp 20 Sự kiện, Hội nghị &amp; Học bổng HCMUS
                   </button>
                 </li>
                 <li>
@@ -3315,7 +4251,7 @@ export default function App() {
                     onClick={() => switchTab("vip")}
                     className="hover:text-[#D95326] transition cursor-pointer"
                   >
-                    Săn Điểm Rèn Luyện &amp; Trợ lý AI FORUS
+                    Trung tâm Tính năng, LaTeX &amp; Trợ lý AI FORUS
                   </button>
                 </li>
               </ul>
@@ -3580,7 +4516,11 @@ export default function App() {
 
         {/* Floating Circular AI Trigger Button */}
         <button
-          onClick={() => setIsFloatingAiOpen((prev) => !prev)}
+          onClick={() => {
+            if (requireLogin("Trợ lý AI FORUS")) {
+              setIsFloatingAiOpen((prev) => !prev);
+            }
+          }}
           aria-label="Trợ lý AI FORUS"
           title="Trợ lý AI FORUS"
           className="group relative w-14 h-14 sm:w-15 sm:h-15 rounded-full bg-[#0B2545] hover:bg-[#163A66] text-white shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer border-2 border-[#D95326]"
@@ -3635,6 +4575,20 @@ export default function App() {
 
       <ProductDetailModal
         product={selectedProduct}
+        initialModelId={
+          selectedProduct ? selectedModelMap[selectedProduct.id] : undefined
+        }
+        initialVariantId={
+          selectedProduct ? selectedVariantMap[selectedProduct.id] : undefined
+        }
+        onSelectModel={(modelId) => {
+          if (selectedProduct) {
+            setSelectedModelMap((prev) => ({
+              ...prev,
+              [selectedProduct.id]: modelId,
+            }));
+          }
+        }}
         onClose={() => setSelectedProduct(null)}
         onAddToCart={(product, variant, customMeta) => {
           handleAddProductToCart(product, variant, customMeta);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   PenTool,
   Keyboard,
@@ -34,7 +34,54 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
 }) => {
   const [imgError, setImgError] = useState(false);
 
-  // Special Editorial Textbook Illustration (Matches Screenshot 2 Card 3)
+  useEffect(() => {
+    setImgError(false);
+  }, [imageUrl]);
+
+  const isPortraitProduct =
+    code.includes("FORUS-07") ||
+    code.includes("FORUS-08") ||
+    code.includes("FORUS-09") ||
+    fallbackIcon === "Calculator" ||
+    fallbackIcon === "TextbookStack" ||
+    fallbackIcon === "LabCoat";
+
+  if (imageUrl && !imgError) {
+    return (
+      <div
+        className={`relative overflow-hidden ${
+          isPortraitProduct
+            ? "bg-white dark:bg-slate-900 flex items-center justify-center p-2.5"
+            : "bg-slate-100 dark:bg-slate-800/80"
+        } ${className}`}
+      >
+        {isPortraitProduct && (
+          <img
+            src={imageUrl}
+            alt=""
+            aria-hidden="true"
+            referrerPolicy="no-referrer"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-15 blur-xl scale-110"
+          />
+        )}
+        <img
+          src={imageUrl}
+          alt={alt}
+          referrerPolicy="no-referrer"
+          onError={() => setImgError(true)}
+          className={`relative z-10 h-full w-full transition-transform duration-300 group-hover:scale-[1.03] ${
+            isPortraitProduct ? "object-contain drop-shadow-md" : "object-cover"
+          }`}
+        />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-slate-950/65 via-slate-950/20 to-transparent z-10" />
+        <span className="absolute bottom-2.5 left-3 z-20 font-mono text-[11px] font-semibold text-white/95 drop-shadow">
+          {code}
+        </span>
+      </div>
+    );
+  }
+
+  // Special Editorial Textbook Illustration Fallback
   if (fallbackIcon === "TextbookStack" || code.includes("FORUS-08")) {
     return (
       <div
@@ -178,26 +225,6 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
         return <Package {...props} />;
     }
   };
-
-  if (imageUrl && !imgError) {
-    return (
-      <div
-        className={`relative overflow-hidden bg-slate-100 dark:bg-slate-800/80 ${className}`}
-      >
-        <img
-          src={imageUrl}
-          alt={alt}
-          referrerPolicy="no-referrer"
-          onError={() => setImgError(true)}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent" />
-        <span className="absolute bottom-3 left-3 font-mono text-[11px] font-semibold text-white/95 drop-shadow">
-          {code}
-        </span>
-      </div>
-    );
-  }
 
   return (
     <div

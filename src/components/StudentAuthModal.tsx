@@ -27,18 +27,18 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
   onClose,
   student,
   onLoginSuccess,
-  onActivateDemoVip,
 }) => {
-  const [email, setEmail] = useState(
-    student.email || "24120001@student.hcmus.edu.vn"
+  const [email, setEmail] = useState(student.isLoggedIn ? student.email : "");
+  const [studentId, setStudentId] = useState(
+    student.isLoggedIn ? student.studentId : ""
   );
-  const [studentId, setStudentId] = useState(student.studentId || "24120001");
   const [fullName, setFullName] = useState(
-    student.fullName || "Nguyễn Minh Khoa"
+    student.isLoggedIn ? student.fullName : ""
   );
   const [faculty, setFaculty] = useState(
     student.faculty || HCMUS_FACULTIES[0]
   );
+  const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -60,12 +60,17 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
       return;
     }
 
+    if (!fullName.trim() || !studentId.trim()) {
+      setErrorMsg("Vui lòng nhập đầy đủ Họ tên và Mã số sinh viên (MSSV).");
+      return;
+    }
+
     setErrorMsg(null);
     onLoginSuccess({
       isLoggedIn: true,
       email: cleanEmail,
       studentId: studentId.trim() || cleanEmail.split("@")[0],
-      fullName: fullName.trim() || "Sinh viên KHTN",
+      fullName: fullName.trim(),
       faculty,
     });
     onClose();
@@ -90,7 +95,7 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
               Email Sinh Viên HCMUS (@student.hcmus.edu.vn)
@@ -99,8 +104,14 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="24120001@student.hcmus.edu.vn"
+              onChange={(e) => {
+                const val = e.target.value;
+                setEmail(val);
+                if (!studentId && val.includes("@")) {
+                  setStudentId(val.split("@")[0]);
+                }
+              }}
+              placeholder="Nhập email SV (VD: MSSV@student.hcmus.edu.vn)"
               className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 font-mono text-xs text-slate-900 focus:border-sky-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
             />
           </div>
@@ -115,21 +126,21 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                 required
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
-                placeholder="24120001"
+                placeholder="Nhập MSSV"
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 font-mono text-xs text-slate-900 focus:border-sky-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Họ và tên hiển thị
+                Họ và tên sinh viên
               </label>
               <input
                 type="text"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Nguyễn Minh Khoa"
+                placeholder="Nhập họ và tên"
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </div>
@@ -152,6 +163,20 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
             </select>
           </div>
 
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Mật khẩu tài khoản
+            </label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Nhập mật khẩu đăng nhập"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            />
+          </div>
+
           {errorMsg && (
             <div className="rounded-xl bg-rose-500/10 p-3 text-xs font-medium text-rose-600 dark:text-rose-400">
               {errorMsg}
@@ -165,37 +190,16 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
             </div>
             <p className="mt-1">
               • Không cần cọc CCCD khi thuê máy tính Casio, áo blouse và Combo iPad Sinh Viên tại Cơ sở 1.
-              <br />• Tích lũy 5–10 điểm mỗi lần dùng dịch vụ, đủ 100 điểm mở khóa Bảng Săn ĐRL & Trợ lý AI.
+              <br />• Tích lũy 5–10 điểm mỗi lần dùng dịch vụ, đủ 100 điểm mở khóa Bảng Săn ĐRL &amp; Trợ lý AI.
             </p>
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-sky-600 py-2.5 text-xs font-bold text-white transition hover:bg-sky-500"
+            className="w-full rounded-xl bg-[#0B2545] hover:bg-[#163A66] py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
           >
-            Xác Thực Email Sinh Viên
+            Đăng Nhập Tài Khoản Sinh Viên
           </button>
-
-          <div className="border-t border-slate-100 pt-3 dark:border-slate-800">
-            <button
-              type="button"
-              onClick={() => {
-                onLoginSuccess({
-                  isLoggedIn: true,
-                  email: email.trim() || "24120001@student.hcmus.edu.vn",
-                  studentId: studentId.trim() || "24120001",
-                  fullName: fullName.trim() || "Khách Tham Quan Poster",
-                  faculty,
-                });
-                onActivateDemoVip();
-                onClose();
-              }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-500/20 dark:text-emerald-300"
-            >
-              <Zap className="h-4 w-4" />
-              <span>Đăng Nhập Nhanh + Nhận Ngay 100 Điểm VIP (Demo)</span>
-            </button>
-          </div>
         </form>
       </div>
     </div>
