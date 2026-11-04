@@ -143,9 +143,28 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
     }
   };
 
+  const [paperMaterial, setPaperMaterial] = useState<"fort" | "couche">("fort");
+
+  const sizeOrder: ("A5" | "A4" | "A3" | "A2" | "A1")[] = [
+    "A5",
+    "A4",
+    "A3",
+    "A2",
+    "A1",
+  ];
+
   const sizeInfo = PRINT_PRICING_TABLE[config.paperSize];
+  const totalSheets = config.pageCount * config.copies;
+  const isBulkOrder = totalSheets >= 100;
+
   const basePagePrice =
-    config.colorMode === "color" ? sizeInfo.colorPrice : sizeInfo.bwPrice;
+    config.colorMode === "bw"
+      ? isBulkOrder
+        ? sizeInfo.bwBulkPrice
+        : sizeInfo.bwPrice
+      : paperMaterial === "couche"
+      ? sizeInfo.colorCouchePrice
+      : sizeInfo.colorPrice;
 
   const sideMultiplier =
     config.sides === "2-side" &&
@@ -166,11 +185,21 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
 
   const singleCopyCost =
     Math.round(basePagePrice * config.pageCount * sideMultiplier) + bindingFee;
-  const totalPrice = Math.max(5000, singleCopyCost * config.copies);
+  const totalPrice = Math.max(2000, singleCopyCost * config.copies);
   const pointsEarned =
     config.paperSize === "A1" || config.paperSize === "A2" || totalPrice >= 40000
       ? 10
       : 6;
+
+  const handleSelectPaperSize = (size: PrintOrderConfig["paperSize"]) => {
+    const isLargePoster = size === "A1" || size === "A2";
+    setConfig((prev) => ({
+      ...prev,
+      paperSize: size,
+      sides: isLargePoster ? "1-side" : prev.sides,
+      binding: isLargePoster ? "poster-tube" : prev.binding,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,25 +210,29 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Top Warm Beige Banner with Right Policy Table (Matches Screenshot 1) */}
+      {/* Top Warm Beige Banner */}
       <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-6 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center">
           <div className="space-y-3 lg:col-span-7">
             <h2 className="text-2xl font-extrabold tracking-tight text-[#0B2545] sm:text-4xl dark:text-white leading-[1.15]">
-              Đặt In Tài Liệu, Giáo Trình &amp; Poster Đồ Án Khổ A1–A5
+              Đặt In Tài Liệu, Giáo Trình &amp; Poster Đồ Án Khổ A5 – A1
             </h2>
             <p className="text-sm leading-relaxed text-[#4A5568] sm:text-base dark:text-slate-300">
-              Gửi file PDF/LaTeX trực tuyến, tự động định giá trong 5 giây và nhận bản in sắc nét ngay tại{" "}
+              Chọn trực tiếp từng khổ giấy từ{" "}
+              <strong className="font-bold text-[#0B2545] dark:text-white">
+                A5, A4, A3, A2 đến A1
+              </strong>
+              , gửi file PDF/LaTeX trực tuyến và nhận bản in ngay tại{" "}
               <strong className="font-bold text-[#0B2545] dark:text-white">
                 Sảnh Tòa I
               </strong>{" "}
               hoặc{" "}
               <strong className="font-bold text-[#0B2545] dark:text-white">
                 Thư viện Cơ sở 1
-              </strong>{" "}
-              giờ giải lao. Mỗi đơn in đều được cộng trực tiếp{" "}
+              </strong>
+              . Mỗi đơn in đều được cộng trực tiếp{" "}
               <strong className="font-bold text-[#0B2545] dark:text-white">
-                +{pointsEarned} điểm FORUS (+15% ưu đãi in 2 mặt)
+                +{pointsEarned} điểm FORUS
               </strong>
               .
             </p>
@@ -208,31 +241,31 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
           {/* Right White Policy Card */}
           <div className="rounded-2xl border border-[#E6E0D5] bg-white p-5 shadow-2xs dark:border-slate-700 dark:bg-slate-900 lg:col-span-5">
             <p className="font-mono text-xs font-semibold tracking-wider uppercase text-[#64748B] dark:text-slate-400">
-              BẢNG GIÁ &amp; CHÍNH SÁCH IN MINH BẠCH
+              CHÍNH SÁCH &amp; ĐỊNH LƯỢNG GIẤY TIÊU CHUẨN
             </p>
             <div className="mt-3.5 divide-y divide-[#EAE5DC] text-xs sm:text-sm dark:divide-slate-800">
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-[#4A5568] dark:text-slate-300">
-                  In tài liệu A4 / A5 (2 mặt tiết kiệm):
+                  Giấy tiêu chuẩn Trắng Đen / Màu thường:
                 </span>
                 <span className="font-mono font-bold text-[#0B2545] dark:text-white">
-                  Giảm 15% đơn giá
+                  Fort 70gsm – 80gsm
                 </span>
               </div>
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-[#4A5568] dark:text-slate-300">
-                  In Poster Đồ án 1 khổ A1 / A2:
+                  Giấy dày / Giấy ảnh Poster &amp; Kỷ yếu:
                 </span>
                 <span className="font-mono font-bold text-[#0B2545] dark:text-white">
-                  Kèm ống đựng chống gãy
+                  Couche, ĐL &gt;180gsm
                 </span>
               </div>
               <div className="flex items-center justify-between pt-2.5">
                 <span className="text-[#4A5568] dark:text-slate-300">
-                  Tích điểm thành viên VIP FORUS:
+                  Ưu đãi in số lượng lớn (&ge;100 tờ):
                 </span>
                 <span className="font-mono font-bold text-[#D95326] dark:text-amber-400">
-                  Thưởng +{pointsEarned} điểm/đơn
+                  Tự động áp giá sỉ
                 </span>
               </div>
             </div>
@@ -240,7 +273,156 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
         </div>
       </div>
 
-      {/* 2-Column Step-by-Step Configurator Cards (Matches Screenshot 1) */}
+      {/* OFFICIAL PRICING TABLES (MATCHING USER SCREENSHOTS 1 & 2) */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Table 1: Bảng giá in Trắng Đen (Đen Trắng) / Photocopy */}
+        <div className="rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-6 shadow-2xs dark:border-slate-700/80 dark:bg-slate-800/90">
+          <h3 className="text-base sm:text-lg font-extrabold text-[#0B2545] dark:text-white">
+            1. Bảng giá in Trắng Đen (Đen Trắng) / Photocopy
+          </h3>
+          <p className="mt-1 text-xs sm:text-sm italic text-[#4A5568] dark:text-slate-300">
+            Áp dụng cho giấy định lượng tiêu chuẩn Fort 70gsm - 80gsm.
+          </p>
+
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr className="border-b border-[#E5DEC9] dark:border-slate-700 text-[#0B2545] dark:text-slate-100">
+                  <th className="py-2.5 pr-3 font-extrabold">Khổ giấy</th>
+                  <th className="py-2.5 px-3 font-extrabold">
+                    Giá in số lượng ít
+                    <span className="block text-[11px] font-bold text-[#64748B] dark:text-slate-400">
+                      (Dưới 10 tờ)
+                    </span>
+                  </th>
+                  <th className="py-2.5 pl-3 font-extrabold">
+                    Giá in số lượng lớn
+                    <span className="block text-[11px] font-bold text-[#64748B] dark:text-slate-400">
+                      (Trên 100 - 500 tờ)
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#EAE5DC] dark:divide-slate-700/70">
+                {sizeOrder.map((sz) => {
+                  const row = PRINT_PRICING_TABLE[sz];
+                  const isActiveRow =
+                    config.paperSize === sz && config.colorMode === "bw";
+                  return (
+                    <tr
+                      key={`bw-${sz}`}
+                      onClick={() => {
+                        handleSelectPaperSize(sz);
+                        setConfig((prev) => ({
+                          ...prev,
+                          paperSize: sz,
+                          colorMode: "bw",
+                        }));
+                      }}
+                      title={`Bấm để chọn in Trắng Đen Khổ ${sz}`}
+                      className={`cursor-pointer transition-colors ${
+                        isActiveRow
+                          ? "bg-[#FFF8F3] dark:bg-slate-900/90"
+                          : "hover:bg-[#FAF8F5] dark:hover:bg-slate-800/50"
+                      }`}
+                    >
+                      <td className="py-3 pr-3 font-extrabold text-[#0B2545] dark:text-white whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span>Khổ {sz}</span>
+                          {isActiveRow && (
+                            <span className="h-2 w-2 rounded-full bg-[#D95326]" />
+                          )}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 font-mono text-[#334155] dark:text-slate-300 tabular-nums whitespace-nowrap">
+                        {row.bwSmallRange}
+                      </td>
+                      <td className="py-3 pl-3 font-mono font-extrabold text-[#0B2545] dark:text-amber-300 tabular-nums whitespace-nowrap">
+                        {row.bwBulkRange}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Table 2: Bảng giá in Màu Toàn Diện (Full Color) */}
+        <div className="rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-6 shadow-2xs dark:border-slate-700/80 dark:bg-slate-800/90">
+          <h3 className="text-base sm:text-lg font-extrabold text-[#0B2545] dark:text-white">
+            2. Bảng giá in Màu Toàn Diện (Full Color)
+          </h3>
+          <p className="mt-1 text-xs sm:text-sm italic text-[#4A5568] dark:text-slate-300">
+            Đơn giá thay đổi rõ rệt dựa trên chất liệu giấy chọn in (Giấy ảnh/giấy dày để làm poster, kỷ yếu).
+          </p>
+
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr className="border-b border-[#E5DEC9] dark:border-slate-700 text-[#0B2545] dark:text-slate-100">
+                  <th className="py-2.5 pr-3 font-extrabold">Khổ giấy</th>
+                  <th className="py-2.5 px-3 font-extrabold">
+                    In màu giấy thường
+                    <span className="block text-[11px] font-bold text-[#64748B] dark:text-slate-400">
+                      (Fort 70-80gsm)
+                    </span>
+                  </th>
+                  <th className="py-2.5 pl-3 font-extrabold">
+                    In màu giấy dày / Giấy ảnh
+                    <span className="block text-[11px] font-bold text-[#64748B] dark:text-slate-400">
+                      (Couche, ĐL &gt;180gsm)
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#EAE5DC] dark:divide-slate-700/70">
+                {sizeOrder.map((sz) => {
+                  const row = PRINT_PRICING_TABLE[sz];
+                  const isActiveRow =
+                    config.paperSize === sz && config.colorMode === "color";
+                  return (
+                    <tr
+                      key={`color-${sz}`}
+                      onClick={() => {
+                        handleSelectPaperSize(sz);
+                        setConfig((prev) => ({
+                          ...prev,
+                          paperSize: sz,
+                          colorMode: "color",
+                        }));
+                      }}
+                      title={`Bấm để chọn in Màu Khổ ${sz}`}
+                      className={`cursor-pointer transition-colors ${
+                        isActiveRow
+                          ? "bg-[#FFF8F3] dark:bg-slate-900/90"
+                          : "hover:bg-[#FAF8F5] dark:hover:bg-slate-800/50"
+                      }`}
+                    >
+                      <td className="py-3 pr-3 font-extrabold text-[#0B2545] dark:text-white whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span>Khổ {sz}</span>
+                          {isActiveRow && (
+                            <span className="h-2 w-2 rounded-full bg-[#D95326]" />
+                          )}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 font-mono text-[#334155] dark:text-slate-300 tabular-nums whitespace-nowrap">
+                        {row.colorRegularRange}
+                      </td>
+                      <td className="py-3 pl-3 font-mono font-semibold text-[#0B2545] dark:text-amber-300 tabular-nums whitespace-nowrap">
+                        {row.colorCoucheRange}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* 2-Column Step-by-Step Configurator Cards */}
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-stretch"
@@ -251,72 +433,88 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
             <div className="flex items-center gap-2.5">
               <Calculator className="h-5 w-5 text-[#D95326] shrink-0" />
               <h3 className="text-lg font-extrabold text-[#0B2545] sm:text-xl dark:text-white">
-                Bước 1: Chọn Khổ Giấy &amp; Ước Tính Chi Phí In
+                Bước 1: Chọn Từng Khổ Giấy (A5 – A1) &amp; Tải File In
               </h3>
             </div>
 
-            {/* Select Document Preset & Desktop File Upload Zone */}
-            <div className="space-y-3 min-w-0">
-              <div>
-                <label className="block text-xs font-bold text-[#334155] dark:text-slate-200 mb-1.5">
-                  Chọn mẫu cấu hình in nhanh (hoặc tự tải file bên dưới)
+            {/* Individual Paper Size Selector (A5 -> A4 -> A3 -> A2 -> A1) */}
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <label className="block text-xs font-bold text-[#334155] dark:text-slate-200">
+                  1. Chọn khổ giấy cần in (Từ A5 đến A1)
                 </label>
-                <select
-                  value={presetKey}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setPresetKey(val);
-                    if (val === "A1-color") {
-                      setConfig((prev) => ({
-                        ...prev,
-                        fileName:
-                          uploadedFileMeta?.name ||
-                          "Poster_Do_An_1_A1_Doc_CSC00006.pdf",
-                        paperSize: "A1",
-                        colorMode: "color",
-                        sides: "1-side",
-                        pageCount: uploadedFileMeta?.autoDetectedPages || 1,
-                        binding: "poster-tube",
-                      }));
-                    } else if (val === "A4-bw") {
-                      setConfig((prev) => ({
-                        ...prev,
-                        fileName:
-                          uploadedFileMeta?.name ||
-                          "Giao_Trinh_Vi_Tich_Phan_1B_Chuong_1_4.pdf",
-                        paperSize: "A4",
-                        colorMode: "bw",
-                        sides: "2-side",
-                        pageCount: uploadedFileMeta?.autoDetectedPages || 40,
-                        binding: "spiral-plastic",
-                      }));
-                    } else if (val === "A5-color") {
-                      setConfig((prev) => ({
-                        ...prev,
-                        fileName:
-                          uploadedFileMeta?.name ||
-                          "So_Tay_Cong_Thuc_Dai_So_Tuyen_Tinh_A5.pdf",
-                        paperSize: "A5",
-                        colorMode: "color",
-                        sides: "2-side",
-                        pageCount: uploadedFileMeta?.autoDetectedPages || 16,
-                        binding: "staple",
-                      }));
-                    }
-                  }}
-                  className="w-full min-w-0 truncate rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                >
-                  <option value="A4-bw">
-                    Giáo trình &amp; Slide bài giảng Khổ A4 (Đóng lò xo) — Đơn giá: 500đ/trang
-                  </option>
-                  <option value="A1-color">
-                    Poster Đồ án 1 Khổ A1 dọc (In màu + Cán màng) — Đơn giá: 65.000đ/tấm
-                  </option>
-                  <option value="A5-color">
-                    Sổ tay công thức Toán / LaTeX Khổ A5 nhỏ gọn — Đơn giá: 1.200đ/trang
-                  </option>
-                </select>
+                <span className="font-mono text-[11px] font-bold text-[#D95326] dark:text-amber-400">
+                  Đang chọn: Khổ {config.paperSize} ({sizeInfo.dimensions})
+                </span>
               </div>
+
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-5">
+                {sizeOrder.map((sz) => {
+                  const info = PRINT_PRICING_TABLE[sz];
+                  const isSelected = config.paperSize === sz;
+                  return (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => handleSelectPaperSize(sz)}
+                      className={`flex flex-col justify-between rounded-2xl p-3 text-left transition cursor-pointer ${
+                        isSelected
+                          ? "border-2 border-[#0B2545] bg-[#0B2545] text-white shadow-sm dark:border-amber-400 dark:bg-slate-900"
+                          : "border border-[#E5E0D5] bg-[#FAF8F5] text-[#0B2545] hover:border-[#0B2545]/40 dark:border-slate-700 dark:bg-slate-800/70 dark:text-white"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-sm font-extrabold">
+                            Khổ {sz}
+                          </span>
+                          <span
+                            className={`font-mono text-[10px] font-semibold ${
+                              isSelected
+                                ? "text-sky-200 dark:text-amber-300"
+                                : "text-[#64748B] dark:text-slate-400"
+                            }`}
+                          >
+                            {info.dimensions.split(" ")[0]}cm
+                          </span>
+                        </div>
+                        <p
+                          className={`mt-1 text-[11px] leading-snug line-clamp-2 ${
+                            isSelected
+                              ? "text-slate-200 dark:text-slate-300"
+                              : "text-[#64748B] dark:text-slate-400"
+                          }`}
+                        >
+                          {info.desc}
+                        </p>
+                      </div>
+
+                      <div className="mt-2.5 pt-2 border-t border-current/10">
+                        <span
+                          className={`block font-mono text-[11px] font-extrabold tabular-nums ${
+                            isSelected
+                              ? "text-amber-300"
+                              : "text-[#D95326] dark:text-amber-400"
+                          }`}
+                        >
+                          {config.colorMode === "bw"
+                            ? info.bwSmallRange
+                            : paperMaterial === "couche"
+                            ? info.colorCoucheRange
+                            : info.colorRegularRange}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* File Upload Zone */}
+            <div className="space-y-2.5 min-w-0">
+              <label className="block text-xs font-bold text-[#334155] dark:text-slate-200">
+                2. Tải tệp tài liệu / Poster từ thiết bị
+              </label>
 
               {/* Hidden Native File Input */}
               <input
@@ -327,7 +525,7 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
                 className="hidden"
               />
 
-              {/* Desktop-Optimized Drag & Drop + File Picker Card */}
+              {/* Drag & Drop + File Picker Card */}
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -381,19 +579,19 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
                       <p className="mt-0.5 text-[11px] text-[#64748B] dark:text-slate-400 truncate">
                         {uploadedFileMeta ? (
                           <>
-                            Đã nhận file từ máy tính — Bấm{" "}
+                            Đã nhận file — Bấm{" "}
                             <strong className="text-[#0B2545] dark:text-white">
-                              Chọn tệp khác
+                              Đổi tệp khác
                             </strong>{" "}
                             hoặc kéo thả file mới để thay thế
                           </>
                         ) : (
                           <>
-                            Kéo &amp; thả file vào khung này hoặc bấm nút{" "}
+                            Kéo &amp; thả file vào khung này hoặc bấm{" "}
                             <strong className="text-[#0B2545] dark:text-white">
                               Chọn tệp từ máy tính
                             </strong>{" "}
-                            (Đang dùng mẫu:{" "}
+                            (Mẫu:{" "}
                             <span className="font-mono text-[#0B2545] dark:text-slate-200">
                               {config.fileName}
                             </span>
@@ -435,150 +633,124 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
               </div>
             </div>
 
-            {/* 3 Selectable Option Cards (Matches Screenshot 1's 3-card selector) */}
-            <div>
-              <label className="block text-xs font-bold text-[#334155] dark:text-slate-200 mb-2">
-                Chọn cấu hình khổ giấy &amp; chất lượng bản in
+            {/* Print Mode, Paper Material, Quantity & Binding Row */}
+            <div className="space-y-3 pt-1">
+              <label className="block text-xs font-bold text-[#334155] dark:text-slate-200">
+                3. Chọn chế độ in &amp; chất liệu giấy
               </label>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                {[
-                  {
-                    id: "A4",
-                    title: "Khổ A4 Tiêu Chuẩn",
-                    desc: "Giấy định lượng 80gsm chống lem mực, phù hợp in slide, đề cương & báo cáo.",
-                    tag: "500đ – 2.000đ / trang",
-                  },
-                  {
-                    id: "A1",
-                    title: "Poster Khổ A1 / A2",
-                    desc: "In phun màu độ phân giải cao trên giấy PP/Couche cho buổi chấm Poster Đồ án 1.",
-                    tag: "35.000đ – 65.000đ / tấm",
-                  },
-                  {
-                    id: "A5",
-                    title: "Sổ Tay A5 / Bản Vẽ A3",
-                    desc: "Nhỏ gọn bỏ vừa túi áo khoác hoặc balo để tra cứu nhanh công thức Giải tích.",
-                    tag: "350đ – 4.000đ / trang",
-                  },
-                ].map((opt) => {
-                  const isSelected =
-                    (opt.id === "A4" && config.paperSize === "A4") ||
-                    (opt.id === "A1" &&
-                      (config.paperSize === "A1" || config.paperSize === "A2")) ||
-                    (opt.id === "A5" &&
-                      (config.paperSize === "A5" || config.paperSize === "A3"));
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => {
-                        setPresetKey(
-                          opt.id === "A1"
-                            ? "A1-color"
-                            : opt.id === "A5"
-                            ? "A5-color"
-                            : "A4-bw"
-                        );
+
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfig({ ...config, colorMode: "bw" });
+                    setPaperMaterial("fort");
+                  }}
+                  className={`rounded-xl p-3 text-left transition cursor-pointer ${
+                    config.colorMode === "bw"
+                      ? "border-2 border-[#0B2545] bg-[#F8FAFC] dark:border-amber-400 dark:bg-slate-900"
+                      : "border border-[#E5E0D5] bg-white dark:border-slate-700 dark:bg-slate-800"
+                  }`}
+                >
+                  <span className="block text-xs font-extrabold text-[#0B2545] dark:text-white">
+                    In Trắng Đen / Photocopy
+                  </span>
+                  <span className="mt-0.5 block text-[11px] text-[#64748B] dark:text-slate-400">
+                    Giấy Fort 70gsm – 80gsm
+                  </span>
+                  <span className="mt-1.5 block font-mono text-xs font-extrabold text-[#D95326] dark:text-amber-400">
+                    {isBulkOrder ? sizeInfo.bwBulkRange : sizeInfo.bwSmallRange}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfig({ ...config, colorMode: "color" });
+                    setPaperMaterial("fort");
+                  }}
+                  className={`rounded-xl p-3 text-left transition cursor-pointer ${
+                    config.colorMode === "color" && paperMaterial === "fort"
+                      ? "border-2 border-[#D95326] bg-[#FFF8F5] dark:border-amber-400 dark:bg-slate-900"
+                      : "border border-[#E5E0D5] bg-white dark:border-slate-700 dark:bg-slate-800"
+                  }`}
+                >
+                  <span className="block text-xs font-extrabold text-[#0B2545] dark:text-white">
+                    In Màu Giấy Thường
+                  </span>
+                  <span className="mt-0.5 block text-[11px] text-[#64748B] dark:text-slate-400">
+                    Giấy Fort 70-80gsm
+                  </span>
+                  <span className="mt-1.5 block font-mono text-xs font-extrabold text-[#D95326] dark:text-amber-400">
+                    {sizeInfo.colorRegularRange}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfig({ ...config, colorMode: "color" });
+                    setPaperMaterial("couche");
+                  }}
+                  className={`rounded-xl p-3 text-left transition cursor-pointer ${
+                    config.colorMode === "color" && paperMaterial === "couche"
+                      ? "border-2 border-[#D95326] bg-[#FFF8F5] dark:border-amber-400 dark:bg-slate-900"
+                      : "border border-[#E5E0D5] bg-white dark:border-slate-700 dark:bg-slate-800"
+                  }`}
+                >
+                  <span className="block text-xs font-extrabold text-[#0B2545] dark:text-white">
+                    In Màu Giấy Dày / Ảnh
+                  </span>
+                  <span className="mt-0.5 block text-[11px] text-[#64748B] dark:text-slate-400">
+                    Couche, ĐL &gt;180gsm
+                  </span>
+                  <span className="mt-1.5 block font-mono text-xs font-extrabold text-[#D95326] dark:text-amber-400">
+                    {sizeInfo.colorCoucheRange}
+                  </span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-12 pt-1">
+                <div className="sm:col-span-5">
+                  <label className="block text-xs font-bold text-[#334155] dark:text-slate-200 mb-1.5">
+                    Số {sizeInfo.unitName} × Số bản
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      min={1}
+                      max={2000}
+                      value={config.pageCount}
+                      onChange={(e) =>
                         setConfig({
                           ...config,
-                          paperSize: opt.id as PrintOrderConfig["paperSize"],
-                          colorMode: opt.id === "A1" ? "color" : config.colorMode,
-                          sides: opt.id === "A1" ? "1-side" : config.sides,
-                          pageCount: opt.id === "A1" ? 1 : config.pageCount,
-                          binding:
-                            opt.id === "A1" ? "poster-tube" : config.binding,
-                        });
-                      }}
-                      className={`flex flex-col justify-between rounded-2xl p-4 text-left transition cursor-pointer ${
-                        isSelected
-                          ? "border-2 border-[#0B2545] bg-[#F8FAFC] dark:border-amber-400 dark:bg-slate-900"
-                          : "border border-[#E5E0D5] bg-white hover:border-[#C8C0B0] dark:border-slate-700 dark:bg-slate-800/60"
-                      }`}
-                    >
-                      <div>
-                        <p className="text-sm font-extrabold text-[#0B2545] dark:text-white">
-                          {opt.title}
-                        </p>
-                        <p className="mt-1.5 text-xs leading-relaxed text-[#64748B] dark:text-slate-300">
-                          {opt.desc}
-                        </p>
-                      </div>
-                      <span className="mt-3 block font-mono text-xs font-bold text-[#D95326] dark:text-amber-400">
-                        {opt.tag}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Fine-grained Size (A1-A5), Quantity & Color Mode Row */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-12 pt-1">
-              <div className="sm:col-span-4">
-                <label className="block text-xs font-bold text-[#334155] dark:text-slate-200 mb-1.5">
-                  Số trang × Số bản
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    min={1}
-                    max={1000}
-                    value={config.pageCount}
-                    onChange={(e) =>
-                      setConfig({
-                        ...config,
-                        pageCount: Math.max(1, parseInt(e.target.value) || 1),
-                      })
-                    }
-                    title="Số trang"
-                    className="w-full rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3 py-2.5 font-mono text-sm font-bold text-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                  />
-                  <input
-                    type="number"
-                    min={1}
-                    max={50}
-                    value={config.copies}
-                    onChange={(e) =>
-                      setConfig({
-                        ...config,
-                        copies: Math.max(1, parseInt(e.target.value) || 1),
-                      })
-                    }
-                    title="Số bản"
-                    className="w-full rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3 py-2.5 font-mono text-sm font-bold text-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                  />
+                          pageCount: Math.max(1, parseInt(e.target.value) || 1),
+                        })
+                      }
+                      title={`Số ${sizeInfo.unitName}`}
+                      className="w-full rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3 py-2.5 font-mono text-sm font-bold text-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    />
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={config.copies}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          copies: Math.max(1, parseInt(e.target.value) || 1),
+                        })
+                      }
+                      title="Số bản"
+                      className="w-full rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3 py-2.5 font-mono text-sm font-bold text-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="sm:col-span-8">
-                <label className="block text-xs font-bold text-[#334155] dark:text-slate-200 mb-1.5">
-                  Chế độ in &amp; Gia công đóng cuốn
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setConfig({
-                        ...config,
-                        colorMode: config.colorMode === "bw" ? "color" : "bw",
-                      })
-                    }
-                    className={`rounded-xl p-2.5 text-left transition cursor-pointer ${
-                      config.colorMode === "color"
-                        ? "border-2 border-[#D95326] bg-[#FFF8F5] dark:bg-slate-900"
-                        : "border border-[#E5E0D5] bg-white dark:border-slate-700 dark:bg-slate-800"
-                    }`}
-                  >
-                    <span className="block text-xs font-bold text-[#0B2545] dark:text-white">
-                      {config.colorMode === "color"
-                        ? "In Màu Laser Sắc Nét"
-                        : "In Trắng Đen Tiết Kiệm"}
-                    </span>
-                    <span className="font-mono text-sm font-extrabold text-[#D95326] dark:text-amber-400">
-                      {basePagePrice.toLocaleString("vi-VN")}đ/trang
-                    </span>
-                  </button>
-
+                <div className="sm:col-span-7">
+                  <label className="block text-xs font-bold text-[#334155] dark:text-slate-200 mb-1.5">
+                    Gia công đóng cuốn / Ống Poster
+                  </label>
                   <select
                     value={config.binding}
                     onChange={(e) =>
@@ -587,7 +759,7 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
                         binding: e.target.value as PrintOrderConfig["binding"],
                       })
                     }
-                    className="rounded-xl border border-[#E5E0D5] bg-white px-3 py-2.5 text-xs font-bold text-[#0B2545] focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full rounded-xl border border-[#E5E0D5] bg-white px-3.5 py-2.5 text-xs font-bold text-[#0B2545] focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   >
                     <option value="spiral-plastic">
                       Đóng lò xo + Bìa kiếng (+12k)
@@ -607,13 +779,22 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
           <div className="mt-6 flex items-center justify-between rounded-2xl bg-[#F3EFE6] px-4 py-3.5 dark:bg-slate-900">
             <div>
               <span className="text-xs font-semibold text-[#4A5568] dark:text-slate-300">
-                Tổng chi phí tạm tính ({config.paperSize} · {config.pageCount} trang × {config.copies} bản):
+                Tổng chi phí tạm tính (Khổ {config.paperSize} · {config.pageCount}{" "}
+                {sizeInfo.unitName} × {config.copies} bản ·{" "}
+                {config.colorMode === "bw"
+                  ? isBulkOrder
+                    ? "Trắng đen SL lớn"
+                    : "Trắng đen"
+                  : paperMaterial === "couche"
+                  ? "Màu Couche >180gsm"
+                  : "Màu Fort 70-80gsm"}
+                ):
               </span>
-              <span className="block font-mono text-xl font-extrabold text-[#0B2545] dark:text-white">
+              <span className="block font-mono text-xl font-extrabold text-[#0B2545] dark:text-white tabular-nums">
                 {totalPrice.toLocaleString("vi-VN")}đ
               </span>
             </div>
-            <span className="font-mono text-xs font-bold text-[#D95326] dark:text-amber-400">
+            <span className="font-mono text-xs font-bold text-[#D95326] dark:text-amber-400 shrink-0">
               +{pointsEarned} điểm FORUS
             </span>
           </div>
@@ -650,7 +831,7 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
                   type="text"
                   value={studentIdInput}
                   onChange={(e) => setStudentIdInput(e.target.value)}
-                  placeholder="VD: 24120001"
+                  placeholder="VD: 26120001"
                   className="w-full rounded-xl border border-[#DDD6C7] bg-[#F5F2EB] px-3.5 py-2.5 font-mono text-xs text-[#0B2545] focus:border-[#0B2545] focus:bg-white focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                 />
               </div>
@@ -692,7 +873,7 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
               </select>
             </div>
 
-            {/* Warm Tip Box (Matches Screenshot 1 bottom-right tip box) */}
+            {/* Warm Tip Box */}
             <div className="rounded-2xl bg-[#F3EFE6] p-4 text-xs leading-relaxed dark:bg-slate-900">
               <p className="flex items-center gap-1.5 font-extrabold text-[#0B2545] dark:text-amber-300">
                 <Sparkles className="h-4 w-4 text-[#D95326]" />
@@ -711,7 +892,7 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
             >
               <ShoppingBag className="h-4 w-4" />
               <span>
-                Đặt Lịch In &amp; Thêm Vào Giỏ Hàng ({totalPrice.toLocaleString("vi-VN")}đ)
+                Đặt Lịch In Khổ {config.paperSize} &amp; Thêm Vào Giỏ ({totalPrice.toLocaleString("vi-VN")}đ)
               </span>
             </button>
 

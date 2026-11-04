@@ -97,62 +97,18 @@ interface OrderHistoryEntry {
   }[];
 }
 
-const INITIAL_ORDER_HISTORY: OrderHistoryEntry[] = [
-  {
-    orderId: "FORUS-2096",
-    timeLabel: "07:15 sáng nay",
-    pickupSpot: "Sảnh Tòa I (Khoa Công nghệ Thông tin)",
-    pointsEarned: 20,
-    status: "shipping",
-    totalAmount: 55000,
-    promoCode: "KHTN227",
-    items: [
-      {
-        productId: "thue-mua-giao-trinh-dai-cuong",
-        name: "Giáo Trình Đại Cương KHTN (Vi Tích Phân 1B)",
-        quantity: 1,
-        price: 20000,
-        imageUrl: GEAR_AND_RENTAL_PRODUCTS[7]?.imageUrl,
-        badgeText: "Giáo trình",
-      },
-      {
-        productId: "forus-01-ipad-sv",
-        name: 'Combo "iPad Sinh Viên" (Bảng vẽ + Găng tay + Scrble)',
-        quantity: 1,
-        price: 35000,
-        imageUrl: GEAR_AND_RENTAL_PRODUCTS[0]?.imageUrl,
-        badgeText: "Thuê 1 tuần",
-      },
-    ],
-  },
-  {
-    orderId: "FORUS-2041",
-    timeLabel: "Hôm qua, 09:20",
-    pickupSpot: "Thư viện Cơ sở 1 (Khu tự học máy lạnh)",
-    pointsEarned: 15,
-    status: "completed",
-    totalAmount: 54000,
-    promoCode: "FITPASS",
-    items: [
-      {
-        productId: "forus-03-flashcard",
-        name: 'Bộ Flashcard Bỏ Túi "Cứu Mạng Giữa Kỳ" Chống Nước',
-        quantity: 1,
-        price: 39000,
-        imageUrl: GEAR_AND_RENTAL_PRODUCTS[2]?.imageUrl,
-        badgeText: "Sổ tay Toán",
-      },
-      {
-        productId: "thue-mua-may-tinh-cam-tay",
-        name: "Thuê & Mua Máy Tính Cầm Tay Khoa Học (Casio fx-580VN X)",
-        quantity: 1,
-        price: 15000,
-        imageUrl: GEAR_AND_RENTAL_PRODUCTS[6]?.imageUrl,
-        badgeText: "Casio 580VN X",
-      },
-    ],
-  },
-];
+const INITIAL_ORDER_HISTORY: OrderHistoryEntry[] = [];
+
+const normalizeAcademicYear = (val?: string): string => {
+  if (!val) return "Khóa K26 (Năm 1)";
+  const map: Record<string, string> = {
+    "Khóa K25 (Năm 1)": "Khóa K26 (Năm 1)",
+    "Khóa K24 (Năm 2)": "Khóa K25 (Năm 2)",
+    "Khóa K23 (Năm 3)": "Khóa K24 (Năm 3)",
+    "Khóa K22 (Năm 4)": "Khóa K23 (Năm 4)",
+  };
+  return map[val] || val;
+};
 
 const INITIAL_STUDENT: StudentProfile = {
   isLoggedIn: false,
@@ -162,7 +118,7 @@ const INITIAL_STUDENT: StudentProfile = {
   faculty: "Khoa Công nghệ Thông tin (FIT)",
   avatarUrl: "",
   phone: "",
-  academicYear: "Khóa K25 (Năm 1)",
+  academicYear: "Khóa K26 (Năm 1)",
   gpa: "",
   bio: "",
   tutorSubjects: "",
@@ -223,7 +179,12 @@ export default function App() {
     const saved = localStorage.getItem("forus_student_profile_v3");
     if (saved) {
       try {
-        return { ...INITIAL_STUDENT, ...JSON.parse(saved) };
+        const parsed = JSON.parse(saved);
+        return {
+          ...INITIAL_STUDENT,
+          ...parsed,
+          academicYear: normalizeAcademicYear(parsed.academicYear),
+        };
       } catch {
         return INITIAL_STUDENT;
       }
@@ -270,7 +231,7 @@ export default function App() {
   const [editAvatarUrl, setEditAvatarUrl] = useState(student.avatarUrl || "");
   const [editPhone, setEditPhone] = useState(student.phone || "");
   const [editAcademicYear, setEditAcademicYear] = useState(
-    student.academicYear || "Khóa K25 (Năm 1)"
+    normalizeAcademicYear(student.academicYear)
   );
   const [editGpa, setEditGpa] = useState(student.gpa || "");
   const [editBio, setEditBio] = useState(student.bio || "");
@@ -573,7 +534,7 @@ export default function App() {
     setEditFaculty(student.faculty);
     setEditAvatarUrl(student.avatarUrl || "");
     setEditPhone(student.phone || "");
-    setEditAcademicYear(student.academicYear || "Khóa K25 (Năm 1)");
+    setEditAcademicYear(normalizeAcademicYear(student.academicYear));
     setEditGpa(student.gpa || "");
     setEditBio(student.bio || "");
     setEditTutorSubjects(student.tutorSubjects || "");
@@ -1644,7 +1605,7 @@ export default function App() {
                             </span>
                             <span className="font-mono font-bold text-[#D95326] dark:text-amber-300 tabular-nums">
                               {student.studentId} ·{" "}
-                              {student.academicYear || "Khóa K25 (Năm 1)"}
+                              {normalizeAcademicYear(student.academicYear)}
                             </span>
                           </div>
                           <div className="flex justify-between py-1.5 border-b border-[#EAE5DC] dark:border-slate-700">
@@ -1885,10 +1846,10 @@ export default function App() {
                                 onChange={(e) => setEditAcademicYear(e.target.value)}
                                 className="w-full px-2.5 py-2 rounded-xl bg-[#F5F2EB] dark:bg-slate-700 border border-[#DDD6C7] dark:border-slate-600 font-semibold text-[#0B2545] dark:text-white"
                               >
-                                <option value="Khóa K25 (Năm 1)">Khóa K25 (Năm 1)</option>
-                                <option value="Khóa K24 (Năm 2)">Khóa K24 (Năm 2)</option>
-                                <option value="Khóa K23 (Năm 3)">Khóa K23 (Năm 3)</option>
-                                <option value="Khóa K22 (Năm 4)">Khóa K22 (Năm 4)</option>
+                                <option value="Khóa K26 (Năm 1)">Khóa K26 (Năm 1)</option>
+                                <option value="Khóa K25 (Năm 2)">Khóa K25 (Năm 2)</option>
+                                <option value="Khóa K24 (Năm 3)">Khóa K24 (Năm 3)</option>
+                                <option value="Khóa K23 (Năm 4)">Khóa K23 (Năm 4)</option>
                                 <option value="Cao học / Nghiên cứu sinh">Cao học / NCS</option>
                               </select>
                             </div>
@@ -3021,11 +2982,22 @@ export default function App() {
                 </div>
 
                 {/* Order Cards List */}
-                <div className="space-y-4">
-                  {filteredOrderHistory.map((ord, orderIdx) => (
-                    <motion.div
-                      key={`${orderStatusFilter}-${ord.orderId}`}
-                      initial={{ opacity: 0, y: 24 }}
+                {filteredOrderHistory.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-[#DDD6C7] bg-[#FAF8F5]/70 py-10 px-4 text-center dark:border-slate-700 dark:bg-slate-900/50">
+                    <ShoppingBag className="mx-auto h-7 w-7 text-[#94A3B8] dark:text-slate-500 mb-2" />
+                    <p className="text-xs sm:text-sm font-bold text-[#4A5568] dark:text-slate-300">
+                      Chưa có đơn hàng nào
+                    </p>
+                    <p className="mt-1 text-xs text-[#64748B] dark:text-slate-400">
+                      Lịch sử mua hàng sẽ hiển thị tại đây sau khi bạn ấn đặt mua trong giỏ hàng.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredOrderHistory.map((ord, orderIdx) => (
+                      <motion.div
+                        key={`${orderStatusFilter}-${ord.orderId}`}
+                        initial={{ opacity: 0, y: 24 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, amount: 0.15 }}
                       transition={{
@@ -3179,7 +3151,8 @@ export default function App() {
                       </div>
                     </motion.div>
                   ))}
-                </div>
+                  </div>
+                )}
               </div>
             </section>
 

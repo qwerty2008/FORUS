@@ -1089,34 +1089,88 @@ export const BREAKFAST_AND_DRINK_MENU: ProductItem[] = [
   },
 ];
 
+export interface PrintSizePricing {
+  unitName: "trang" | "tờ";
+  dimensions: string;
+  desc: string;
+  bwSmallRange: string;
+  bwBulkRange: string;
+  colorRegularRange: string;
+  colorCoucheRange: string;
+  bwPrice: number;
+  bwBulkPrice: number;
+  colorPrice: number;
+  colorCouchePrice: number;
+}
+
 export const PRINT_PRICING_TABLE: Record<
-  "A1" | "A2" | "A3" | "A4" | "A5",
-  { bwPrice: number; colorPrice: number; desc: string }
+  "A5" | "A4" | "A3" | "A2" | "A1",
+  PrintSizePricing
 > = {
   A5: {
+    unitName: "trang",
+    dimensions: "14.8 × 21 cm",
+    desc: "Sổ tay công thức, flashcard & tài liệu ôn tập bỏ túi",
+    bwSmallRange: "300 – 500 đ / trang",
+    bwBulkRange: "150 – 250 đ / trang",
+    colorRegularRange: "500 – 1.500 đ / trang",
+    colorCoucheRange: "2.000 – 5.000 đ / trang",
     bwPrice: 400,
-    colorPrice: 1500,
-    desc: "Sổ tay công thức, tài liệu ôn tập bỏ túi (14.8 × 21 cm)",
+    bwBulkPrice: 200,
+    colorPrice: 1000,
+    colorCouchePrice: 3000,
   },
   A4: {
-    bwPrice: 600,
-    colorPrice: 2500,
-    desc: "Slide bài giảng, đề cương, báo cáo tiểu luận (21 × 29.7 cm)",
+    unitName: "trang",
+    dimensions: "21 × 29.7 cm",
+    desc: "In giáo trình, slide bài giảng, đề cương & báo cáo tiểu luận",
+    bwSmallRange: "500 – 1.000 đ / trang",
+    bwBulkRange: "250 – 400 đ / trang",
+    colorRegularRange: "700 – 2.500 đ / trang",
+    colorCoucheRange: "3.000 – 10.000 đ / trang",
+    bwPrice: 500,
+    bwBulkPrice: 300,
+    colorPrice: 1500,
+    colorCouchePrice: 5000,
   },
   A3: {
+    unitName: "tờ",
+    dimensions: "29.7 × 42 cm",
+    desc: "Bản vẽ kỹ thuật, sơ đồ tư duy, bảng tổng hợp môn học",
+    bwSmallRange: "1.000 – 2.000 đ / tờ",
+    bwBulkRange: "500 – 800 đ / tờ",
+    colorRegularRange: "1.500 – 5.000 đ / tờ",
+    colorCoucheRange: "5.000 – 12.000 đ / tờ",
     bwPrice: 1500,
-    colorPrice: 6000,
-    desc: "Sơ đồ tư duy, bản vẽ mạch điện, bảng tổng hợp (29.7 × 42 cm)",
+    bwBulkPrice: 650,
+    colorPrice: 3000,
+    colorCouchePrice: 8000,
   },
   A2: {
-    bwPrice: 15000,
-    colorPrice: 45000,
-    desc: "Bản nháp Poster đồ án, infographic nhóm (42 × 59.4 cm)",
+    unitName: "tờ",
+    dimensions: "42 × 59.4 cm",
+    desc: "Bản vẽ thiết kế, sơ đồ kiến trúc, poster vừa & infographic nhóm",
+    bwSmallRange: "5.000 – 8.000 đ / tờ",
+    bwBulkRange: "1.600 – 3.000 đ / tờ",
+    colorRegularRange: "8.000 – 12.000 đ / tờ",
+    colorCoucheRange: "15.000 – 35.000 đ / tờ",
+    bwPrice: 6000,
+    bwBulkPrice: 2200,
+    colorPrice: 10000,
+    colorCouchePrice: 25000,
   },
   A1: {
-    bwPrice: 30000,
-    colorPrice: 75000,
-    desc: "Poster Đồ án chuẩn Hội nghị (Môn CSC00006) cán màng chống thấm (59.4 × 84.1 cm)",
+    unitName: "tờ",
+    dimensions: "59.4 × 84.1 cm",
+    desc: "Bản vẽ khổ lớn, Poster Đồ án 1 (CSC00006) & hội nghị khoa học",
+    bwSmallRange: "10.000 – 15.000 đ / tờ",
+    bwBulkRange: "2.700 – 6.000 đ / tờ",
+    colorRegularRange: "15.000 – 25.000 đ / tờ",
+    colorCoucheRange: "35.000 – 60.000 đ / tờ",
+    bwPrice: 12000,
+    bwBulkPrice: 4000,
+    colorPrice: 20000,
+    colorCouchePrice: 45000,
   },
 };
 
