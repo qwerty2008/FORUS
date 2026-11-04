@@ -339,6 +339,14 @@ export default function App() {
     );
   };
 
+  const getVariantAdjustedPrice = (
+    v: PricingVariant,
+    model?: { priceDelta?: number } | null
+  ) => {
+    if (!model || !model.priceDelta || v.type === "rent") return v.price;
+    return Math.max(10000, v.price + model.priceDelta);
+  };
+
   const getCardSelection = (item: ProductItem) => {
     const chosenVariant =
       item.variants.find((v) => v.id === selectedVariantMap[item.id]) ||
@@ -348,10 +356,7 @@ export default function App() {
         ? item.modelOptions.find((m) => m.id === selectedModelMap[item.id]) ||
           item.modelOptions[0]
         : null;
-    const finalPrice = Math.max(
-      0,
-      chosenVariant.price + (chosenModel?.priceDelta || 0)
-    );
+    const finalPrice = getVariantAdjustedPrice(chosenVariant, chosenModel);
     const metaParts: string[] = [];
     if (chosenModel) {
       metaParts.push(`${chosenModel.name} (${chosenModel.spec})`);
@@ -2826,9 +2831,9 @@ export default function App() {
                               <div className="grid grid-cols-2 gap-1.5">
                                 {item.variants.map((v) => {
                                   const active = chosenVariant.id === v.id;
-                                  const vPrice = Math.max(
-                                    0,
-                                    v.price + (chosenModel?.priceDelta || 0)
+                                  const vPrice = getVariantAdjustedPrice(
+                                    v,
+                                    chosenModel
                                   );
                                   return (
                                     <button
@@ -3726,9 +3731,9 @@ export default function App() {
                             <div className="grid grid-cols-2 gap-1.5">
                               {item.variants.map((v) => {
                                 const active = chosenVariant.id === v.id;
-                                const adjustedVPrice = Math.max(
-                                  0,
-                                  v.price + (chosenModel?.priceDelta || 0)
+                                const adjustedVPrice = getVariantAdjustedPrice(
+                                  v,
+                                  chosenModel
                                 );
                                 return (
                                   <button
