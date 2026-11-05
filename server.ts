@@ -193,16 +193,18 @@ async function callGeminiWithTimeout(
     setTimeout(() => reject(new Error(`Timeout after ${timeoutMs}ms`)), timeoutMs)
   );
 
+  const thinkingConfig =
+    modelName === "gemini-3.1-flash-lite"
+      ? { thinkingLevel: ThinkingLevel.MINIMAL }
+      : { thinkingLevel: ThinkingLevel.LOW };
+
   const apiPromise = ai.models
     .generateContent({
       model: modelName,
       contents,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.6,
-        thinkingConfig: {
-          thinkingLevel: ThinkingLevel.MINIMAL,
-        },
+        thinkingConfig,
       },
     })
     .then((res) => {
@@ -217,6 +219,17 @@ async function callGeminiWithTimeout(
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
+
+  app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    if (req.method === "OPTIONS") {
+      res.sendStatus(204);
+      return;
+    }
+    next();
+  });
 
   app.use(express.json({ limit: "2mb" }));
 
@@ -293,9 +306,9 @@ async function startServer() {
 
       // Prioritize fast, stable models in sequential order
       const candidateModels = [
-        "gemini-3.5-flash-lite",
-        "gemini-flash-lite-latest",
+        "gemini-3.1-flash-lite",
         "gemini-3.8-flash",
+        "gemini-flash-latest",
       ];
 
       let replyText = "";

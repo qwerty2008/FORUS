@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { StudentProfile } from "../types";
 import { FormattedAiMessage } from "./FormattedAiMessage";
+import { requestForusAiReply } from "../utils/forusChatService";
 
 interface VipHubProps {
   student: StudentProfile;
@@ -898,32 +899,19 @@ export const VipHub: React.FC<VipHubProps> = ({
     setIsSending(true);
 
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: textToSend,
-          history: currentHistory.map((m) => ({ role: m.role, text: m.text })),
-          studentInfo: {
-            fullName: student.fullName,
-            studentId: student.studentId,
-            email: student.email,
-            faculty: student.faculty,
-            points: student.points,
-          },
-        }),
+      const replyContent = await requestForusAiReply({
+        message: textToSend,
+        history: currentHistory.map((m) => ({ role: m.role, text: m.text })),
+        studentInfo: {
+          fullName: student.fullName,
+          studentId: student.studentId,
+          email: student.email,
+          faculty: student.faculty,
+          points: student.points,
+        },
       });
 
-      const data = await response.json();
-      const replyContent =
-        response.ok && data.reply
-          ? data.reply
-          : data.error ||
-            "Hiện tại hệ thống đang bận, bạn vui lòng thử lại sau giây lát nhé.";
-
-      if (response.ok && data.reply) {
-        onIncrementAiUsage();
-      }
+      onIncrementAiUsage();
 
       setChatMessages((prev) => [
         ...prev,
@@ -943,7 +931,7 @@ export const VipHub: React.FC<VipHubProps> = ({
         {
           id: `err-${Date.now()}`,
           role: "model",
-          text: "Không thể kết nối đến máy chủ AI lúc này. Bạn vui lòng kiểm tra lại kết nối và thử lại nhé!",
+          text: "Hiện tại hệ thống đang bận, bạn vui lòng thử lại sau giây lát nhé!",
           timestamp: "Vừa xong",
         },
       ]);

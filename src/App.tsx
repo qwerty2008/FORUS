@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
+import { requestForusAiReply } from "./utils/forusChatService";
 import {
   Calendar,
   Printer,
@@ -459,39 +460,28 @@ export default function App() {
     setIsFloatingSending(true);
 
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: promptText,
-          history: currentHistory,
-          messages: updatedMessages,
-          studentInfo: {
-            fullName: student.fullName,
-            studentId: student.studentId,
-            email: student.email,
-            faculty: student.faculty,
-            points: student.points,
-          },
-        }),
+      const replyText = await requestForusAiReply({
+        message: promptText,
+        history: currentHistory,
+        studentInfo: {
+          fullName: student.fullName,
+          studentId: student.studentId,
+          email: student.email,
+          faculty: student.faculty,
+          points: student.points,
+        },
       });
-      const data = await response.json();
-      if (!response.ok || !data.reply) {
-        throw new Error(data.error || "Lỗi kết nối với máy chủ AI.");
-      }
       incrementAiUsage();
       setFloatingChatMessages((prev) => [
         ...prev,
-        { role: "model", text: data.reply },
+        { role: "model", text: replyText },
       ]);
-    } catch (err: any) {
+    } catch {
       setFloatingChatMessages((prev) => [
         ...prev,
         {
           role: "model",
-          text: `⚠️ Không thể phản hồi lúc này: ${
-            err.message || "Vui lòng thử lại sau."
-          }`,
+          text: "Hiện tại hệ thống đang xử lý, bạn vui lòng thử gửi lại câu hỏi nhé!",
         },
       ]);
     } finally {
