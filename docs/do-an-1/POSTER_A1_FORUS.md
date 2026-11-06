@@ -1,47 +1,49 @@
 # NỘI DUNG & BỐ CỤC POSTER KHỔ A1 (DỌC) — STARTUP FORUS
-*(Tài liệu tách riêng ngoài giao diện web theo yêu cầu của nhóm để thiết kế file `poster.pdf` khổ A1 dọc 59.4cm × 84.1cm nộp trong `MSSV.zip`)*
+*(Tài liệu phục vụ thiết kế file `poster.pdf` khổ A1 dọc 59.4cm × 84.1cm nộp trong `MSSV.zip`)*
 
 ---
 
 ## 1. TIÊU ĐỀ ĐẦU TRANG (Đọc rõ từ khoảng cách 1.5 mét)
 - **Tên Startup**: **FORUS**
-- **Logo**: Sử dụng file `/public/assets/aistudio/logo_sang_xoa_nen_7eeca75f.png`
+- **Logo**: Sử dụng file `/public/assets/aistudio/Bi_u_tr_ng_FORUS_xanh_lam_xanh_l_c_6f64ecd3.png`
 - **Slogan**: **"Tiện ích trong tay, học hay mỗi ngày"**
-- **Định vị**: Hệ sinh thái tiện ích học tập & đời sống cho sinh viên ĐH Khoa học Tự nhiên — Cơ sở 1 (227 Nguyễn Văn Cừ, Q.5)
+- **Định vị**: Hệ sinh thái tiện ích học tập & học vụ toàn diện dành cho sinh viên ĐH Khoa học Tự nhiên — Cơ sở 1 (227 Nguyễn Văn Cừ, Q.5)
 
 ---
 
 ## 2. VẤN ĐỀ CỦA SINH VIÊN MÀ FORUS GIẢI QUYẾT
-1. **Ghi chép Toán & Code nặng nề**: Môn Giải tích, Đại số tuyến tính, Toán rời rạc có khối lượng công thức lớn; mua iPad tốn 10–15 triệu đồng vượt khả năng tài chính, còn gõ LaTeX thủ công dễ sai cú pháp.
-2. **Quên dụng cụ & Thiếu thời gian chuyển tiết**: Quên máy tính Casio ngày thi, quên áo blouse giờ thực hành Hóa - Sinh; giờ nghỉ giữa ca ngắn không kịp ra ngoài mua đồ ăn sáng hay chờ in tài liệu/poster.
-3. **Bỏ lỡ Điểm Rèn Luyện (ĐRL)**: Sinh viên khó theo dõi hạn đóng form đăng ký các hội thảo học thuật, hoạt động tình nguyện tại Cơ sở 1.
+1. **Ghi chép Toán & Code nặng nề, chi phí thiết bị cao**: Các môn Vi tích phân, Đại số tuyến tính, Toán rời rạc có khối lượng công thức lớn; mua iPad tốn 10–15 triệu đồng vượt khả năng tài chính, còn gõ LaTeX thủ công tốn nhiều thời gian.
+2. **Quên học cụ & Thiếu thiết bị thuyết trình khẩn cấp**: Quên máy tính Casio ngày thi, quên áo blouse giờ thực hành Hóa – Sinh, thiếu cổng chuyển HDMI/Hub USB-C khi thuyết trình đồ án trên MacBook, hoặc cần in gấp tài liệu/Poster khổ A1–A5 giữa ca học.
+3. **Khó tìm phòng học CS1 & Bỏ lỡ Điểm Rèn Luyện (ĐRL)**: Tân sinh viên K26 dễ lạc giữa các dãy nhà A, B, C, E, F, I và khó theo dõi hạn đóng form đăng ký các hội thảo học thuật, hoạt động tình nguyện.
 
 ---
 
 ## 3. SẢN PHẨM / DỊCH VỤ & ĐIỂM KHÁC BIỆT CỦA FORUS
-- **Combo "iPad Sinh Viên" (Thuê 35.000đ/tuần | Mua 390.000đ)**: Bảng vẽ điện tử mini kết nối thẳng laptop/điện thoại + găng tay 2 ngón chống tì + phần mềm viết toán Scrble cài sẵn. *Rẻ hơn 20 lần so với mua máy tính bảng.*
-- **Bàn phím MacroPad "OneTap LaTeX" (220.000đ)** & **Bộ Sticker Phím Toán (19.000đ)**: Bấm 1 nút chèn ngay tích phân $\int$, tổng $\sum$, ma trận và template C++/Python.
-- **Bộ Flashcard chống nước "Cứu Mạng Giữa Kỳ" (39.000đ)**, **Giá đỡ công thái học 15° (75.000đ)** & **Gói Setup LaTeX chuẩn Khoa CNTT (29.000đ)**.
-- **Dịch vụ Giao Tận Phòng Học CS1 (10–15 phút)**: Cho thuê Casio/Áo blouse/Giáo trình khẩn cấp; Giao đồ ăn sáng tận phòng (Tòa I, B, C, E, F); Đặt in sẵn từ khổ A5 đến Poster A1; Sàn kết nối **Cò Gia Sư**.
-- **Gamification Tích Điểm VIP**: Mỗi lần dùng dịch vụ cộng **5–10 điểm**. Đạt **100 điểm** mở khóa **Bảng Săn Điểm Rèn Luyện (có đồng hồ đếm ngược & nhắc hẹn)** và **Chatbot AI hỗ trợ sinh viên**.
+- **Trạm Thuê & Bán 10 Học Cụ Đặc Thù (Chọn Thuê ngắn hạn / Độ mới 80% / 90% / Mới 100%)**:
+  - **5 dòng Máy tính cầm tay** (*Casio fx-580VN X, fx-880BTG, Vinacal 680EX Plus/III, Thiên Long Flexio Fx799VN*): Thuê **15.000đ/ngày**, **45.000đ/tuần** hoặc mua từ **315.000đ**.
+  - **Bộ Dụng Cụ Thuyết Trình "TechRescue"** (Hub USB-C + HDMI 4K + Chuột không dây Silent): Thuê **20.000đ/buổi** thuyết trình.
+  - **10 Giáo trình Đại cương KHTN** & **Áo Blouse Phòng Lab (S/M/L/XL)**: Thuê từ **15.000đ**.
+  - **Combo "iPad Sinh Viên" (Thuê 35.000đ/tuần | Mua 390.000đ)**, **Bàn phím MacroPad "OneTap LaTeX" (220.000đ)**, **Flashcard chống nước (39.000đ)**, **Giá đỡ công thái học 15° (75.000đ)**.
+- **Trạm In Ấn Khổ A5 – A1 Lấy Liền (15 phút)**: Chọn từng khổ A5, A4, A3, A2, A1 với 2 bảng giá chuẩn (Trắng Đen Fort 70–80gsm & In Màu Fort / Couche >180gsm).
+- **Sàn Kết Nối Cò Gia Sư KHTN & Bảng Săn Điểm Rèn Luyện Đếm Ngược**: Tìm lớp dạy kèm uy tín và theo dõi đồng hồ đếm ngược thời gian thực tới hạn đóng form sự kiện ĐRL.
+- **Trung Tâm VIP & AI (`100 Điểm`)**: Sơ đồ chỉ dẫn các tầng CS1 (**B1 – L11**), **Kho 18 mẫu code LaTeX** sao chép 1 chạm và **Trợ lý AI Học tập 24/7**.
 
 ---
 
 ## 4. CÁCH STARTUP KIẾM TIỀN (MÔ HÌNH DOANH THU)
-1. **Doanh thu Bán lẻ & Cho thuê vòng quay cao**: Lợi nhuận từ bán thiết bị (Combo Bảng vẽ, MacroPad, Flashcard, Giá đỡ, Sticker) và cho thuê theo tuần/ngày (hoàn vốn thiết bị chỉ sau 8–10 lượt thuê).
-2. **Phí dịch vụ Kỹ thuật & In ấn**: 100% doanh thu dịch vụ Setup LaTeX (29.000đ/lần) và chênh lệch dịch vụ in ấn giao tận phòng.
-3. **Hoa hồng Hệ sinh thái**: Phí giao đồ ăn sáng đồng giá và phí kết nối minh bạch từ sàn Cò Gia Sư.
+1. **Doanh thu Bán lẻ & Cho thuê vòng quay cao**: Lợi nhuận từ bán thiết bị và cho thuê ngắn hạn máy tính Casio, bộ cáp TechRescue, áo blouse, giáo trình (hoàn vốn thiết bị chỉ sau 8–12 lượt thuê).
+2. **Phí dịch vụ Kỹ thuật & In ấn khổ A5–A1**: Doanh thu từ gói Setup LaTeX (29.000đ/lần) và dịch vụ in ấn tài liệu, báo cáo, Poster A1 lấy liền tại Cơ sở 1.
+3. **Phí kết nối Hệ sinh thái**: Phí kết nối minh bạch từ sàn Cò Gia Sư HCMUS.
 
 ---
 
-## 5. ẢNH CHỤP WEBSITE & MÃ QR TRải NGHIỆM TRỰC TIẾP
-- Đặt ảnh chụp màn hình Trang chủ FORUS (cả chế độ Sáng và Tối trên điện thoại) kèm **Mã QR lớn (tối thiểu 8cm × 8cm)** ở góc phải giữa Poster để khách tham quan quét bằng điện thoại.
-- Khuyến khích khách quét QR bấm nút **"Demo VIP 100đ"** để thử ngay đồng hồ đếm ngược ĐRL và Chatbot AI.
+## 5. ẢNH CHỤP WEBSITE & MÃ QR TRẢI NGHIỆM TRỰC TIẾP
+- Đặt ảnh chụp màn hình Trang chủ FORUS, mục Thuê & Bán, Bảng giá In ấn A5–A1 và Sơ đồ tầng B1–L11 kèm **Mã QR lớn (tối thiểu 8cm × 8cm)** dẫn tới **`https://qwerty2008.github.io/FORUS/`**.
 
 ---
 
 ## 6. THÀNH VIÊN NHÓM (5 THÀNH VIÊN) & CÁCH DÙNG AI
-- **Danh sách 5 thành viên**: *(Điền Họ tên, MSSV, Ảnh chân dung và Vai trò của 5 bạn trong nhóm)*
+- **Danh sách 5 thành viên**: *(Điền Họ tên, MSSV, Ảnh chân dung và Vai trò theo file `PHAN_CONG_NHOM.md`)*
 - **Nhóm đã dùng AI như thế nào**:
-  1. Tích hợp trực tiếp mô hình **Gemini (`gemini-3.8-flash`)** làm Chatbot AI tư vấn học vụ, giải thích định lý và tạo khung code LaTeX cho sinh viên trên web.
-  2. Sử dụng AI hỗ trợ tạo ảnh minh họa sản phẩm đồng bộ, rà soát cấu trúc code React/TypeScript và tinh chỉnh văn phong mô tả sản phẩm hấp dẫn.
+  1. Tích hợp mô hình **Gemini** cùng bộ giải học thuật đa tầng làm **Trợ lý AI FORUS 24/7** giải toán đại cương, viết code C++/Python và sinh mã LaTeX trực tiếp trên web.
+  2. Ứng dụng AI hỗ trợ chuẩn hóa kho 18 mẫu LaTeX, kiểm thử giao diện di động và hoàn thiện hệ thống tài liệu kỹ thuật.

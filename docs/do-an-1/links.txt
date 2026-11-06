@@ -1,2 +1,4 @@
 Website Startup FORUS (ĐH Khoa học Tự nhiên - Cơ sở 1):
-https://ais-pre-m3uzfjjxhiiaafj3oeiozr-312905538557.asia-northeast1.run.app
+- Tên miền GitHub Pages: https://qwerty2008.github.io/FORUS/
+- Tên miền Cloud Run (Full-stack): https://ais-pre-m3uzfjjxhiiaafj3oeiozr-312905538557.asia-northeast1.run.app
+- Kho mã nguồn GitHub: https://github.com/qwerty2008/FORUS

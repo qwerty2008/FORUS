@@ -1028,19 +1028,34 @@ export default function App() {
     showToast("Đã lưu ghi chú cá nhân cho sự kiện!");
   };
 
-  const appOrigin =
-    typeof window !== "undefined"
-      ? window.location.origin
-      : "https://forus-hcmus.edu.vn";
-  const qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(
-    `${appOrigin}/?sv=${student.studentId}`
+  const publicBaseUrl = (() => {
+    if (typeof window !== "undefined") {
+      const { origin, pathname, hostname } = window.location;
+      if (hostname.endsWith("github.io")) {
+        const cleanPath = pathname.replace(/\/index\.html$/i, "");
+        const normalizedPath = cleanPath.endsWith("/")
+          ? cleanPath
+          : `${cleanPath}/`;
+        return `${origin}${normalizedPath}`;
+      }
+    }
+    return "https://qwerty2008.github.io/FORUS/";
+  })();
+
+  const qrTargetUrl =
+    student.isLoggedIn && student.studentId
+      ? `${publicBaseUrl}?sv=${encodeURIComponent(student.studentId)}`
+      : publicBaseUrl;
+
+  const qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&ecc=M&margin=8&data=${encodeURIComponent(
+    qrTargetUrl
   )}`;
 
   const handleCopyQrLink = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(`${appOrigin}/?sv=${student.studentId}`);
+      navigator.clipboard.writeText(qrTargetUrl);
       setCopiedQrLink(true);
-      showToast("Đã sao chép đường dẫn QR Sinh Viên FORUS!");
+      showToast(`Đã sao chép link FORUS: ${qrTargetUrl}`);
       setTimeout(() => setCopiedQrLink(false), 2500);
     }
   };
