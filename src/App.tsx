@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { requestForusAiReply } from "./utils/forusChatService";
+import {
+  requestForusAiReply,
+  subscribeSharedChatExchange,
+} from "./utils/forusChatService";
 import {
   Calendar,
   Printer,
@@ -435,6 +438,32 @@ export default function App() {
     }
   }, [floatingChatMessages, isFloatingSending, isFloatingAiOpen]);
 
+  // Synchronize messages answered in the main VipHub chat into the floating popup
+  useEffect(() => {
+    return subscribeSharedChatExchange((userText, modelReply) => {
+      setFloatingChatMessages((prev) => {
+        const last = prev[prev.length - 1];
+        const secondLast = prev[prev.length - 2];
+        if (
+          last?.role === "model" &&
+          last?.text === modelReply &&
+          secondLast?.role === "user" &&
+          secondLast?.text === userText
+        ) {
+          return prev;
+        }
+        if (last?.role === "user" && last?.text === userText) {
+          return [...prev, { role: "model", text: modelReply }];
+        }
+        return [
+          ...prev,
+          { role: "user", text: userText },
+          { role: "model", text: modelReply },
+        ];
+      });
+    });
+  }, []);
+
   const handleSendFloatingChat = async (customPrompt?: string) => {
     if (!requireLogin("Trợ lý AI FORUS")) return;
     const promptText = (customPrompt ?? floatingChatInput).trim();
@@ -477,10 +506,13 @@ export default function App() {
         },
       });
       incrementAiUsage();
-      setFloatingChatMessages((prev) => [
-        ...prev,
-        { role: "model", text: replyText },
-      ]);
+      setFloatingChatMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "model" && last?.text === replyText) {
+          return prev;
+        }
+        return [...prev, { role: "model", text: replyText }];
+      });
     } catch {
       setFloatingChatMessages((prev) => [
         ...prev,

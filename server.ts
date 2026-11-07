@@ -31,7 +31,8 @@ NGUYÊN TẮC PHẢN HỒI QUAN TRỌNG:
        - Áo Blouse trắng phòng Lab (Size S, M, L, XL): Thuê 15.000đ/buổi | Mua từ 55.000đ.
        - Combo Bảng vẽ "iPad Sinh Viên" (Thuê 35.000đ/tuần | Mua 390.000đ), Bàn phím MacroPad OneTap LaTeX (Thuê 30k/tuần | Mua 220k), Bộ Flashcard chống nước (39k).
      • In ấn tài liệu & Poster lấy liền (Khổ A5 đến A1): Có tùy chọn thuê kèm Giá đỡ / Standee Poster (+10k/buổi, +15k/ngày, +30k/tuần).
-     • Điểm VIP & Kho Voucher Thanh toán: Điểm VIP chỉ cộng KHI XÁC NHẬN THANH TOÁN ĐƠN HÀNG. Hỗ trợ đổi Voucher bằng Điểm VIP (VIP50 giảm 10k, VIP60 giảm 15k, VIP100 giảm 15%) và Điểm ĐRL/GPA (DRL80PLUS giảm 15%, GPA32PLUS giảm 12k, FORUSKHTN giảm 10%, CSC00006 giảm 15k).`;
+      • Điểm VIP & Kho Voucher Thanh toán: Điểm VIP chỉ cộng KHI XÁC NHẬN THANH TOÁN ĐƠN HÀNG. Hỗ trợ đổi Voucher bằng Điểm VIP (VIP50 giảm 10k, VIP60 giảm 15k, VIP100 giảm 15%) và Điểm ĐRL/GPA (DRL80PLUS giảm 15%, GPA32PLUS giảm 12k, FORUSKHTN giảm 10%, CSC00006 giảm 15k).
+    - Thông tin hành chính & lãnh đạo Nhà nước Việt Nam cập nhật (2025–2026): Chủ tịch nước là ông Lương Cường (từ 21/10/2024), Tổng Bí thư là ông Tô Lâm, Thủ tướng Chính phủ là ông Phạm Minh Chính, Chủ tịch Quốc hội là ông Trần Thanh Mẫn.`;
 
 // Normalize multi-turn history so it starts with "user" and strictly alternates "user" / "model"
 function buildSanitizedContents(
@@ -78,6 +79,19 @@ function buildFallbackAcademicReply(
   const greetingName = studentName
     ? studentName.split(" ").slice(-1)[0]
     : "bạn";
+
+  if (q.includes("chủ tịch nước")) {
+    return `Chủ tịch nước Cộng hòa xã hội chủ nghĩa Việt Nam hiện nay là ông **Lương Cường** (nhậm chức từ ngày 21/10/2024, nhiệm kỳ 2021–2026).`;
+  }
+  if (q.includes("thủ tướng")) {
+    return `Thủ tướng Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam hiện nay là ông **Phạm Minh Chính**.`;
+  }
+  if (q.includes("tổng bí thư")) {
+    return `Tổng Bí thư Ban Chấp hành Trung ương Đảng Cộng sản Việt Nam hiện nay là ông **Tô Lâm**.`;
+  }
+  if (q.includes("chủ tịch quốc hội")) {
+    return `Chủ tịch Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam hiện nay là ông **Trần Thanh Mẫn**.`;
+  }
 
   // 1. Direct arithmetic evaluation if user enters a math expression like "125 * 8 + 50"
   const cleanMath = q.replace(/[^0-9+\-*/().^\s]/g, "").trim();

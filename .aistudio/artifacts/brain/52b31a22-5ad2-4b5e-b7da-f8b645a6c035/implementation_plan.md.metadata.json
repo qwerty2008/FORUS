@@ -1,6 +1,6 @@
 {
-  "summary":  "Kế hoạch nâng cấp Trợ lý AI FORUS trên tên miền GitHub Pages và hệ thống hiển thị công thức Toán học trực quan (KaTeX + Unicode Math) không lỗi font, ẩn code LaTeX thô và tự động điều chỉnh độ dài câu trả lời đúng trọng tâm.",
-  "updatedAt":  "2026-11-07T15:53:36.275607841Z",
+  "summary":  "Kế hoạch khắc phục triệt để lỗi khung chat nổi (Popup Chat) không trả lời khi hỏi liên tiếp trên GitHub Pages, đồng bộ lịch sử chat 2 chiều và tích hợp đa nguồn tri thức trực tuyến không giới hạn tốc độ.",
+  "updatedAt":  "2026-11-07T16:24:59.562853657Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

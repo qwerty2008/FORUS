@@ -18,7 +18,10 @@ import {
 } from "lucide-react";
 import { StudentProfile } from "../types";
 import { FormattedAiMessage } from "./FormattedAiMessage";
-import { requestForusAiReply } from "../utils/forusChatService";
+import {
+  requestForusAiReply,
+  subscribeSharedChatExchange,
+} from "../utils/forusChatService";
 
 interface VipHubProps {
   student: StudentProfile;
@@ -849,6 +852,54 @@ export const VipHub: React.FC<VipHubProps> = ({
     }
   }, [chatMessages, isSending]);
 
+  // Synchronize messages answered in the Floating Chat Popup into this main chat window
+  useEffect(() => {
+    return subscribeSharedChatExchange((userText, modelReply) => {
+      const nowTime = new Date().toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setChatMessages((prev) => {
+        const last = prev[prev.length - 1];
+        const secondLast = prev[prev.length - 2];
+        if (
+          last?.role === "model" &&
+          last?.text === modelReply &&
+          secondLast?.role === "user" &&
+          secondLast?.text === userText
+        ) {
+          return prev;
+        }
+        if (last?.role === "user" && last?.text === userText) {
+          return [
+            ...prev,
+            {
+              id: `sync-model-${Date.now()}`,
+              role: "model",
+              text: modelReply,
+              timestamp: nowTime,
+            },
+          ];
+        }
+        return [
+          ...prev,
+          {
+            id: `sync-user-${Date.now()}`,
+            role: "user",
+            text: userText,
+            timestamp: nowTime,
+          },
+          {
+            id: `sync-model-${Date.now() + 1}`,
+            role: "model",
+            text: modelReply,
+            timestamp: nowTime,
+          },
+        ];
+      });
+    });
+  }, []);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
@@ -913,18 +964,24 @@ export const VipHub: React.FC<VipHubProps> = ({
 
       onIncrementAiUsage();
 
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          id: `model-${Date.now()}`,
-          role: "model",
-          text: replyContent,
-          timestamp: new Date().toLocaleTimeString("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        },
-      ]);
+      setChatMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "model" && last?.text === replyContent) {
+          return prev;
+        }
+        return [
+          ...prev,
+          {
+            id: `model-${Date.now()}`,
+            role: "model",
+            text: replyContent,
+            timestamp: new Date().toLocaleTimeString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          },
+        ];
+      });
     } catch {
       setChatMessages((prev) => [
         ...prev,
