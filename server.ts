@@ -218,7 +218,7 @@ async function callGeminiWithTimeout(
 
 async function startServer() {
   const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
+  const PORT = 3000;
 
   app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -347,13 +347,12 @@ async function startServer() {
 
   const isProduction =
     process.env.NODE_ENV === "production" ||
-    process.env.npm_lifecycle_event === "start" ||
-    Boolean(process.env.K_SERVICE);
+    process.env.npm_lifecycle_event === "start";
 
   if (!isProduction) {
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
-      server: { middlewareMode: true, hmr: false, watch: null },
+      server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);

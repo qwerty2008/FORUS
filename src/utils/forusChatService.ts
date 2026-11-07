@@ -11,9 +11,85 @@ export interface StudentContextInfo {
   points?: number;
 }
 
+const FORUS_SYSTEM_INSTRUCTION = `Bạn là Trợ lý AI Học thuật FORUS (227 NVC) dành riêng cho sinh viên Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM (HCMUS) tại Cơ sở 1 - 227 Nguyễn Văn Cừ, Quận 5, TP.HCM.
+
+NGUYÊN TẮC PHẢN HỒI:
+1. Trả lời TRỰC TIẾP, CHÍNH XÁC, CỤ THỂ và HIỆU QUẢ vào đúng câu hỏi của người dùng (dù là bài toán cụ thể, viết code C++/Python/Java/JS, dịch thuật, viết email, giải thích lý thuyết Vật lý/Hóa/Sinh/Triết/Kinh tế, hay tư vấn dịch vụ FORUS).
+2. Khi giải toán (Vi tích phân 1B/2B, Đại số tuyến tính, Toán rời rạc, Xác suất thống kê): Giải chi tiết từng bước đến kết quả cuối cùng và xuất kèm khối mã \`\`\`latex ... \`\`\` để sinh viên copy vào Overleaf.
+3. Khi hỏi lập trình: Cung cấp code chạy được ngay, giải thích thuật toán và độ phức tạp $O(...)$.
+4. Thông tin Hệ sinh thái FORUS tại Cơ sở 1 (227 Nguyễn Văn Cừ):
+   - Thuê & Mua Học cụ: Máy tính Casio fx-580VN X / fx-880BTG / Vinacal 680EX / Thiên Long Flexio Fx799VN (Thuê 15.000đ/ngày, 45.000đ/tuần; Mua 80%/90%/Mới 100%), Bộ cáp thuyết trình TechRescue (20.000đ/buổi), Áo Blouse phòng Lab (15.000đ/buổi), 10 Giáo trình đại cương (15.000đ/tuần, 35.000đ/học kỳ), Bàn phím MacroPad OneTap LaTeX, Combo bảng vẽ iPad Sinh Viên.
+   - In ấn tài liệu khổ A5 đến A1: In trắng đen A5 (150–500đ), A4 (250–1.000đ), A3 (500–2.000đ), A2 (1.600–8.000đ), A1 (2.700–15.000đ); In màu Full Color giấy Fort hoặc Couche >180gsm từ A5 đến Poster A1. Nhận tại sảnh Tòa I sau 15 phút.
+   - Điểm VIP & Kho Voucher Thanh toán: Điểm VIP chỉ được cộng vào tài khoản KHI XÁC NHẬN THANH TOÁN ĐƠN HÀNG (không cộng lúc mới thêm vào giỏ). Trong giỏ hàng có Kho Voucher đổi bằng Điểm VIP (VIP50 giảm 10k, VIP60 giảm 15k, VIP100 giảm 15% tổng đơn, hoặc đổi lẻ 10–50 điểm VIP) và Điểm khác (DRL80PLUS giảm 15% cho ĐRL >= 80, GPA32PLUS giảm 12k cho GPA >= 3.2, FORUSKHTN giảm 10%, CSC00006 giảm 15k, TANSV2026 giảm 10k, FREESHIP227 giảm 5k).`;
+
+/**
+ * Attempts to solve a quadratic equation ax^2 + bx + c = 0 if present in the user message.
+ */
+function trySolveQuadraticEquation(raw: string, greetingName: string): string | null {
+  const normalized = raw
+    .replace(/\s+/g, "")
+    .replace(/−/g, "-")
+    .replace(/\*\*/g, "^")
+    .toLowerCase();
+
+  const match = normalized.match(
+    /([+-]?\d*\.?\d*)x\^2([+-]\d*\.?\d*)x([+-]\d+\.?\d*)=0/
+  );
+  if (!match) return null;
+
+  const parseCoeff = (s: string) => {
+    if (s === "" || s === "+") return 1;
+    if (s === "-") return -1;
+    return Number(s);
+  };
+
+  const a = parseCoeff(match[1]);
+  const b = parseCoeff(match[2]);
+  const c = Number(match[3]);
+  if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(c) || a === 0) {
+    return null;
+  }
+
+  const delta = b * b - 4 * a * c;
+  const eqDisplay = `${a === 1 ? "" : a === -1 ? "-" : a}x^2 ${
+    b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`
+  }x ${c >= 0 ? `+ ${c}` : `- ${Math.abs(c)}`} = 0`;
+
+  if (delta > 0) {
+    const x1 = (-b + Math.sqrt(delta)) / (2 * a);
+    const x2 = (-b - Math.sqrt(delta)) / (2 * a);
+    const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(4));
+    return `Chào ${greetingName}! Mình giải chi tiết phương trình bậc hai **$${eqDisplay}$** từng bước như sau:
+
+1. **Xác định hệ số & Biệt thức $\\Delta$:**
+   - Hệ số: $a = ${a},\\; b = ${b},\\; c = ${c}$
+   - $\\Delta = b^2 - 4ac = (${b})^2 - 4 \\cdot (${a}) \\cdot (${c}) = ${delta} > 0$
+
+2. **Kết luận nghiệm thực phân biệt:**
+   - $x_1 = \\frac{-b + \\sqrt{\\Delta}}{2a} = \\frac{${-b} + \\sqrt{${delta}}}{${2 * a}} = \\mathbf{${fmt(x1)}}$
+   - $x_2 = \\frac{-b - \\sqrt{\\Delta}}{2a} = \\frac{${-b} - \\sqrt{${delta}}}{${2 * a}} = \\mathbf{${fmt(x2)}}$
+
+3. **Mã LaTeX chèn vào báo cáo:**
+\`\`\`latex
+${eqDisplay} \\iff \\Delta = ${delta} > 0 \\implies \\left[\\begin{array}{l} x_1 = ${fmt(x1)} \\\\ x_2 = ${fmt(x2)} \\end{array}\\right.
+\`\`\``;
+  }
+
+  if (delta === 0) {
+    const x0 = -b / (2 * a);
+    return `Chào ${greetingName}! Phương trình **$${eqDisplay}$** có $\\Delta = b^2 - 4ac = ${delta} = 0$, nên có **nghiệm kép**:
+$$x_1 = x_2 = -\\frac{b}{2a} = \\mathbf{${x0}}$$`;
+  }
+
+  const realPart = (-b / (2 * a)).toFixed(3);
+  const imagPart = (Math.sqrt(-delta) / Math.abs(2 * a)).toFixed(3);
+  return `Chào ${greetingName}! Phương trình **$${eqDisplay}$** có $\\Delta = ${delta} < 0$, nên vô nghiệm trên $\\mathbb{R}$ và có **2 nghiệm phức liên hợp** trên $\\mathbb{C}$:
+$$x_{1,2} = ${realPart} \\pm ${imagPart}i$$`;
+}
+
 /**
  * Generates an accurate, richly formatted Markdown + LaTeX response for HCMUS students
- * when running on a static host (such as GitHub Pages *.github.io) where no local Node backend exists.
+ * as a local fallback when offline or if cloud LLM endpoints are unreachable.
  */
 export function generateSmartAcademicReply(
   userMessage: string,
@@ -26,9 +102,13 @@ export function generateSmartAcademicReply(
     ? studentInfo.fullName.trim().split(/\s+/).slice(-1)[0]
     : "bạn";
 
+  // 0. Quadratic equation solver (e.g., "x^2 - 5x + 6 = 0")
+  const quadSolution = trySolveQuadraticEquation(raw, greetingName);
+  if (quadSolution) return quadSolution;
+
   // 1. Direct arithmetic / math expression evaluation (e.g., "125 * 8 + 50", "(2^10 - 24) / 5")
   const mathCandidate = q
-    .replace(/tính|bằng bao nhiêu|kết quả của|giá trị của|[=?]/gi, "")
+    .replace(/tính|bằng bao nhiêu|kết quả của|giá trị của|giải|[=?]/gi, "")
     .trim();
   if (
     mathCandidate.length >= 3 &&
@@ -112,7 +192,7 @@ Tính $I = \\lim_{x \\to 0} x^2 \\sin\\left(\\frac{1}{x}\\right)$:
 
 1. **Công thức Tích phân từng phần (Integration by Parts):**
 $$\\int_{a}^{b} u\\,dv = \\left. u \\cdot v \\right|_{a}^{b} - \\int_{a}^{b} v\\,du$$
-- **Thứ tự ưu tiên đặt $u$:** *Nhất Lô ($\ln x$) — Nhì Đa ($P(x)$) — Tam Lượng ($\sin, \cos$) — Tứ Mũ ($e^x, a^x$)*.
+- **Thứ tự ưu tiên đặt $u$:** *Nhất Lô ($\\ln x$) — Nhì Đa ($P(x)$) — Tam Lượng ($\\sin, \\cos$) — Tứ Mũ ($e^x, a^x$)*.
 
 2. **Đạo hàm riêng & Vector Gradient (Vi tích phân 2B):**
 $$\\nabla f(x,y) = \\left( \\frac{\\partial f}{\\partial x}, \\frac{\\partial f}{\\partial y} \\right)$$
@@ -303,7 +383,7 @@ int main() {
   ) {
     return `Chào ${greetingName}! Dưới đây là hướng dẫn **Sơ đồ các tòa nhà tại Cơ sở 1 (227 Nguyễn Văn Cừ, Q.5)**:
 
-- **Tòa nhà I (11 tầng):** Trung tâm Khoa CNTT, সảnh giao nhận FORUS (tầng trệt), phòng máy thực hành E/I, các phòng học lý thuyết I.41, I.42, I.52... và Hội trường I.
+- **Tòa nhà I (11 tầng):** Trung tâm Khoa CNTT, sảnh giao nhận FORUS (tầng trệt), phòng máy thực hành E/I, các phòng học lý thuyết I.41, I.42, I.52... và Hội trường I.
 - **Dãy B & Dãy C:** Khu giảng đường lý thuyết B11–B44, C11–C45 và phòng thí nghiệm Hóa – Sinh.
 - **Dãy E & Dãy F:** Khu phòng máy thực hành CNTT (E301–E305), văn phòng Khoa Toán – Tin học và Khoa Vật lý (Tòa F).
 - **Dãy A & Thư viện CS1:** Khu tự học máy lạnh yên tĩnh, tra cứu giáo trình và học nhóm.
@@ -311,28 +391,36 @@ int main() {
 🗺️ Bạn có thể mở tab **VIP & AI -> Sơ Đồ Tầng (B1 – L11)** để xem chi tiết từng phòng học theo từng tầng!`;
   }
 
-  // 11. Training Points (ĐRL) & VIP Points
+  // 11. Training Points (ĐRL), GPA Vouchers & VIP Points
   if (
     q.includes("điểm rèn luyện") ||
     q.includes("đrl") ||
     q.includes("vip") ||
     q.includes("voucher") ||
+    q.includes("mã giảm") ||
     q.includes("đổi điểm") ||
     q.includes("sự kiện")
   ) {
-    return `Chào ${greetingName}! Dưới đây là bí quyết tối ưu **Điểm Rèn Luyện (ĐRL)** tại ĐH KHTN và đặc quyền **Điểm VIP FORUS**:
+    return `Chào ${greetingName}! Dưới đây là hướng dẫn sử dụng **Kho Voucher Đổi Điểm VIP & Điểm ĐRL/GPA** trong phần Thanh toán và cách tích điểm:
 
-1. **Cách đạt 90 – 100 Điểm Rèn Luyện mỗi học kỳ:**
-- **Mục 1 (Học thuật & NCKH - tối đa 30đ):** Tham gia hội thảo AI, Workshop LaTeX hoặc cuộc thi học thuật (+5 đến +10 ĐRL/sự kiện).
-- **Mục 3 (Tình nguyện & Xã hội - tối đa 25đ):** Tham gia ngày hội Đổi rác lấy cây xanh Green Campus, Hiến máu tình nguyện (+8 ĐRL).
-- Bấm nút **"Nhắc Tôi Tham Gia"** trong tab **Sự Kiện** để nhận thông báo trước khi hết hạn đăng ký!
+1. **Quy tắc Cộng Điểm VIP FORUS (Hiện bạn có ${studentInfo?.points ?? 0}/100 điểm):**
+   - Điểm VIP **chỉ được cộng khi bạn bấm Xác Nhận Thanh Toán đơn hàng** (không cộng lúc mới thêm món vào giỏ hàng).
+   - Mỗi sản phẩm/lệnh in hoàn tất thanh toán cộng từ **+5 đến +15 điểm VIP**.
 
-2. **Đặc quyền Điểm VIP FORUS (Hiện tại bạn có ${studentInfo?.points ?? 65}/100 điểm):**
-- Mỗi đơn Thuê/Mua học cụ, Đặt đồ ăn sáng hoặc In ấn cộng ngay **+5 đến +10 điểm VIP**.
-- Đủ **100 điểm VIP**: Mở khóa hỏi **Trợ lý AI không giới hạn (∞)** 24/7 và đổi Voucher giảm **15% tổng đơn hàng**!`;
+2. **Các loại Voucher trong Giỏ hàng Thanh toán:**
+   - **Đổi bằng Điểm VIP:**
+     • **VIP50** (Đổi 50đ VIP): Giảm ngay **10.000đ** cho đơn bất kỳ.
+     • **VIP60** (Đổi 60đ VIP): Giảm ngay **15.000đ** cho đơn từ 30.000đ.
+     • **VIP100** (Đổi 100đ VIP): Giảm **15% tổng hóa đơn**.
+     • Ngoài ra có thể đổi nhanh **10 – 50 điểm VIP** (giảm 2.000đ – 10.000đ).
+   - **Đổi bằng Điểm Rèn Luyện, Điểm GPA & Ưu đãi SV:**
+     • \`DRL80PLUS\`: Giảm **15%** cho SV có Điểm Rèn Luyện $\\ge 80$.
+     • \`GPA32PLUS\`: Giảm **12.000đ** cho SV có GPA $\\ge 3.2/4.0$ (đơn từ 40k).
+     • \`FORUSKHTN\`: Giảm **10%** với Email SV ĐH KHTN.
+     • \`CSC00006\`: Giảm **15.000đ** ưu đãi Đồ án 1 AI & In ấn (đơn từ 50k).`;
   }
 
-  // 12. Gear, Calculators, Textbooks, Blouse, TechRescue, Food
+  // 12. Gear, Calculators, Textbooks, Blouse, TechRescue
   if (
     q.includes("ipad") ||
     q.includes("macropad") ||
@@ -346,9 +434,6 @@ int main() {
     q.includes("giáo trình") ||
     q.includes("techrescue") ||
     q.includes("hdmi") ||
-    q.includes("ăn") ||
-    q.includes("bánh mì") ||
-    q.includes("cà phê") ||
     q.includes("gia sư")
   ) {
     return `Chào ${greetingName}! Dưới đây là bảng giá các tiện ích nổi bật của **FORUS tại Cơ sở 1 (227 Nguyễn Văn Cừ)**:
@@ -360,28 +445,25 @@ int main() {
 - **Bộ Dụng Cụ "TechRescue" (Hub USB-C + HDMI máy chiếu + Chuột không dây Silent):** Thuê **20.000đ/buổi** thuyết trình | **30.000đ/ngày** | Mua từ **210.000đ**.
 - **10 Giáo trình Đại cương KHTN (Vi tích phân 1&2, Đại số, Xác suất, Vật lý, Mạng MT, Chính trị):** Thuê **15.000đ/tuần**, **35.000đ/học kỳ** | Mua từ **22.000đ**.
 - **Áo Blouse Trắng Phòng Lab (Size S, M, L, XL):** Thuê **15.000đ/buổi** | Mua từ **55.000đ**.
-- **Combo Bảng vẽ "iPad Sinh Viên":** Thuê **35.000đ/tuần** | Mua mới **390.000đ**.
-
-2. **Đồ Ăn Sáng & Cà Phê Giao Tận Phòng (10–15 phút):**
-- Bánh mì thịt nướng ốp la (25k), Cơm tấm sườn nướng (35k), Xôi lá chuối (18k), Cà phê kem muối (22k), Hồng trà đào (20k).`;
+- **Combo Bảng vẽ "iPad Sinh Viên":** Thuê **35.000đ/tuần** | Mua mới **390.000đ**.`;
   }
 
   // 13. Contextual general response
   const recentTopicHint =
     history.length > 1
       ? `\n\n💡 Bạn có thể hỏi tiếp chi tiết hơn hoặc chọn một chủ đề bên dưới để mình giải từng bước kèm code **LaTeX / C++ / Python** nhé!`
-      : `\n\n💡 Bạn có thể gửi trực tiếp **biểu thức toán học** (VD: \`(2^10 - 24) / 5\`), yêu cầu giải **Định lý Kẹp, Khai triển Maclaurin, Ma trận, Quy nạp**, xuất **code LaTeX / C++**, hoặc tra cứu **bảng giá In ấn A5–A1 & Thuê máy tính Casio** ngay tại đây!`;
+      : `\n\n💡 Bạn có thể gửi trực tiếp **biểu thức hoặc phương trình toán học** (VD: \`x^2 - 5x + 6 = 0\` hoặc \`(2^10 - 24) / 5\`), yêu cầu giải **Định lý Kẹp, Khai triển Maclaurin, Ma trận, Quy nạp**, xuất **code LaTeX / C++**, hoặc tra cứu **Voucher Đổi Điểm VIP / ĐRL / GPA & Bảng giá In ấn A5–A1** ngay tại đây!`;
 
   return `Chào ${greetingName}! Mình là **Trợ lý AI FORUS** đồng hành cùng sinh viên **ĐH Khoa học Tự nhiên (Cơ sở 1 - 227 Nguyễn Văn Cừ)**.
 
-Về nội dung bạn vừa nhắn (*"${raw}"*), mình sẵn sàng hỗ trợ ngay theo 3 nhóm chuyên sâu:
+Về câu hỏi của bạn (*"${raw}"*), mình hỗ trợ giải đáp chi tiết theo 3 nhóm chuyên sâu:
 
 1. **Giải Toán Đại Cương & Xuất Code LaTeX:**
    - Giải chi tiết từng bước **Vi tích phân 1B/2B** (Giới hạn, Định lý Kẹp, Đạo hàm, Tích phân, Chuỗi Maclaurin/Taylor), **Đại số tuyến tính** (Định thức, Trị riêng, Chéo hóa ma trận), **Toán rời rạc** (Quy nạp, Đồ thị) & **Xác suất thống kê**.
 2. **Lập Trình & Đồ Án Khoa CNTT:**
-   - Gỡ lỗi code **C/C++, Python**, cấu trúc dữ liệu (Con trỏ, Danh sách liên kết, Quy hoạch động, Tìm kiếm nhị phân) và khung báo cáo **LaTeX Đồ án 1 (CSC00006)**.
-3. **Tiện Ích Học Đường FORUS 227 NVC:**
-   - Tư vấn thuê/mua **Máy tính Casio/Vinacal/Flexio** (15k/ngày), **Bộ cáp thuyết trình TechRescue** (20k/buổi), **Áo Blouse**, **Giáo trình**, **In ấn khổ A5–A1** và **Giao đồ ăn sáng** tận phòng học.${recentTopicHint}`;
+   - Viết và gỡ lỗi code **C/C++, Python**, cấu trúc dữ liệu (Con trỏ, Danh sách liên kết, Quy hoạch động, Tìm kiếm nhị phân) và khung báo cáo **LaTeX Đồ án 1 (CSC00006)**.
+3. **Tiện Ích Học Đường & Kho Voucher FORUS 227 NVC:**
+   - Tư vấn thuê/mua **Máy tính Casio/Vinacal/Flexio** (15k/ngày), **Bộ cáp thuyết trình TechRescue** (20k/buổi), **Áo Blouse**, **Giáo trình**, **In ấn khổ A5–A1** và **Kho Voucher đổi Điểm VIP / Điểm Rèn Luyện / GPA**.${recentTopicHint}`;
 }
 
 const REMOTE_BACKEND_API_URL =
@@ -417,11 +499,87 @@ async function tryFetchJsonChat(
 }
 
 /**
+ * Calls a CORS-enabled public OpenAI-compatible LLM endpoint (`https://text.pollinations.ai/openai`)
+ * so that static deployments on GitHub Pages (`*.github.io`) can answer ANY open-ended student question
+ * accurately in Vietnamese with Markdown + LaTeX without needing a local Node server.
+ */
+async function tryFetchPollinationsAi(params: {
+  message: string;
+  history: ChatTurn[];
+  studentInfo: StudentContextInfo;
+  timeoutMs?: number;
+}): Promise<string | null> {
+  const { message, history, studentInfo, timeoutMs = 18000 } = params;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  const studentContextLine = studentInfo?.fullName
+    ? `\nThông tin sinh viên đang trò chuyện: Họ tên: ${studentInfo.fullName}, MSSV: ${studentInfo.studentId || "Chưa rõ"}, Khoa: ${studentInfo.faculty || "ĐH KHTN"}, Điểm VIP hiện tại: ${studentInfo.points ?? 0}/100.`
+    : "";
+
+  const openAiMessages = [
+    {
+      role: "system",
+      content: FORUS_SYSTEM_INSTRUCTION + studentContextLine,
+    },
+    ...history.slice(-6).map((turn) => ({
+      role: turn.role === "model" ? "assistant" : "user",
+      content: turn.text,
+    })),
+    {
+      role: "user",
+      content: message,
+    },
+  ];
+
+  try {
+    const response = await fetch("https://text.pollinations.ai/openai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "openai",
+        messages: openAiMessages,
+        temperature: 0.4,
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) return null;
+
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const data = await response.json();
+      const content = data?.choices?.[0]?.message?.content;
+      if (typeof content === "string" && content.trim()) {
+        return content.trim();
+      }
+    } else {
+      const text = await response.text();
+      if (
+        text &&
+        text.trim() &&
+        !text.trim().startsWith("<!DOCTYPE") &&
+        !text.trim().startsWith("<html")
+      ) {
+        return text.trim();
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
  * Unified chat client for FORUS AI Assistant.
- * 1. On full-stack origins, calls `/api/chat`.
- * 2. On static hosts (such as GitHub Pages `*.github.io`), calls the CORS-enabled Cloud Run `/api/chat` backend.
- * 3. Safely validates `Content-Type: application/json` so HTML 404 pages never throw `Unexpected token '<'`.
- * 4. Automatically falls back to the built-in Smart Academic & Campus AI Engine if offline or unreachable.
+ * 1. On full-stack origins (Cloud Run / local Express), calls `/api/chat` (Gemini API).
+ * 2. On static hosts (such as GitHub Pages `*.github.io`), calls the CORS-enabled live LLM endpoint
+ *    (`tryFetchPollinationsAi`) so it can answer any arbitrary academic or campus question effectively.
+ * 3. Falls back to `generateSmartAcademicReply` if the user is completely offline.
  */
 export async function requestForusAiReply(params: {
   message: string;
@@ -446,14 +604,24 @@ export async function requestForusAiReply(params: {
     if (localReply) return localReply;
   }
 
-  const remoteReply = await tryFetchJsonChat(
-    REMOTE_BACKEND_API_URL,
-    payload,
-    10000
-  );
-  if (remoteReply) return remoteReply;
+  // Live CORS-enabled AI endpoint for GitHub Pages and static deployments
+  const cloudAiReply = await tryFetchPollinationsAi({
+    message,
+    history,
+    studentInfo,
+    timeoutMs: 18000,
+  });
+  if (cloudAiReply) return cloudAiReply;
 
-  // Simulate natural AI thinking delay (350ms) when serving from the client-side engine on static hosts
-  await new Promise((resolve) => setTimeout(resolve, 350));
+  if (!isStaticHost) {
+    const remoteReply = await tryFetchJsonChat(
+      REMOTE_BACKEND_API_URL,
+      payload,
+      8000
+    );
+    if (remoteReply) return remoteReply;
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 250));
   return generateSmartAcademicReply(message, studentInfo, history);
 }

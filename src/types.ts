@@ -159,4 +159,6 @@ export interface OrderReceipt {
   totalAmount: number;
   earnedPoints: number;
   pointsRedeemed?: number;
+  appliedVoucherLabel?: string;
+  consumedVoucherId?: string;
 }

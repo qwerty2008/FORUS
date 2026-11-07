@@ -3,10 +3,9 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
-export default defineConfig(() => {
-  const isGitHubPages = process.env.GITHUB_ACTIONS === 'true';
+export default defineConfig(({ command }) => {
   return {
-    base: isGitHubPages ? './' : '/',
+    base: command === 'build' ? './' : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

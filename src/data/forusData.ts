@@ -1247,26 +1247,112 @@ export const VIP_TRAINING_POINT_EVENTS: TrainingPointEvent[] = [
   },
 ];
 
-export const DISCOUNT_CODES: Record<
-  string,
-  { code: string; discountAmount: number; minOrder: number; desc: string }
-> = {
+export interface DiscountVoucherItem {
+  code: string;
+  title: string;
+  discountAmount: number;
+  discountPercent?: number;
+  maxDiscount?: number;
+  minOrder: number;
+  desc: string;
+  category: "vip-points" | "campus-points" | "promo";
+  pointsCost?: number;
+  badgeLabel: string;
+  linkedHomeVoucherId?: string;
+}
+
+export const VIP_VOUCHER_CATALOG: DiscountVoucherItem[] = [
+  {
+    code: "VIP50",
+    title: "Voucher Đổi 50 Điểm VIP (-10.000đ)",
+    discountAmount: 10000,
+    minOrder: 15000,
+    desc: "Đổi 50 điểm VIP giảm ngay 10.000đ cho mọi đơn in ấn A5–A1, thuê máy tính hoặc giáo trình.",
+    category: "vip-points",
+    pointsCost: 50,
+    badgeLabel: "-50 điểm VIP",
+    linkedHomeVoucherId: "hv-50",
+  },
+  {
+    code: "VIP60",
+    title: "Voucher Đổi 60 Điểm VIP (-15.000đ)",
+    discountAmount: 15000,
+    minOrder: 30000,
+    desc: "Đổi 60 điểm VIP giảm 15.000đ cho đơn thuê/mua thiết bị học tập từ 30k.",
+    category: "vip-points",
+    pointsCost: 60,
+    badgeLabel: "-60 điểm VIP",
+    linkedHomeVoucherId: "hv-60",
+  },
+  {
+    code: "VIP100",
+    title: "Đặc Quyền 100 Điểm VIP (Giảm 15% Tổng Đơn)",
+    discountAmount: 0,
+    discountPercent: 15,
+    maxDiscount: 60000,
+    minOrder: 20000,
+    desc: "Đổi 100 điểm VIP giảm trực tiếp 15% tổng giá trị giỏ hàng (tối đa 60.000đ).",
+    category: "vip-points",
+    pointsCost: 100,
+    badgeLabel: "-100 điểm VIP",
+    linkedHomeVoucherId: "hv-100",
+  },
+];
+
+export const DISCOUNT_CODES: Record<string, DiscountVoucherItem> = {
   FORUSKHTN: {
     code: "FORUSKHTN",
+    title: "Ưu Đãi Sinh Viên ĐH KHTN CS1",
     discountAmount: 10000,
     minOrder: 30000,
-    desc: "Giảm 10.000đ cho sinh viên ĐH KHTN Cơ sở 1 (Đơn từ 30k)",
+    desc: "Giảm 10.000đ cho sinh viên có email @student.hcmus.edu.vn (Đơn từ 30k)",
+    category: "promo",
+    badgeLabel: "Email SV KHTN",
+  },
+  DRL80PLUS: {
+    code: "DRL80PLUS",
+    title: "Thưởng Điểm Rèn Luyện Tốt (ĐRL ≥ 80đ)",
+    discountAmount: 12000,
+    minOrder: 35000,
+    desc: "Giảm 12.000đ dành cho sinh viên tích cực tham gia sự kiện Điểm Rèn Luyện (Đơn từ 35k)",
+    category: "campus-points",
+    badgeLabel: "Điểm Rèn Luyện",
+  },
+  GPA32PLUS: {
+    code: "GPA32PLUS",
+    title: "Ưu Đãi Điểm Học Tập Khá Giỏi (GPA ≥ 3.2)",
+    discountAmount: 15000,
+    minOrder: 45000,
+    desc: "Giảm 15.000đ khuyến khích học tập cho sinh viên & gia sư KHTN (Đơn từ 45k)",
+    category: "campus-points",
+    badgeLabel: "Điểm Học Tập GPA",
   },
   CSC00006: {
     code: "CSC00006",
+    title: "Voucher Đồ Án 1 & Poster AI (CSC00006)",
     discountAmount: 15000,
     minOrder: 50000,
-    desc: "Ưu đãi đặc biệt buổi trình bày Poster Đồ án 1 ngành AI (-15.000đ)",
+    desc: "Giảm 15.000đ cho đơn in Poster A1 hoặc thuê thiết bị thuyết trình Đồ án 1 (Đơn từ 50k)",
+    category: "promo",
+    badgeLabel: "Đồ Án 1 AI",
   },
   TANSV2026: {
     code: "TANSV2026",
+    title: "Chào Tân Sinh Viên Khóa K26 (Năm 1)",
     discountAmount: 20000,
     minOrder: 100000,
     desc: "Giảm 20.000đ cho đơn thuê/mua Combo thiết bị học tập từ 100k",
+    category: "promo",
+    badgeLabel: "Tân SV K26",
+  },
+  FREESHIP227: {
+    code: "FREESHIP227",
+    title: "Hỗ Trợ Giao Nhanh 5 Phút Nội Khu 227 NVC",
+    discountAmount: 5000,
+    minOrder: 15000,
+    desc: "Giảm 5.000đ cho mọi đơn giao tận phòng học Tòa I, B, C, E, F (Đơn từ 15k)",
+    category: "promo",
+    badgeLabel: "Giao Nhanh CS1",
   },
 };
+

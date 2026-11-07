@@ -140,7 +140,7 @@ const PRESET_AVATARS = [
   {
     id: "forus-emblem",
     label: "Huy hiệu FORUS",
-    url: "/assets/aistudio/c837a9a8-73eb-40b4-bbbe-701efae040ef_f48d9132.png",
+    url: "assets/aistudio/c837a9a8-73eb-40b4-bbbe-701efae040ef_f48d9132.png",
   },
   {
     id: "sv-male",
@@ -181,9 +181,14 @@ export default function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        const normalizedAvatar =
+          typeof parsed.avatarUrl === "string"
+            ? parsed.avatarUrl.replace(/^\/assets\//, "assets/")
+            : "";
         return {
           ...INITIAL_STUDENT,
           ...parsed,
+          avatarUrl: normalizedAvatar,
           academicYear: normalizeAcademicYear(parsed.academicYear),
         };
       } catch {
@@ -504,7 +509,11 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    localStorage.setItem("forus_student_profile_v3", JSON.stringify(student));
+    try {
+      localStorage.setItem("forus_student_profile_v3", JSON.stringify(student));
+    } catch {
+      // ignore storage quota errors
+    }
     if (student.isLoggedIn && student.email) {
       try {
         const rawMap = localStorage.getItem("forus_saved_accounts_map_v1");
@@ -745,22 +754,80 @@ export default function App() {
   const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2.5 * 1024 * 1024) {
-      showToast("⚠️ Ảnh đại diện quá lớn (tối đa 2.5MB). Vui lòng chọn ảnh nhẹ hơn!");
+    if (!file.type.startsWith("image/")) {
+      showToast("⚠️ Vui lòng chọn tệp hình ảnh hợp lệ (PNG, JPG, WEBP)!");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      showToast("⚠️ Ảnh đại diện quá lớn (tối đa 15MB). Vui lòng chọn ảnh nhẹ hơn!");
+      e.target.value = "";
       return;
     }
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setEditAvatarUrl(reader.result);
+      const rawDataUrl = typeof reader.result === "string" ? reader.result : "";
+      if (!rawDataUrl) return;
+
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          const targetSize = 256;
+          canvas.width = targetSize;
+          canvas.height = targetSize;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, targetSize, targetSize);
+            const minSide = Math.min(img.width, img.height);
+            const sx = Math.max(0, (img.width - minSide) / 2);
+            const sy = Math.max(0, (img.height - minSide) / 2);
+            ctx.drawImage(
+              img,
+              sx,
+              sy,
+              minSide,
+              minSide,
+              0,
+              0,
+              targetSize,
+              targetSize
+            );
+            const compressedUrl = canvas.toDataURL("image/jpeg", 0.85);
+            setEditAvatarUrl(compressedUrl);
+            setStudent((prev) => ({
+              ...prev,
+              avatarUrl: compressedUrl,
+            }));
+            showToast("✅ Đã tải lên & tối ưu ảnh đại diện sinh viên thành công!");
+            return;
+          }
+        } catch {
+          // Fallback to rawDataUrl below
+        }
+        setEditAvatarUrl(rawDataUrl);
         setStudent((prev) => ({
           ...prev,
-          avatarUrl: reader.result as string,
+          avatarUrl: rawDataUrl,
         }));
         showToast("✅ Đã cập nhật ảnh đại diện sinh viên!");
-      }
+      };
+      img.onerror = () => {
+        setEditAvatarUrl(rawDataUrl);
+        setStudent((prev) => ({
+          ...prev,
+          avatarUrl: rawDataUrl,
+        }));
+        showToast("✅ Đã cập nhật ảnh đại diện sinh viên!");
+      };
+      img.src = rawDataUrl;
+    };
+    reader.onerror = () => {
+      showToast("⚠️ Không thể đọc tệp ảnh này, vui lòng thử ảnh khác!");
     };
     reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   const handleAppendAchievementTag = (tag: string) => {
@@ -777,6 +844,9 @@ export default function App() {
     const formattedEmail = editEmail.includes("@")
       ? editEmail.trim()
       : `${editStudentId.trim()}@student.hcmus.edu.vn`;
+    const normalizedAvatar = editAvatarUrl
+      .trim()
+      .replace(/^\/assets\//, "assets/");
 
     setStudent((prev) => ({
       ...prev,
@@ -785,7 +855,7 @@ export default function App() {
       studentId: editStudentId.trim(),
       email: formattedEmail,
       faculty: editFaculty,
-      avatarUrl: editAvatarUrl.trim(),
+      avatarUrl: normalizedAvatar,
       phone: editPhone.trim(),
       academicYear: editAcademicYear.trim(),
       gpa: editGpa.trim(),
@@ -816,7 +886,7 @@ export default function App() {
       if (idx > -1) {
         const updated = [...prev];
         updated[idx].quantity += 1;
-        updated[idx].pointsAlreadyCredited = true;
+        updated[idx].pointsAlreadyCredited = false;
         return updated;
       }
       return [
@@ -835,14 +905,13 @@ export default function App() {
               : "FORUS Tech · Thiết bị học tập",
           customMeta,
           imageUrl: product.imageUrl,
-          pointsAlreadyCredited: true,
+          pointsAlreadyCredited: false,
         },
       ];
     });
 
-    earnPoints(
-      product.pointsReward,
-      `Mua hàng: ${product.name} (${chosenVariant.label})`
+    showToast(
+      `🛒 Đã thêm "${product.name}" vào giỏ! (+${product.pointsReward} điểm VIP sẽ được cộng khi xác nhận thanh toán)`
     );
   };
 
@@ -879,31 +948,16 @@ export default function App() {
         pointsReward: pointsEarned,
         categoryLabel: "Dịch vụ In ấn A1–A5",
         customMeta: `Nhận tại: ${config.pickupLocation}`,
-        pointsAlreadyCredited: true,
+        pointsAlreadyCredited: false,
       },
     ]);
     setIsCartOpen(true);
-    earnPoints(
-      pointsEarned,
-      `Đặt in tài liệu khổ ${config.paperSize} (${config.fileName})`
+    showToast(
+      `🖨️ Đã thêm lệnh in "${config.fileName}" vào giỏ! (+${pointsEarned} điểm VIP sẽ được cộng khi xác nhận thanh toán)`
     );
   };
 
   const handleUpdateCartQty = (cartItemId: string, delta: number) => {
-    const targetItem = cart.find((item) => item.cartItemId === cartItemId);
-    if (targetItem && targetItem.pointsAlreadyCredited) {
-      if (delta > 0) {
-        earnPoints(
-          targetItem.pointsReward * delta,
-          `Tăng số lượng mua: ${targetItem.name}`
-        );
-      } else if (delta < 0) {
-        earnPoints(
-          targetItem.pointsReward * delta,
-          `Giảm số lượng trong giỏ: ${targetItem.name}`
-        );
-      }
-    }
     setCart((prev) =>
       prev
         .map((item) =>
@@ -916,46 +970,83 @@ export default function App() {
   };
 
   const handleRemoveCartItem = (cartItemId: string) => {
-    const targetItem = cart.find((item) => item.cartItemId === cartItemId);
-    if (targetItem && targetItem.pointsAlreadyCredited) {
-      earnPoints(
-        -(targetItem.pointsReward * targetItem.quantity),
-        `Hủy món khỏi giỏ hàng: ${targetItem.name}`
-      );
-    }
     setCart((prev) => prev.filter((item) => item.cartItemId !== cartItemId));
   };
 
   const handleCompleteOrder = (receipt: OrderReceipt) => {
     if (!requireLogin("xác nhận đặt đơn hàng")) return;
-    const uncreditedPoints = receipt.items.reduce(
-      (sum, it) =>
-        it.pointsAlreadyCredited ? sum : sum + it.pointsReward * it.quantity,
-      0
+
+    const pointsToRedeem = Math.max(0, receipt.pointsRedeemed || 0);
+    const pointsToEarn = Math.max(
+      0,
+      receipt.earnedPoints ||
+        receipt.items.reduce(
+          (sum, it) => sum + it.pointsReward * it.quantity,
+          0
+        )
     );
 
-    if (uncreditedPoints > 0) {
-      earnPoints(
-        uncreditedPoints,
-        `Hoàn tất đơn #${receipt.orderId}`
+    if (receipt.consumedVoucherId) {
+      setRedeemedHomeVouchers((prev) =>
+        prev.filter((id) => id !== receipt.consumedVoucherId)
       );
     }
 
-    if (receipt.pointsRedeemed && receipt.pointsRedeemed > 0) {
-      redeemPoints(
-        receipt.pointsRedeemed,
-        `Giảm giá trực tiếp đơn #${receipt.orderId}`
-      );
-    }
+    const nowTime = new Date().toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-    if (
-      uncreditedPoints === 0 &&
-      (!receipt.pointsRedeemed || receipt.pointsRedeemed === 0)
-    ) {
+    setStudent((prev) => {
+      const afterRedeem = Math.max(0, prev.points - pointsToRedeem);
+      const finalPoints = afterRedeem + pointsToEarn;
+      const newHistory = [...prev.pointHistory];
+
+      if (pointsToRedeem > 0) {
+        newHistory.unshift({
+          id:
+            "pt-redeem-" +
+            Date.now() +
+            "-" +
+            Math.random().toString(36).slice(2, 6),
+          action: `Đổi điểm VIP áp dụng đơn #${receipt.orderId}${
+            receipt.appliedVoucherLabel ? ` (${receipt.appliedVoucherLabel})` : ""
+          }`,
+          points: -pointsToRedeem,
+          timestamp: nowTime,
+        });
+      }
+
+      if (pointsToEarn > 0) {
+        newHistory.unshift({
+          id:
+            "pt-earn-" +
+            Date.now() +
+            "-" +
+            Math.random().toString(36).slice(2, 6),
+          action: `Xác nhận thanh toán đơn #${receipt.orderId} (${receipt.items.length} món)`,
+          points: pointsToEarn,
+          timestamp: nowTime,
+        });
+      }
+
+      return {
+        ...prev,
+        points: finalPoints,
+        pointHistory: newHistory,
+      };
+    });
+
+    const projectedPoints = Math.max(0, student.points - pointsToRedeem) + pointsToEarn;
+    const nextTier = getMembershipTierName(projectedPoints);
+
+    if (pointsToRedeem > 0) {
       showToast(
-        `✅ Đã xác nhận đơn #${receipt.orderId}! Đã cộng +${receipt.earnedPoints} điểm vào Hạng thành viên (${getMembershipTierName(
-          student.points
-        )} · ${student.points}/100đ).`
+        `✅ Thanh toán đơn #${receipt.orderId} thành công! Đã trừ -${pointsToRedeem}đ đổi Voucher và cộng +${pointsToEarn}đ VIP mới (${nextTier} · ${projectedPoints}/100đ).`
+      );
+    } else {
+      showToast(
+        `✅ Xác nhận thanh toán đơn #${receipt.orderId} thành công! Đã cộng +${pointsToEarn} điểm VIP (${nextTier} · ${projectedPoints}/100đ).`
       );
     }
 
@@ -963,12 +1054,12 @@ export default function App() {
       orderId: receipt.orderId,
       timeLabel: "Vừa xong",
       pickupSpot: receipt.deliveryLocation,
-      pointsEarned: receipt.earnedPoints,
+      pointsEarned: pointsToEarn,
       status: "shipping",
       totalAmount: receipt.totalAmount ?? receipt.total ?? 0,
-      promoCode: receipt.pointsRedeemed
-        ? `VIP-${receipt.pointsRedeemed}D`
-        : "KHTN227",
+      promoCode:
+        receipt.appliedVoucherLabel ||
+        (pointsToRedeem > 0 ? `VIP-${pointsToRedeem}D` : "KHTN227"),
       items: receipt.items.map((it) => ({
         productId: it.productId,
         name: it.name,
@@ -1239,6 +1330,9 @@ export default function App() {
                   <img
                     src={student.avatarUrl}
                     alt={student.fullName}
+                    onError={() =>
+                      setStudent((prev) => ({ ...prev, avatarUrl: "" }))
+                    }
                     className="w-full h-full rounded-full object-cover bg-white dark:bg-slate-900"
                   />
                 ) : student.isLoggedIn && student.fullName ? (
@@ -1497,6 +1591,9 @@ export default function App() {
                           <img
                             src={student.avatarUrl}
                             alt={student.fullName}
+                            onError={() =>
+                              setStudent((prev) => ({ ...prev, avatarUrl: "" }))
+                            }
                             className="w-full h-full rounded-full object-cover bg-white"
                           />
                         ) : (
@@ -1756,7 +1853,16 @@ export default function App() {
                                 <button
                                   key={preset.id}
                                   type="button"
-                                  onClick={() => setEditAvatarUrl(preset.url)}
+                                  onClick={() => {
+                                    setEditAvatarUrl(preset.url);
+                                    setStudent((prev) => ({
+                                      ...prev,
+                                      avatarUrl: preset.url,
+                                    }));
+                                    showToast(
+                                      `✅ Đã chọn ảnh đại diện: ${preset.label}`
+                                    );
+                                  }}
                                   className={`p-1.5 rounded-xl border flex flex-col items-center gap-1 transition cursor-pointer ${
                                     isSelected
                                       ? "border-[#D95326] bg-amber-500/10 ring-1 ring-[#D95326]"
@@ -4566,6 +4672,7 @@ export default function App() {
         onClose={() => setIsCartOpen(false)}
         items={cart}
         student={student}
+        redeemedVoucherIds={redeemedHomeVouchers}
         onUpdateQty={handleUpdateCartQty}
         onRemoveItem={handleRemoveCartItem}
         onCompleteOrder={handleCompleteOrder}
