@@ -419,7 +419,7 @@ export default function App() {
         student.isLoggedIn && student.fullName
           ? student.fullName.split(" ").slice(-1)[0]
           : "bạn"
-      }! Mình là **Trợ lý AI FORUS** dành cho sinh viên ĐH Khoa học Tự nhiên (Cơ sở 1 - 227 Nguyễn Văn Cừ).\n\nBạn có thể hỏi mình ngay tại đây về:\n- Giải bài tập **Vi tích phân 1B, Đại số tuyến tính, Xác suất thống kê, Nhập môn lập trình C/C++**\n- Cú pháp **LaTeX** gõ báo cáo Đồ án 1 (CSC00006)\n- Tòa nhà, phòng học, căn tin & sự kiện săn Điểm Rèn Luyện tại Cơ sở 1!`,
+      }! Mình là **Trợ lý AI FORUS** dành cho sinh viên ĐH Khoa học Tự nhiên (Cơ sở 1 - 227 Nguyễn Văn Cừ).\n\nBạn có thể hỏi mình mọi câu hỏi về:\n- Giải bài tập **Vi tích phân 1B/2B, Đại số tuyến tính, Xác suất thống kê, Vật lý, Hóa học**\n- Viết & gỡ lỗi code **C/C++, Python, Cấu trúc dữ liệu & Giải thuật**\n- Đời sống sinh viên, sơ đồ phòng học, thuê học cụ, in ấn A5–A1 & Kho Voucher FORUS!`,
     },
   ]);
   const [floatingChatInput, setFloatingChatInput] = useState("");
@@ -934,6 +934,14 @@ export default function App() {
   ) => {
     if (!requireLogin("dịch vụ Đặt in ấn tài liệu A1–A5")) return;
     const cartItemId = `print-${config.paperSize}-${Date.now()}`;
+    const standAddonLabel =
+      config.standRental === "stand-session"
+        ? " · Kèm thuê Giá đỡ 1 buổi"
+        : config.standRental === "stand-day"
+        ? " · Kèm thuê Giá đỡ Poster 1 ngày"
+        : config.standRental === "stand-week"
+        ? " · Kèm thuê Giá đỡ 1 tuần"
+        : "";
     setCart((prev) => [
       ...prev,
       {
@@ -942,7 +950,7 @@ export default function App() {
         name: `In ấn tài liệu: ${config.fileName}`,
         variantLabel: `Khổ ${config.paperSize} · ${
           config.colorMode === "color" ? "In màu" : "Trắng đen"
-        } · ${config.copies} bản`,
+        } · ${config.copies} bản${standAddonLabel}`,
         price: calculatedPrice,
         quantity: 1,
         pointsReward: pointsEarned,
@@ -953,7 +961,7 @@ export default function App() {
     ]);
     setIsCartOpen(true);
     showToast(
-      `🖨️ Đã thêm lệnh in "${config.fileName}" vào giỏ! (+${pointsEarned} điểm VIP sẽ được cộng khi xác nhận thanh toán)`
+      `🖨️ Đã thêm lệnh in "${config.fileName}"${standAddonLabel} vào giỏ! (+${pointsEarned} điểm VIP sẽ được cộng khi xác nhận thanh toán)`
     );
   };
 
@@ -1226,9 +1234,16 @@ export default function App() {
       return 0;
     });
 
-  const filteredGearList = gearProducts.filter((item) =>
-    gearFilter === "all" ? true : item.category === gearFilter
-  );
+  const filteredGearList = gearProducts.filter((item) => {
+    if (gearFilter === "all") return true;
+    if (
+      item.id === "gia-do-cong-thai-hoc-15do" &&
+      (gearFilter === "study-aid" || gearFilter === "tech-gear")
+    ) {
+      return true;
+    }
+    return item.category === gearFilter;
+  });
 
   const filteredOrderHistory = orderHistory.filter((ord) =>
     orderStatusFilter === "all" ? true : ord.status === orderStatusFilter
@@ -4512,9 +4527,9 @@ export default function App() {
             {/* Quick Prompt Chips */}
             <div className="px-3 py-2 bg-[#F3EFE6] dark:bg-slate-800 border-b border-[#E5DEC9] dark:border-slate-700 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
               {[
+                "Giải x^2 - 5x + 6 = 0",
                 "Khai triển Maclaurin hàm sin(x)",
-                "Template LaTeX Đồ án 1",
-                "Sơ đồ tòa nhà CS1",
+                "Kho Voucher & Giá thuê học cụ",
               ].map((chip, idx) => (
                 <button
                   key={idx}

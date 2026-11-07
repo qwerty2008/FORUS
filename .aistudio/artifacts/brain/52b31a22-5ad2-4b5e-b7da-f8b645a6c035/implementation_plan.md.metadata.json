@@ -1,6 +1,6 @@
 {
-  "summary": "Kế hoạch triển khai hiệu ứng cuộn mượt (Fade-up + Stagger) kích hoạt một lần duy nhất cho các thẻ đơn hàng trong phần Lịch sử mua hàng của FORUS.",
-  "updatedAt": "2026-11-03T17:01:44.866446257Z",
-  "requestFeedback": true,
-  "userFacing": true
+  "summary":  "Kế hoạch nâng cấp Trợ lý AI FORUS trên tên miền GitHub Pages và hệ thống hiển thị công thức Toán học trực quan (KaTeX + Unicode Math) không lỗi font, ẩn code LaTeX thô và tự động điều chỉnh độ dài câu trả lời đúng trọng tâm.",
+  "updatedAt":  "2026-11-07T15:53:36.275607841Z",
+  "requestFeedback":  true,
+  "userFacing":  true
 }

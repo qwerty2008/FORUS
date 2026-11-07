@@ -1,92 +1,89 @@
-# Hiệu Ứng Cuộn Mượt (Scroll-Triggered Animation) Cho Lịch Sử Mua Hàng
+# Nâng Cấp Trợ Lý AI FORUS & Bộ Hiển Thị Toán Học Trực Quan Trên GitHub Pages
 
-Bổ sung hiệu ứng chuyển động trượt nhẹ từ dưới lên kèm mờ dần (**Fade-up + Stagger**) khi người dùng cuộn đến danh sách các thẻ đơn hàng trong mục **Lịch Sử Mua Hàng**, giúp trải nghiệm tra cứu đơn hàng mượt mà, sinh động và có chiều sâu thị giác hơn.
+Giải pháp toàn diện giúp **Trợ lý AI FORUS** hoạt động ổn định, trả lời thông minh và đúng trọng tâm mọi câu hỏi trên tên miền tĩnh **GitHub Pages (`github.io`)**, đồng thời thay thế hoàn toàn các đoạn mã LaTeX thô (`\frac`, `\lim`, `\int`, `\sqrt`) bằng **công thức Toán học hiển thị trực quan, sắc nét (KaTeX + Bộ chuyển đổi Toán học Unicode)**.
 
-## User Review & Critical Decisions
+---
+
+### Quyết Định Đã Xác Nhận Cùng Người Dùng
 
 > [!IMPORTANT]
-> Các tùy chọn thiết kế chuyển động dưới đây đã được xác nhận theo phản hồi của bạn:
+> Các lựa chọn thiết kế và hành vi dưới đây đã được xác nhận trực tiếp để đảm bảo trải nghiệm mượt mà nhất trên cả Web tĩnh GitHub và môi trường Cloud:
 
-- **Confirmed Decision 1 — Kiểu chuyển động (Motion Style)**: Sử dụng hiệu ứng **Fade-up + Stagger** (trượt nhẹ từ dưới lên khoảng `24px` kết hợp tăng độ mờ từ `0` lên `1`, có độ trễ nối tiếp nhẹ giữa các thẻ đơn hàng).
-- **Confirmed Decision 2 — Cơ chế kích hoạt (Trigger Behavior)**: **Chỉ chạy hiệu ứng 1 lần đầu** (`once: true`) khi người dùng cuộn tới vùng hiển thị của từng thẻ đơn hàng, tránh gây rối mắt khi cuộn lên/xuống nhiều lần.
-- **Confirmed Decision 3 — Tương thích Bộ lọc & Trợ năng**: Khi người dùng chuyển tab lọc trạng thái đơn (*Tất cả*, *Đang giao*, *Hoàn tất*) hoặc bật tùy chọn giảm chuyển động (`prefers-reduced-motion`), các thẻ vẫn hiển thị tức thì và mượt mà.
-
----
-
-## 1. Overview & Core Concept
-
-- **What It Does**: Mỗi thẻ đơn hàng trong khu vực **Lịch Sử Mua Hàng, Tra Cứu Đơn & Sơ Đồ Điểm Nhận Cơ Sở 1** sẽ tự động nhận diện khi lọt vào khung nhìn (viewport) lúc cuộn trang và kích hoạt chuyển động trượt nhẹ từ dưới lên kèm hiệu ứng rõ dần theo thứ tự nối tiếp.
-- **Target Audience / Persona**: Sinh viên ĐH Khoa học Tự nhiên (HCMUS - Cơ sở 1) tra cứu lịch sử đơn thuê thiết bị, in ấn tài liệu A1–A5, kiểm tra tiến trình giao hàng hoặc bấm *Đặt lại (Reorder)* trên cả máy tính và điện thoại.
-- **Key Value**: Tạo nhịp điệu thị giác tự nhiên khi cuộn qua trang chủ, làm nổi bật thông tin từng đơn hàng (mã đơn, điểm nhận tòa nhà, trạng thái giao, nút mua lẻ / đặt lại) mà không làm chậm tốc độ thao tác.
+- **Định dạng hiển thị Toán học & LaTeX**: Chỉ hiển thị **công thức Toán học trực quan, chuẩn sách giáo khoa** ngay trong luồng tin nhắn; tự động **ẩn các khối code LaTeX thô (` ```latex ... ``` `)** khi giải bài tập chung (chỉ hiện code LaTeX khi người dùng chủ động yêu cầu *"xuất code LaTeX / mẫu Overleaf"*).
+- **Phong cách & Độ dài câu trả lời**: **Tự động thích ứng thông minh** — trả lời ngắn gọn, đi thẳng vào đáp số với câu hỏi nhanh/tra cứu, và trình bày từng bước rõ ràng đối với bài tập giải tích, đại số hoặc viết code.
+- **Phạm vi kiến thức hỗ trợ**: **Đa năng toàn diện** — giải đáp mọi câu hỏi học thuật (Toán đại cương, Vật lý, Hóa, Sinh, Triết, Kinh tế), lập trình (C/C++, Python, CTDL & GT), kỹ năng đời sống sinh viên và toàn bộ dịch vụ/bảng giá/voucher của hệ sinh thái FORUS 227 Nguyễn Văn Cừ.
 
 ---
 
-## 2. User Experience & Visual Design
+### 1. Tổng Quan & Giá Trị Cốt Lõi
 
-- **Key User Flows**:
-  1. Người dùng cuộn từ khu vực Hero & Cửa hàng xuống phần **Lịch Sử Mua Hàng**.
-  2. Khi từng thẻ đơn hàng đi vào vùng nhìn thấy (~15% chiều cao thẻ trong viewport), thẻ bắt đầu trượt mượt từ `translateY(24px)` về `0px` đồng thời `opacity` tăng từ `0` lên `1`.
-  3. Các thẻ kế tiếp xuất hiện lệch nhịp nhẹ (`80ms` mỗi thẻ) tạo hiệu ứng gợn sóng (staggered reveal) tự nhiên.
-  4. Sau khi đã hiển thị lần đầu, thẻ giữ nguyên trạng thái tĩnh ổn định trong suốt phiên làm việc để sinh viên dễ dàng bấm **+ Mua lẻ**, **Xem tiến trình giao**, hoặc **Đặt lại đơn này**.
-- **Visual Identity & Theme**:
-  - *Aesthetic Direction*: Giữ nguyên ngôn ngữ thiết kế Editorial Campus hiện đại của FORUS với bề mặt kem ấm (`#FAF8F5`) ở chế độ Sáng và xanh đen (`#0D1525` / `slate-900`) ở chế độ Tối.
-  - *Typography & Hierarchy*: Mã đơn hàng và tổng tiền dùng font моно (`JetBrains Mono`, `tabular-nums`), tiêu đề và điểm nhận dùng `Plus Jakarta Sans`.
-  - *Interactive Feedback & Motion*:
-    - Chỉ sử dụng các thuộc tính thân thiện với GPU compositor (`transform`, `opacity`).
-    - Đường cong gia tốc mượt (`cubic-bezier(0.16, 1, 0.3, 1)`), thời lượng chuyển động `450ms` cho mỗi thẻ.
-    - Hiệu ứng mở ngăn **Lộ trình đơn hàng** (`trackingOrderId`) bên trong thẻ cũng được làm mượt khi đóng/mở.
+- **Giải quyết triệt để lỗi hiển thị công thức (Lỗi Font LaTeX)**:
+  - Trước đây, các biểu thức dạng `$\lim_{x \to 0}$`, `$$\frac{-b \pm \sqrt{\Delta}}{2a}$$`, `\[ ... \]` hoặc `\( ... \)` chỉ được bọc trong thẻ `<code>` văn bản thuần nên hiển thị nguyên chuỗi lệnh gạch chéo ngược (`\frac`, `\le`, `\implies`) gây rối mắt.
+  - Hệ thống mới tích hợp **bộ dựng công thức Toán học KaTeX** kết hợp **bộ chuẩn hóa ký hiệu Toán học thông minh**, biến mọi biểu thức `$ ... $`, `$$ ... $$`, `\(...\)`, `\[...\]` thành phân số, căn bậc hai, tích phân, giới hạn, ma trận và chỉ số trên/dưới chuẩn typography toán học.
+- **Trả lời đúng trọng tâm trên GitHub Pages**:
+  - Đa luồng kết nối AI hỗ trợ CORS trực tiếp từ trình duyệt trên `github.io` với cơ chế tự động chuyển đổi dự phòng (Multi-Endpoint AI Failover) và bộ giải Toán/Học thuật nội bộ thế hệ mới, đảm bảo AI không bao giờ trả lời chung chung hay lạc đề.
 
 ---
 
-## 3. Key Product Decisions & Trade-Offs
+### 2. Trải Nghiệm Người Dùng & Thiết Kế Hiển Thị
 
-- **Decision 1: Sử dụng Viewport Intersection (`whileInView` với `once: true`) kết hợp Compositor Transform**
-  - *Chosen Approach*: Áp dụng animation dựa trên `IntersectionObserver` / `motion` cho từng thẻ đơn hàng với ngưỡng kích hoạt `amount: 0.15` và `once: true`.
-  - *Why*: Đảm bảo hiệu năng 60fps trên cả thiết bị di động, không gây hiện tượng giật cục (layout shift) và tuân thủ đúng yêu cầu chỉ chạy 1 lần khi cuộn tới.
-  - *Alternatives Considered*: Lắng nghe sự kiện `window.onscroll` thủ công — bị loại bỏ vì tốn tài nguyên CPU trên điện thoại và dễ gây giật khung hình.
-- **Decision 2: Giới hạn độ trễ Stagger tối đa**
-  - *Chosen Approach*: Độ trễ giữa các thẻ được tính theo `Math.min(index * 0.08, 0.28)` giây.
-  - *Why*: Khi danh sách lịch sử mua hàng có nhiều đơn, việc giới hạn trần độ trễ (`280ms`) giúp các đơn phía dưới không bị chờ quá lâu khi người dùng cuộn nhanh.
+- **Luồng Hiển Thị Tin Nhắn AI**:
+  1. Khi sinh viên đặt câu hỏi (ví dụ: *"Giải phương trình $x^2 - 5x + 6 = 0$"* hoặc *"Định lý Kẹp là gì?"*), AI phản hồi ngay vào trọng tâm câu hỏi mà không kèm đoạn chào hỏi rườm rà hay liệt kê danh mục không liên quan.
+  2. Mọi công thức Toán học nội dòng (`$...$`, `\(...\)`) và công thức khối (`$$...$$`, `\[...\]`) được dựng thành ký hiệu Toán học trực quan với phông chữ serif toán học sắc nét, căn chỉnh dòng mượt mà trên cả chế độ Sáng (Light Mode) và Tối (Dark Mode).
+  3. Các khối lệnh ` ```latex ... ``` ` thừa thãi được lọc bỏ tự động trong câu trả lời thông thường để khung chat gọn gàng, dễ đọc như sách in.
+- **Bảng Màu & Typography**:
+  - **Khung công thức khối (Display Math)**: Nền kem học thuật ấm (`#F3EFE6` ở chế độ Sáng / `#0F172A` ở chế độ Tối), chữ xanh Navy đậm (`#0B2545`) hoặc vàng Amber sáng (`#FCD34D`), viền mảnh tinh tế, hỗ trợ cuộn ngang mượt trên màn hình điện thoại.
+  - **Công thức nội dòng (Inline Math)**: Hiển thị liền mạch cùng dòng văn bản với phông chữ Toán học chuyên dụng, độ tương phản cao đạt chuẩn WCAG AA.
 
 ---
 
-## 4. Technical Architecture & Data Strategy *(Technical Reference)*
+### 3. Quyết Định Kỹ Thuật & Đánh Đổi
 
-- **Architecture & Component Diagram**:
+- **Quyết định 1: Kết hợp KaTeX cùng Bộ Chuyển Đổi Toán Học Dự Phòng (Hybrid Math Renderer)**
+  - *Cách tiếp cận*: Sử dụng thư viện dựng công thức chuẩn **KaTeX** (`throwOnError: false`) để hiển thị phân số, tích phân, giới hạn, ma trận; đồng thời trang bị bộ chuyển đổi LaTeX-sang-Unicode cho mọi biểu thức viết tắt hoặc cú pháp không chuẩn từ AI.
+  - *Lý do*: Đảm bảo 100% công thức toán học luôn hiển thị đẹp mắt, tuyệt đối không bao giờ hiện mã lỗi đỏ hay các từ khóa `\frac`, `\sqrt`, `\cdot`, `\le`, `\ge`, `\implies` thô trên màn hình.
+- **Quyết định 2: Đa Luồng AI Cho Tên Miền GitHub Pages + Tinh Chỉnh System Prompt**
+  - *Cách tiếp cận*: Thiết lập chuỗi gọi AI trực tuyến hỗ trợ CORS dành cho `github.io` (với tham số định tuyến mô hình ổn định, loại bỏ bộ đệm lỗi và cơ chế thử lại tự động), kết hợp System Prompt mới cấm tuyệt đối việc xuất khối ` ```latex ` khi người dùng không yêu cầu và ép AI đi thẳng vào câu trả lời.
+  - *Lý do*: Khắc phục tình trạng AI trả lời lan man hoặc rơi vào câu trả lời mẫu cố định khi kết nối mạng chập chờn.
+
+---
+
+### 4. Kiến Trúc Kỹ Thuật & Luồng Dữ Liệu
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│                   Trang Chủ FORUS (Home View)                        │
-└──────────────────────────────────┬───────────────────────────────────┘
-                                   │ Cuộn trang (Scroll)
-                                   ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│        Khu Vực Lịch Sử Mua Hàng & Tra Cứu Đơn (Order History)        │
-│  ┌────────────────────────────────────────────────────────────────┐  │
-│  │ Bộ lọc trạng thái: [ Tất cả ]  [ Đang giao ]  [ Hoàn tất ]     │  │
-│  └───────────────────────────────┬────────────────────────────────┘  │
-│                                  │ Danh sách đã lọc                  │
-│                                  ▼                                   │
-│  ┌────────────────────────────────────────────────────────────────┐  │
-│  │ Vùng Quan Sát Cuộn (Viewport Observer: once = true, 15% view)  │  │
-│  │                                                                │  │
-│  │   ┌────────────────────────────────────────────────────────┐   │  │
-│  │   │ Thẻ Đơn Hàng #1 (Fade-up: y: 24px -> 0, delay: 0ms)    │   │  │
-│  │   │  • Danh sách món (+ Mua lẻ)                            │   │  │
-│  │   │  • Ngăn lộ trình giao hàng (Ẩn/Hiện mượt)              │   │  │
-│  │   │  • Nút [Xem tiến trình giao] & [Đặt lại đơn này]       │   │  │
-│  │   └────────────────────────────────────────────────────────┘   │  │
-│  │   ┌────────────────────────────────────────────────────────┐   │  │
-│  │   │ Thẻ Đơn Hàng #2 (Fade-up: y: 24px -> 0, delay: 80ms)   │   │  │
-│  │   └────────────────────────────────────────────────────────┘   │  │
-│  └────────────────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                 GIAO DIỆN CHATBOT FORUS (POPUP & TAB VIP)                │
+│         (Nhập câu hỏi học thuật, lập trình, đời sống, tiện ích)          │
+└────────────────────────────────────┬─────────────────────────────────────┘
+                                     │
+                                     ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                BỘ ĐIỀU PHỐI TRÍ TUỆ NHÂN TẠO ĐA MÔI TRƯỜNG               │
+│  ┌─────────────────────────┐  ┌─────────────────────────┐  ┌──────────┐  │
+│  │ 1. Máy chủ nội bộ       │  │ 2. Cổng AI Cloud CORS   │  │ 3. Bộ    │  │
+│  │    (/api/chat Gemini)   ├─►│    cho GitHub Pages     ├─►│ Giải Toán│  │
+│  │    (Khi chạy Fullstack) │  │    (Tự động thích ứng   │  │ & Tri    │  │
+│  │                         │  │     độ dài & trọng tâm) │  │ Thức Nội │  │
+│  └─────────────────────────┘  └─────────────────────────┘  │ Bộ       │  │
+│                                                            └──────────┘  │
+└────────────────────────────────────┬─────────────────────────────────────┘
+                                     │
+                                     ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│           BỘ TIỀN XỬ LÝ & LÀM SẠCH PHẢN HỒI (RESPONSE SANITIZER)         │
+│  • Tự động ẩn khối ```latex thô nếu người dùng không yêu cầu code LaTeX  │
+│  • Chuẩn hóa ký hiệu \[...\], \(...\), $$...$$, $...$ đồng nhất          │
+└────────────────────────────────────┬─────────────────────────────────────┘
+                                     │
+                                     ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│             BỘ DỰNG CÔNG THỨC TOÁN HỌC TRỰC QUAN (MATH ENGINE)           │
+│  • Dựng công thức Toán học chuẩn sách giáo khoa (Phân số, Căn, Tích phân)│
+│  • Bộ chuyển đổi ký hiệu Unicode dự phòng (không bao giờ lỗi font)       │
+│  • Hiển thị khối code C++/Python với nút Sao chép 1 chạm                 │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Data Model & State**:
-  - Giữ nguyên cấu trúc dữ liệu `orderHistory` và bộ lọc `orderStatusFilter` (`"all" | "shipping" | "completed"`).
-  - Bổ sung khóa định danh chuyển động theo `ord.orderId` để mỗi thẻ tự quản lý trạng thái đã hiển thị (`once: true`) một cách độc lập.
-- **Interactive Component & State Mapping**:
-  - **Cuộn tới thẻ đơn hàng**: Kích hoạt `opacity: 0 -> 1` và `translateY: 24px -> 0px` trong `0.45s` với easing `[0.16, 1, 0.3, 1]`.
-  - **Chuyển bộ lọc trạng thái đơn (`orderStatusFilter`)**: Các thẻ thuộc bộ lọc mới xuất hiện mượt mà với hiệu ứng Fade-up mà không bị kẹt ở trạng thái ẩn.
-  - **Bấm "Xem tiến trình giao" (`trackingOrderId`)**: Khung lộ trình giao hàng bên trong thẻ mở ra êm ái kèm hiệu ứng rõ dần.
+- **Xử lý tương tác & Trạng thái**:
+  - Khi người dùng gửi câu hỏi **không chứa** từ khóa yêu cầu mã nguồn LaTeX (*"code latex"*, *"mã latex"*, *"overleaf"*, *"template"*), bộ lọc phản hồi tự động chuyển các khối ` ```latex ... ``` ` thành công thức hiển thị trực quan `$$ ... $$` thay vì hiện hộp code thô.
+  - Khi người dùng chủ động yêu cầu *"cho mình xin code LaTeX / mẫu Overleaf"*, hệ thống giữ nguyên hộp code kèm nút **Sao chép** để sinh viên dán vào báo cáo.

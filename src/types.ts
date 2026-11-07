@@ -105,6 +105,7 @@ export interface PrintOrderConfig {
   pageCount: number;
   copies: number;
   binding: "none" | "staple" | "spiral-plastic" | "poster-tube";
+  standRental?: "none" | "stand-session" | "stand-day" | "stand-week";
   pickupLocation: string;
   note: string;
 }

@@ -42,6 +42,7 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
     pageCount: 24,
     copies: 1,
     binding: "spiral-plastic",
+    standRental: "none",
     pickupLocation: CAMPUS_BUILDINGS_CS1[0],
     note: "09:15 – 09:35 (Giải lao giữa Ca sáng)",
   });
@@ -183,11 +184,35 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
       ? 2000
       : 0;
 
+  const standRentalFee =
+    config.standRental === "stand-session"
+      ? 10000
+      : config.standRental === "stand-day"
+      ? 15000
+      : config.standRental === "stand-week"
+      ? 30000
+      : 0;
+
+  const standRentalLabel =
+    config.standRental === "stand-session"
+      ? "Kèm thuê Giá đỡ 1 buổi (+10k)"
+      : config.standRental === "stand-day"
+      ? "Kèm thuê Giá đỡ Poster/Standee 1 ngày (+15k)"
+      : config.standRental === "stand-week"
+      ? "Kèm thuê Giá đỡ 1 tuần (+30k)"
+      : "";
+
   const singleCopyCost =
     Math.round(basePagePrice * config.pageCount * sideMultiplier) + bindingFee;
-  const totalPrice = Math.max(2000, singleCopyCost * config.copies);
+  const totalPrice = Math.max(
+    2000,
+    singleCopyCost * config.copies + standRentalFee
+  );
   const pointsEarned =
-    config.paperSize === "A1" || config.paperSize === "A2" || totalPrice >= 40000
+    config.paperSize === "A1" ||
+    config.paperSize === "A2" ||
+    standRentalFee > 0 ||
+    totalPrice >= 40000
       ? 10
       : 6;
 
@@ -771,6 +796,84 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
                     <option value="none">Để rời không đóng gáy (0đ)</option>
                   </select>
                 </div>
+
+                {/* Stand Rental Option */}
+                <div className="sm:col-span-12 pt-1">
+                  <label className="flex items-center justify-between text-xs font-bold text-[#334155] dark:text-slate-200 mb-1.5">
+                    <span>
+                      Tùy chọn Thuê Giá Đỡ kèm theo (Chân Standee Poster A1–A2 / Giá đỡ tài liệu &amp; Laptop)
+                    </span>
+                    {standRentalFee > 0 && (
+                      <span className="font-mono text-[11px] font-extrabold text-[#D95326] dark:text-amber-300">
+                        +{standRentalFee.toLocaleString("vi-VN")}đ
+                      </span>
+                    )}
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    {[
+                      {
+                        id: "none",
+                        title: "Không thuê giá đỡ",
+                        priceText: "0đ",
+                        sub: "Chỉ nhận bản in",
+                      },
+                      {
+                        id: "stand-session",
+                        title: "Thuê Giá đỡ 1 buổi",
+                        priceText: "+10.000đ / buổi",
+                        sub: "Giá đỡ nghiêng 15° / Kẹp tài liệu",
+                      },
+                      {
+                        id: "stand-day",
+                        title: "Thuê Giá đỡ Poster 1 ngày",
+                        priceText: "+15.000đ / ngày",
+                        sub: "Chân Standee chữ X / Tripod A1–A2",
+                      },
+                      {
+                        id: "stand-week",
+                        title: "Thuê Giá đỡ 1 tuần",
+                        priceText: "+30.000đ / tuần",
+                        sub: "Tuần lễ triển lãm Đồ án / Ôn thi",
+                      },
+                    ].map((opt) => {
+                      const active =
+                        (config.standRental || "none") === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() =>
+                            setConfig({
+                              ...config,
+                              standRental:
+                                opt.id as PrintOrderConfig["standRental"],
+                            })
+                          }
+                          className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                            active
+                              ? "border-2 border-[#D95326] bg-[#FFF8F3] dark:border-amber-400 dark:bg-slate-900 shadow-2xs"
+                              : "border-[#E5E0D5] bg-white hover:border-[#0B2545]/50 dark:border-slate-700 dark:bg-slate-800"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-[11px] font-extrabold text-[#0B2545] dark:text-white truncate">
+                              {opt.title}
+                            </span>
+                            {active && (
+                              <Check className="w-3.5 h-3.5 text-[#D95326] dark:text-amber-400 shrink-0" />
+                            )}
+                          </div>
+                          <p className="font-mono text-[11px] font-bold text-[#D95326] dark:text-amber-300 mt-0.5">
+                            {opt.priceText}
+                          </p>
+                          <p className="text-[10px] text-[#64748B] dark:text-slate-400 truncate mt-0.5">
+                            {opt.sub}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -788,7 +891,7 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
                   : paperMaterial === "couche"
                   ? "Màu Couche >180gsm"
                   : "Màu Fort 70-80gsm"}
-                ):
+                {standRentalLabel ? ` · ${standRentalLabel}` : ""}):
               </span>
               <span className="block font-mono text-xl font-extrabold text-[#0B2545] dark:text-white tabular-nums">
                 {totalPrice.toLocaleString("vi-VN")}đ

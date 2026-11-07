@@ -178,16 +178,17 @@ export const GEAR_AND_RENTAL_PRODUCTS: ProductItem[] = [
   {
     id: "gia-do-cong-thai-hoc-15do",
     code: "FORUS-04",
-    name: "Giá Đỡ Nghiêng 15 Độ Công Thái Học ORICO Cho Laptop & Bảng Vẽ",
-    subtitle: "6 nấc chỉnh độ cao · Chống gù lưng & tản nhiệt thoáng mát khi code lâu",
-    category: "tech-gear",
+    name: "Thuê & Mua Giá Đỡ Công Thái Học 15° (Laptop, Bảng Vẽ & Standee Poster)",
+    subtitle:
+      "6 nấc chỉnh độ cao · Chọn Thuê ngắn hạn theo ngày/tuần hoặc Mua Mới 100% / 90% / 80%",
+    category: "study-aid",
     description:
-      "Giá đỡ chữ X gấp gọn siêu nhẹ, thiết kế góc nghiêng chuẩn công thái học từ 15° đến 45° giúp nâng màn hình laptop ngang tầm mắt hoặc tạo mặt phẳng nghiêng vừa tay khi viết trên bảng vẽ điện tử. Đệm cao su chống trượt toàn phần, chịu tải trọng tới 15kg.",
+      "Trạm cho thuê và mua bán Giá đỡ chữ X công thái học 15°–45° cho Laptop, iPad, Bảng vẽ điện tử và Chân giá đỡ treo Poster A1/A2 thuyết trình đồ án. Sinh viên có thể thuê ngắn hạn theo buổi/ngày khi ngồi code ở thư viện, thuê tuần lễ chấm Poster Đồ án tại Sảnh Tòa I, hoặc mua đứt kèm túi nhung chống trầy.",
     highlights: [
-      "Góc nghiêng 15 độ chuẩn vàng để tì tay viết bảng vẽ điện tử không mỏi cổ tay",
+      "Linh hoạt Thuê ngắn hạn 10.000đ/ngày, 25.000đ/tuần hoặc Mua đứt (Độ mới 80%, 90%, Mới 100%)",
+      "Góc nghiêng 15 độ chuẩn vàng để tì tay viết bảng vẽ điện tử & nâng màn hình chống mỏi cổ",
       "Thiết kế rỗng thoáng khí giúp laptop tản nhiệt nhanh khi chạy máy ảo, train model AI",
-      "Gấp gọn chỉ bằng thanh thước kẻ, tặng kèm túi nhung đựng vừa ngăn phụ balo",
-      "Tương thích mọi dòng laptop 11–17.3 inch, iPad và bảng vẽ điện tử",
+      "Có sẵn cả phân loại Chân giá đỡ Standee chữ X / Tripod dựng Poster A1–A2 bảo vệ Đồ án",
     ],
     imageUrl: BRAND_ASSETS.standImage,
     fallbackIcon: "Laptop",
@@ -195,14 +196,81 @@ export const GEAR_AND_RENTAL_PRODUCTS: ProductItem[] = [
     pointsReward: 6,
     inStock: 30,
     availabilityStatus: "available",
-    deliveryInfo: "Giao tận phòng học hoặc thư viện CS1",
+    deliveryInfo: "Giao tận phòng học, Sảnh Tòa I hoặc Thư viện CS1 trong 10 phút",
+    modelSelectorLabel: "Chọn loại giá đỡ:",
+    modelOptions: [
+      {
+        id: "stand-orico-15do",
+        name: "Giá Đỡ Nghiêng 15° ORICO (Laptop & Bảng Vẽ)",
+        spec: "6 nấc độ cao · Gấp gọn kèm túi nhung · Chịu tải 15kg",
+        priceDelta: 0,
+        imageUrl: BRAND_ASSETS.standImage,
+      },
+      {
+        id: "stand-aluminum-2tier",
+        name: "Giá Đỡ Hợp Kim Nhôm 2 Tầng (Laptop Gaming / MacBook)",
+        spec: "Khung nhôm dày chống rung lắc · Tản nhiệt tối đa · Chịu tải 20kg",
+        priceDelta: 15000,
+        imageUrl: BRAND_ASSETS.standImage,
+      },
+      {
+        id: "stand-poster-x",
+        name: "Chân Giá Đỡ Poster / Standee Chữ X (Khổ A1 / A2)",
+        spec: "Chuyên dụng treo Poster báo cáo Đồ án & Seminar tại Sảnh Tòa I",
+        priceDelta: 10000,
+        imageUrl: BRAND_ASSETS.standImage,
+      },
+    ],
     variants: [
       {
+        id: "rent-stand-day",
+        label: "Thuê ngắn hạn 1 ngày (Học thư viện / Thuyết trình Poster)",
+        price: 10000,
+        unitLabel: "/ ngày",
+        type: "rent",
+        conditionBadge: "Thuê ngắn hạn",
+        conditionDesc:
+          "Nhận ngay tại Sảnh Tòa I hoặc Thư viện CS1, không cần cọc CCCD với Email SV",
+      },
+      {
+        id: "rent-stand-week",
+        label: "Thuê 1 tuần (Tuần lễ ôn thi / Triển lãm Đồ án)",
+        price: 25000,
+        unitLabel: "/ tuần",
+        type: "rent",
+        conditionBadge: "Thuê ngắn hạn",
+        conditionDesc:
+          "Giữ giá đỡ suốt 7 ngày, kèm túi nhung mang đi học mỗi ngày tiện lợi",
+      },
+      {
+        id: "buy-stand-80",
+        label: "Mua Giá đỡ Độ mới ~80% (Khung chắc chắn · Tiết kiệm)",
+        price: 45000,
+        unitLabel: "/ chiếc",
+        type: "buy",
+        conditionBadge: "Độ mới 80%",
+        conditionDesc:
+          "Đệm cao su và khớp gập hoạt động tốt 100%, tiết kiệm 40% chi phí",
+      },
+      {
+        id: "buy-stand-90",
+        label: "Mua Giá đỡ Độ mới ~90% (Đẹp như mới · Kèm túi nhung)",
+        price: 59000,
+        unitLabel: "/ chiếc",
+        type: "buy",
+        conditionBadge: "Độ mới 90%",
+        conditionDesc:
+          "Ngoại hình sáng đẹp ~90%, đầy đủ đệm chống trượt và túi nhung đựng balo",
+      },
+      {
         id: "buy-stand",
-        label: "Mua mới (Kèm túi đựng chống trầy)",
+        label: "Mua mới hẳn 100% Fullbox (Kèm túi đựng chống trầy)",
         price: 75000,
         unitLabel: "/ chiếc",
         type: "buy",
+        conditionBadge: "Mới 100%",
+        conditionDesc:
+          "Nguyên hộp mới 100% chính hãng, bảo hành 1 đổi 1 tại Cơ sở 1 (227 NVC)",
       },
     ],
     reviews: [
@@ -213,7 +281,7 @@ export const GEAR_AND_RENTAL_PRODUCTS: ProductItem[] = [
         faculty: "Khoa Công nghệ Thông tin",
         rating: 5,
         comment:
-          "Ngồi code ở thư viện CS1 cả buổi chiều không còn bị mỏi cổ nữa. Gấp lại bỏ balo rất gọn.",
+          "Thuê thử 1 ngày 10k ngồi code ở thư viện CS1 thấy êm cổ tay quá nên mình nâng cấp mua luôn chiếc mới. Đợt bảo vệ Đồ án 1 nhóm mình cũng thuê chân giá đỡ Poster A1 ở đây cực tiện!",
         date: "4 ngày trước",
       },
     ],

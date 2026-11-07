@@ -22,6 +22,19 @@
   }
 }
 
+/* KaTeX Math Rendering Enhancements */
+.katex {
+  font-size: 1.04em;
+  line-height: 1.35;
+}
+
+.katex-display {
+  margin: 0.35em 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.15em 0;
+}
+
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

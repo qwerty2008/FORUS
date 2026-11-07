@@ -834,7 +834,7 @@ export const VipHub: React.FC<VipHubProps> = ({
       role: "model",
       text: `Chào ${
         student.fullName || "bạn sinh viên KHTN"
-      }! Mình là Trợ lý AI FORUS tại Cơ sở 1 (227 Nguyễn Văn Cừ).\n\nMình có thể giúp bạn:\n• Tạo nhanh khung code LaTeX (ma trận, tích phân, quy nạp, báo cáo Khoa CNTT)\n• Giải thích định lý Vi tích phân, Đại số tuyến tính, Toán rời rạc, C++/Python\n• Tư vấn chọn thiết bị học tập, máy tính Casio hoặc tra cứu phòng học CS1.`,
+      }! Mình là **Trợ lý AI FORUS** tại Cơ sở 1 (227 Nguyễn Văn Cừ).\n\nMình có thể hỗ trợ bạn ngay:\n• Giải chi tiết các bài toán **Vi tích phân 1B/2B, Đại số tuyến tính, Toán rời rạc, Xác suất thống kê** với công thức hiển thị trực quan\n• Viết & gỡ lỗi code **C/C++, Python, Cấu trúc dữ liệu & Giải thuật**\n• Tư vấn học tập, đời sống sinh viên, bảng giá thuê học cụ, in ấn A5–A1 & Kho Voucher FORUS.`,
       timestamp: "Vừa xong",
     },
   ]);
@@ -2557,15 +2557,15 @@ export const VipHub: React.FC<VipHubProps> = ({
               </div>
 
               <p className="text-xs text-[#4A5568] dark:text-slate-300 leading-relaxed">
-                Chọn nhanh một câu hỏi mẫu dưới đây hoặc nhập bất kỳ bài toán, yêu cầu LaTeX hay thắc mắc học tập nào tại ĐH KHTN:
+                Chọn nhanh một câu hỏi mẫu dưới đây hoặc nhập bất kỳ bài toán, câu hỏi lập trình, đời sống hay tiện ích nào tại ĐH KHTN:
               </p>
 
               <div className="space-y-2">
                 {[
-                  "Viết giúp mình khung code LaTeX cho ma trận 3x3 và tích phân xác định",
-                  "Giải thích ngắn gọn phương pháp chứng minh quy nạp toán học và ví dụ",
-                  "Gợi ý giúp mình cách chọn giữa thuê Combo iPad Sinh Viên và mua MacroPad LaTeX",
-                  "Tóm tắt các bước chuẩn bị báo cáo Đồ án 1 (CSC00006) tại Khoa CNTT",
+                  "Giải phương trình x^2 - 5x + 6 = 0 và tính đạo hàm f(x) = x^3 - 3x^2 + 2x",
+                  "Giải thích ngắn gọn Định lý Kẹp (Squeeze Theorem) và ví dụ giới hạn",
+                  "Viết hàm tìm kiếm nhị phân (Binary Search) bằng C++ và phân tích độ phức tạp",
+                  "Bảng giá thuê máy tính Casio, giá đỡ công thái học và các mã Voucher giảm giá FORUS",
                 ].map((sample, idx) => (
                   <button
                     key={idx}
