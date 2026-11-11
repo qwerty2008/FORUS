@@ -125,7 +125,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const totalVipDiscountAmount =
     vipVoucherDiscountAmount + flexiblePointsDiscount;
 
-  // 2. Calculate Other Points / Promo Voucher Discount (DRL, GPA, Student Email, Poster AI, K26, Freeship)
+  // 2. Calculate Other Points / Promo Voucher Discount
   const activePromoObj = appliedCoupon ? DISCOUNT_CODES[appliedCoupon] : null;
   const promoDiscountAmount =
     activePromoObj && subtotal >= activePromoObj.minOrder
@@ -139,7 +139,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     const clean = (codeToApply ?? couponInput).trim().toUpperCase();
     if (!clean) return;
 
-    // Check if user typed a VIP voucher code into the input box
     const matchedVip = VIP_VOUCHER_CATALOG.find((v) => v.code === clean);
     if (matchedVip) {
       const preOwned =
@@ -233,22 +232,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/50 backdrop-blur-[2px]">
-      <div className="flex h-full w-full max-w-md flex-col bg-[#FAF8F5] text-[#0B2545] shadow-2xl border-l border-[#E5DEC9] dark:border-slate-800 dark:bg-[#0D1525] dark:text-slate-100">
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs">
+      <div className="flex h-full w-full max-w-md flex-col bg-[#F6F2E8] text-[#0B2545] shadow-2xl border-l border-[#DCD5C7] dark:border-[#233044] dark:bg-[#0E1624] dark:text-[#F6F2E8]">
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b border-[#E5DEC9] px-5 py-4 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#F2EFE9] border border-[#E5E0D5] dark:bg-slate-800 dark:border-slate-700 flex items-center justify-center">
-              <ShoppingBag className="h-4 w-4 text-[#0B2545] dark:text-amber-300" />
+        <div className="flex items-center justify-between border-b border-[#DCD5C7] px-5 py-4 dark:border-[#233044]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded border border-[#DCD5C7] dark:border-[#233044] flex items-center justify-center">
+              <ShoppingBag className="h-4 w-4 text-[#D95326]" />
             </div>
             <div>
-              <h2 className="text-sm font-extrabold text-[#0B2545] dark:text-white">
+              <h2 className="text-small font-bold">
                 {completedReceipt
                   ? "Biên lai thanh toán"
                   : `Giỏ hàng & Thanh toán (${items.length})`}
               </h2>
               {!completedReceipt && items.length > 0 && (
-                <p className="text-[10px] font-medium text-[#64748B] dark:text-slate-400">
+                <p className="text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
                   Xác nhận thanh toán để nhận +{totalPointsEarned} điểm VIP
                 </p>
               )}
@@ -261,7 +260,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               onClose();
             }}
             aria-label="Đóng"
-            className="w-8 h-8 rounded-xl bg-[#F2EFE9] hover:bg-[#E6E0D5] border border-[#E5E0D5] flex items-center justify-center text-[#0B2545] dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer transition"
+            className="w-8 h-8 rounded border border-[#DCD5C7] dark:border-[#233044] flex items-center justify-center cursor-pointer transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -270,27 +269,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         {/* Receipt View if order completed */}
         {completedReceipt ? (
           <div className="flex-1 space-y-4 overflow-y-auto p-5">
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-              <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-              <h3 className="mt-1.5 text-base font-extrabold text-[#0B2545] dark:text-white">
+            <div className="rounded-md border border-green-700/30 bg-green-950/10 p-4 text-center">
+              <CheckCircle2 className="mx-auto h-8 w-8 text-green-700 dark:text-green-400" />
+              <h3 className="mt-1.5 text-body font-bold">
                 Thanh toán thành công #{completedReceipt.orderId}
               </h3>
-              <p className="mt-0.5 text-xs text-[#4A5568] dark:text-slate-300">
+              <p className="mt-0.5 text-tiny text-[#0B2545]/75 dark:text-[#F6F2E8]/75">
                 {completedReceipt.deliveryLocation}
               </p>
               <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 font-mono text-[11px] font-bold text-white">
+                <span className="inline-flex items-center gap-1 rounded bg-green-700 px-2.5 py-1 text-tiny font-bold text-white tabular-nums">
                   <Sparkles className="h-3 w-3" />
                   Đã cộng +{completedReceipt.earnedPoints}đ VIP
                 </span>
                 {completedReceipt.pointsRedeemed &&
                   completedReceipt.pointsRedeemed > 0 && (
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-[#D95326] px-2.5 py-1 font-mono text-[11px] font-bold text-white">
+                    <span className="inline-flex items-center gap-1 rounded bg-[#D95326] px-2.5 py-1 text-tiny font-bold text-white tabular-nums">
                       Đổi -{completedReceipt.pointsRedeemed}đ VIP
                     </span>
                   )}
                 {completedReceipt.appliedVoucherLabel && (
-                  <span className="inline-flex items-center gap-1 rounded-lg bg-[#0B2545] px-2.5 py-1 font-mono text-[11px] font-bold text-amber-300">
+                  <span className="inline-flex items-center gap-1 rounded bg-[#0B2545] px-2.5 py-1 text-tiny font-bold text-[#F6F2E8]">
                     <Tag className="h-3 w-3" />
                     {completedReceipt.appliedVoucherLabel}
                   </span>
@@ -298,31 +297,31 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
             </div>
 
-            <div className="space-y-2 rounded-2xl border border-[#E6E0D5] bg-white p-4 text-xs dark:border-slate-800 dark:bg-slate-900">
+            <div className="space-y-2 rounded-md border border-[#DCD5C7] bg-[#EFEAE0]/50 p-4 text-small dark:border-[#233044] dark:bg-[#152033]/50">
               {completedReceipt.items.map((it) => (
                 <div
                   key={it.cartItemId}
-                  className="flex justify-between gap-2 text-[#4A5568] dark:text-slate-300"
+                  className="flex justify-between gap-2"
                 >
                   <span className="truncate">
                     {it.quantity}× {it.name}
                   </span>
-                  <span className="font-mono font-bold text-[#0B2545] dark:text-white shrink-0">
+                  <span className="font-bold tabular-nums shrink-0">
                     {(it.price * it.quantity).toLocaleString("vi-VN")}đ
                   </span>
                 </div>
               ))}
               {completedReceipt.discount && completedReceipt.discount > 0 ? (
-                <div className="flex justify-between border-t border-[#EAE5DC] pt-2 text-xs font-bold text-emerald-600 dark:border-slate-800 dark:text-emerald-400">
+                <div className="flex justify-between border-t border-[#DCD5C7] pt-2 text-tiny font-bold text-green-700 dark:border-[#233044] dark:text-green-400">
                   <span>Giảm giá Voucher / Điểm VIP</span>
-                  <span className="font-mono">
+                  <span className="tabular-nums">
                     -{completedReceipt.discount.toLocaleString("vi-VN")}đ
                   </span>
                 </div>
               ) : null}
-              <div className="flex justify-between border-t border-[#EAE5DC] pt-2.5 text-sm font-extrabold text-[#0B2545] dark:border-slate-800 dark:text-white">
+              <div className="flex justify-between border-t border-[#DCD5C7] pt-2.5 text-small font-bold dark:border-[#233044]">
                 <span>Tổng thanh toán</span>
-                <span className="font-mono text-[#D95326] dark:text-amber-400">
+                <span className="tabular-nums text-[#D95326]">
                   {completedReceipt.totalAmount.toLocaleString("vi-VN")}đ
                 </span>
               </div>
@@ -334,21 +333,26 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 setCompletedReceipt(null);
                 onClose();
               }}
-              className="w-full rounded-xl bg-[#0B2545] py-3 text-xs font-extrabold text-white transition hover:bg-[#163A66] cursor-pointer"
+              className="w-full rounded bg-[#0B2545] py-3 text-small font-bold text-[#F6F2E8] transition cursor-pointer"
             >
               Hoàn tất
             </button>
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#F2EFE9] border border-[#E5E0D5] dark:bg-slate-800 dark:border-slate-700 flex items-center justify-center">
-              <ShoppingBag className="h-5 w-5 text-[#64748B] dark:text-slate-400" />
-            </div>
-            <p className="mt-3 text-sm font-extrabold text-[#0B2545] dark:text-white">
-              Giỏ hàng trống
+            <img
+              src="./assets/art/empty-cart.webp"
+              alt="Sổ tay giỏ hàng trống"
+              width={144}
+              height={144}
+              loading="lazy"
+              className="w-36 h-36 object-contain rounded-[4px] border border-[#E2E8F0] dark:border-[#233044] bg-white"
+            />
+            <p className="mt-4 font-serif-display text-h2 font-bold">
+              Sổ tay đơn hàng đang trống
             </p>
-            <p className="mt-1 text-xs text-[#64748B] dark:text-slate-400">
-              Hãy chọn học cụ, máy tính hoặc đặt in tài liệu để thanh toán và tích điểm VIP.
+            <p className="mt-1 text-tiny text-[#0B2545]/70 dark:text-[#F8FAFC]/70 max-w-xs">
+              Chọn máy tính Casio, áo blouse hoặc đặt in tài liệu để nhận tại Sảnh Tòa I.
             </p>
           </div>
         ) : (
@@ -362,21 +366,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 {items.map((item) => (
                   <div
                     key={item.cartItemId}
-                    className="flex flex-col gap-2 rounded-2xl border border-[#E6E0D5] bg-white p-3 dark:border-slate-800 dark:bg-slate-900"
+                    className="flex flex-col gap-2 rounded-md border border-[#DCD5C7] bg-[#EFEAE0]/40 p-3 dark:border-[#233044] dark:bg-[#152033]/40"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <h4 className="text-xs font-extrabold text-[#0B2545] dark:text-white truncate">
+                        <h4 className="text-small font-bold truncate">
                           {item.name}
                         </h4>
-                        <p className="text-[11px] text-[#64748B] dark:text-slate-400 truncate">
+                        <p className="text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70 truncate">
                           {item.variantLabel}
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => onRemoveItem(item.cartItemId)}
-                        className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer shrink-0"
+                        className="text-[#0B2545]/60 dark:text-[#F6F2E8]/60 hover:text-red-600 p-1 cursor-pointer shrink-0"
                         title="Xóa"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -384,21 +388,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-2 py-1 dark:border-slate-700 dark:bg-slate-800">
+                      <div className="flex items-center gap-2 rounded border border-[#DCD5C7] dark:border-[#233044] px-2 py-1">
                         <button
                           type="button"
                           onClick={() => onUpdateQty(item.cartItemId, -1)}
-                          className="text-[#0B2545] dark:text-slate-200 cursor-pointer"
+                          className="cursor-pointer"
                         >
                           <Minus className="h-3 w-3" />
                         </button>
-                        <span className="font-mono text-xs font-extrabold text-[#0B2545] dark:text-white min-w-[16px] text-center">
+                        <span className="text-tiny font-bold tabular-nums min-w-4 text-center">
                           {item.quantity}
                         </span>
                         <button
                           type="button"
                           onClick={() => onUpdateQty(item.cartItemId, 1)}
-                          className="text-[#0B2545] dark:text-slate-200 cursor-pointer"
+                          className="cursor-pointer"
                         >
                           <Plus className="h-3 w-3" />
                         </button>
@@ -407,11 +411,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <div className="flex items-center gap-2">
                         <span
                           title="Cộng sau khi xác nhận thanh toán"
-                          className="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md"
+                          className="text-tiny font-bold text-green-700 dark:text-green-400 tabular-nums"
                         >
                           +{item.pointsReward * item.quantity}đ VIP khi TT
                         </span>
-                        <span className="font-mono text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white">
+                        <span className="text-small font-bold tabular-nums">
                           {(item.price * item.quantity).toLocaleString("vi-VN")}đ
                         </span>
                       </div>
@@ -421,15 +425,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
 
               {/* 2. VOUCHER & POINTS REDEMPTION HUB IN CHECKOUT */}
-              <div className="rounded-2xl border border-[#E6E0D5] bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900 space-y-3">
+              <div className="rounded-md border border-[#DCD5C7] p-3.5 dark:border-[#233044] space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5">
                     <Gift className="h-4 w-4 text-[#D95326]" />
-                    <span className="text-xs font-extrabold text-[#0B2545] dark:text-white">
+                    <span className="text-tiny font-bold">
                       Kho Voucher &amp; Đổi Điểm Ưu Đãi
                     </span>
                   </div>
-                  <span className="font-mono text-[11px] font-extrabold text-[#D95326] dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg">
+                  <span className="text-tiny font-bold text-[#D95326] tabular-nums">
                     Khả dụng: {student.points}đ VIP
                   </span>
                 </div>
@@ -441,32 +445,32 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
                     placeholder="Nhập mã (VD: VIP50, DRL80PLUS, FORUSKHTN)"
-                    className="flex-1 rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-3 py-1.5 font-mono text-xs uppercase text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="flex-1 rounded border border-[#DCD5C7] bg-transparent px-3 py-1.5 text-tiny uppercase focus:border-[#0B2545] focus:outline-none dark:border-[#233044]"
                   />
                   <button
                     type="button"
                     onClick={() => handleApplyCouponCode()}
-                    className="rounded-xl bg-[#0B2545] px-3 py-1.5 text-xs font-extrabold text-white hover:bg-[#163A66] shrink-0 cursor-pointer transition"
+                    className="rounded bg-[#0B2545] px-3 py-1.5 text-tiny font-bold text-[#F6F2E8] shrink-0 cursor-pointer transition"
                   >
                     Áp dụng
                   </button>
                 </div>
 
                 {couponError && (
-                  <p className="text-[11px] font-medium text-rose-500">
+                  <p className="text-tiny font-bold text-red-700 dark:text-red-400">
                     {couponError}
                   </p>
                 )}
 
-                {/* Category Switcher: [Voucher Điểm VIP] vs [Điểm ĐRL / GPA & Khuyến Mãi] */}
-                <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-[#F3EFE6] p-1 dark:bg-slate-800">
+                {/* Category Switcher */}
+                <div className="grid grid-cols-2 gap-1.5 rounded bg-[#EFEAE0] p-1 dark:bg-[#152033]">
                   <button
                     type="button"
                     onClick={() => setVoucherTab("vip")}
-                    className={`flex items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-extrabold transition cursor-pointer ${
+                    className={`flex items-center justify-center gap-1 rounded py-1.5 text-tiny font-bold transition cursor-pointer ${
                       voucherTab === "vip"
-                        ? "bg-[#0B2545] text-white dark:bg-amber-400 dark:text-slate-950 shadow-2xs"
-                        : "text-[#4A5568] dark:text-slate-300"
+                        ? "bg-[#0B2545] text-[#F6F2E8]"
+                        : ""
                     }`}
                   >
                     <Crown className="h-3 w-3" />
@@ -475,10 +479,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <button
                     type="button"
                     onClick={() => setVoucherTab("other")}
-                    className={`flex items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-extrabold transition cursor-pointer ${
+                    className={`flex items-center justify-center gap-1 rounded py-1.5 text-tiny font-bold transition cursor-pointer ${
                       voucherTab === "other"
-                        ? "bg-[#0B2545] text-white dark:bg-amber-400 dark:text-slate-950 shadow-2xs"
-                        : "text-[#4A5568] dark:text-slate-300"
+                        ? "bg-[#0B2545] text-[#F6F2E8]"
+                        : ""
                     }`}
                   >
                     <Award className="h-3 w-3" />
@@ -502,28 +506,28 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       return (
                         <div
                           key={v.code}
-                          className={`rounded-xl border p-2.5 transition ${
+                          className={`rounded border p-2.5 transition ${
                             isSelected
-                              ? "border-[#D95326] bg-amber-500/10 dark:border-amber-400"
-                              : "border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-800/70"
+                              ? "border-[#D95326] bg-[#EFEAE0] dark:bg-[#152033]"
+                              : "border-[#DCD5C7] dark:border-[#233044]"
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-mono text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-[#0B2545] text-amber-300">
+                                <span className="text-tiny font-bold px-1.5 py-0.5 rounded bg-[#0B2545] text-[#F6F2E8]">
                                   {v.code}
                                 </span>
-                                <span className="font-mono text-[10px] font-bold text-[#D95326] dark:text-amber-400">
+                                <span className="text-tiny font-bold text-[#D95326]">
                                   {isPreOwned
                                     ? "✓ Đã đổi sẵn (0đ VIP)"
                                     : v.badgeLabel}
                                 </span>
                               </div>
-                              <p className="text-xs font-extrabold text-[#0B2545] dark:text-white mt-1">
+                              <p className="text-tiny font-bold mt-1">
                                 {v.title}
                               </p>
-                              <p className="text-[10px] text-[#64748B] dark:text-slate-400 mt-0.5">
+                              <p className="text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70 mt-0.5 tabular-nums">
                                 Đơn tối thiểu{" "}
                                 {v.minOrder.toLocaleString("vi-VN")}đ
                               </p>
@@ -541,12 +545,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                                   setCouponError(null);
                                 }
                               }}
-                              className={`px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold shrink-0 transition cursor-pointer disabled:opacity-40 ${
+                              className={`px-2.5 py-1.5 rounded text-tiny font-bold shrink-0 transition cursor-pointer disabled:opacity-40 ${
                                 isSelected
                                   ? "bg-[#D95326] text-white"
                                   : canUse
-                                  ? "bg-[#0B2545] text-white hover:bg-[#163A66] dark:bg-amber-400 dark:text-slate-950"
-                                  : "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400"
+                                  ? "bg-[#0B2545] text-[#F6F2E8]"
+                                  : "border border-[#DCD5C7] dark:border-[#233044]"
                               }`}
                             >
                               {isSelected
@@ -566,17 +570,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                     {/* Flexible 10-50 VIP points redemption */}
                     <div
-                      className={`rounded-xl border p-2.5 transition flex items-center justify-between gap-2 ${
+                      className={`rounded border p-2.5 transition flex items-center justify-between gap-2 ${
                         useFlexibleVipPoints && !selectedVipVoucherCode
-                          ? "border-[#D95326] bg-amber-500/10"
-                          : "border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-800/70"
+                          ? "border-[#D95326] bg-[#EFEAE0] dark:bg-[#152033]"
+                          : "border-[#DCD5C7] dark:border-[#233044]"
                       }`}
                     >
                       <div className="min-w-0">
-                        <span className="font-mono text-[10px] font-bold text-[#D95326] dark:text-amber-400 block">
+                        <span className="text-tiny font-bold text-[#D95326] block">
                           Đổi điểm VIP linh hoạt (1đ = 200đ)
                         </span>
-                        <p className="text-xs font-extrabold text-[#0B2545] dark:text-white">
+                        <p className="text-tiny font-bold tabular-nums">
                           Dùng {flexibleRedeemablePoints} điểm VIP giảm{" "}
                           {(flexibleRedeemablePoints * 200).toLocaleString(
                             "vi-VN"
@@ -591,10 +595,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           setSelectedVipVoucherCode(null);
                           setUseFlexibleVipPoints((prev) => !prev);
                         }}
-                        className={`px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold shrink-0 transition cursor-pointer disabled:opacity-40 ${
+                        className={`px-2.5 py-1.5 rounded text-tiny font-bold shrink-0 transition cursor-pointer disabled:opacity-40 ${
                           useFlexibleVipPoints && !selectedVipVoucherCode
                             ? "bg-[#D95326] text-white"
-                            : "bg-[#0B2545] text-white dark:bg-amber-400 dark:text-slate-950"
+                            : "bg-[#0B2545] text-[#F6F2E8]"
                         }`}
                       >
                         {useFlexibleVipPoints && !selectedVipVoucherCode
@@ -613,27 +617,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       return (
                         <div
                           key={vc.code}
-                          className={`rounded-xl border p-2.5 transition ${
+                          className={`rounded border p-2.5 transition ${
                             isApplied
-                              ? "border-emerald-600 bg-emerald-500/10 dark:border-emerald-400"
-                              : "border-[#E6E0D5] bg-[#FAF8F5] dark:border-slate-700 dark:bg-slate-800/70"
+                              ? "border-green-700 bg-green-950/10"
+                              : "border-[#DCD5C7] dark:border-[#233044]"
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-mono text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-700 text-white">
+                                <span className="text-tiny font-bold px-1.5 py-0.5 rounded bg-green-700 text-white">
                                   {vc.code}
                                 </span>
-                                <span className="font-mono text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                                <span className="text-tiny font-bold text-green-700 dark:text-green-400 tabular-nums">
                                   {vc.badgeLabel} · -
                                   {vc.discountAmount.toLocaleString("vi-VN")}đ
                                 </span>
                               </div>
-                              <p className="text-xs font-extrabold text-[#0B2545] dark:text-white mt-1">
+                              <p className="text-tiny font-bold mt-1">
                                 {vc.title}
                               </p>
-                              <p className="text-[10px] text-[#64748B] dark:text-slate-400 mt-0.5">
+                              <p className="text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70 mt-0.5">
                                 {vc.desc}
                               </p>
                             </div>
@@ -648,12 +652,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                                   handleApplyCouponCode(vc.code);
                                 }
                               }}
-                              className={`px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold shrink-0 transition cursor-pointer disabled:opacity-40 ${
+                              className={`px-2.5 py-1.5 rounded text-tiny font-bold shrink-0 transition cursor-pointer disabled:opacity-40 ${
                                 isApplied
-                                  ? "bg-emerald-600 text-white"
+                                  ? "bg-green-700 text-white"
                                   : meetsMin
-                                  ? "bg-[#0B2545] text-white hover:bg-[#163A66] dark:bg-amber-400 dark:text-slate-950"
-                                  : "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400"
+                                  ? "bg-[#0B2545] text-[#F6F2E8]"
+                                  : "border border-[#DCD5C7] dark:border-[#233044]"
                               }`}
                             >
                               {isApplied
@@ -671,9 +675,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                 {/* Active Vouchers Summary */}
                 {(totalVipDiscountAmount > 0 || promoDiscountAmount > 0) && (
-                  <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-2.5 text-[11px] space-y-1">
+                  <div className="rounded bg-green-950/10 border border-green-700/30 p-2.5 text-tiny space-y-1">
                     {totalVipDiscountAmount > 0 && (
-                      <div className="flex justify-between font-bold text-[#D95326] dark:text-amber-300">
+                      <div className="flex justify-between font-bold text-[#D95326]">
                         <span>
                           ✓ Ưu đãi Điểm VIP (
                           {activeVipVoucher
@@ -685,17 +689,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                             : `-${activePointsRedeemed}đ VIP`}
                           )
                         </span>
-                        <span className="font-mono">
+                        <span className="tabular-nums">
                           -{totalVipDiscountAmount.toLocaleString("vi-VN")}đ
                         </span>
                       </div>
                     )}
                     {promoDiscountAmount > 0 && activePromoObj && (
-                      <div className="flex justify-between font-bold text-emerald-700 dark:text-emerald-400">
+                      <div className="flex justify-between font-bold text-green-700 dark:text-green-400">
                         <span>
                           ✓ Voucher {activePromoObj.code} ({activePromoObj.badgeLabel})
                         </span>
-                        <span className="font-mono">
+                        <span className="tabular-nums">
                           -{promoDiscountAmount.toLocaleString("vi-VN")}đ
                         </span>
                       </div>
@@ -705,8 +709,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
 
               {/* 3. Delivery Box */}
-              <div className="space-y-2.5 rounded-2xl border border-[#E6E0D5] bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#0B2545] dark:text-white">
+              <div className="space-y-2.5 rounded-md border border-[#DCD5C7] p-3.5 dark:border-[#233044]">
+                <div className="flex items-center gap-1.5 text-tiny font-bold">
                   <MapPin className="h-3.5 w-3.5 text-[#D95326]" />
                   <span>Nhận tại CS1 (227 NVC)</span>
                 </div>
@@ -714,7 +718,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <select
                   value={building}
                   onChange={(e) => setBuilding(e.target.value)}
-                  className="w-full rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-3 py-2 text-xs font-semibold text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  className="w-full rounded border border-[#DCD5C7] bg-[#F6F2E8] px-3 py-2 text-tiny font-bold dark:border-[#233044] dark:bg-[#0E1624]"
                 >
                   {CAMPUS_BUILDINGS_CS1.map((b) => (
                     <option key={b} value={b}>
@@ -730,7 +734,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     value={roomNumber}
                     onChange={(e) => setRoomNumber(e.target.value)}
                     placeholder="Phòng & giờ nhận"
-                    className="w-full rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-3 py-1.5 text-xs text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full rounded border border-[#DCD5C7] bg-transparent px-3 py-1.5 text-tiny dark:border-[#233044]"
                   />
                   <input
                     type="text"
@@ -738,14 +742,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     value={recipientName}
                     onChange={(e) => setRecipientName(e.target.value)}
                     placeholder="Tên người nhận"
-                    className="w-full rounded-xl border border-[#E5E0D5] bg-[#FAF8F5] px-3 py-1.5 text-xs text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full rounded border border-[#DCD5C7] bg-transparent px-3 py-1.5 text-tiny dark:border-[#233044]"
                   />
                 </div>
               </div>
 
               {/* 4. Payment Selector */}
-              <div className="space-y-2 rounded-2xl border border-[#E6E0D5] bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#0B2545] dark:text-white">
+              <div className="space-y-2 rounded-md border border-[#DCD5C7] p-3.5 dark:border-[#233044]">
+                <div className="flex items-center gap-1.5 text-tiny font-bold">
                   <CreditCard className="h-3.5 w-3.5 text-[#D95326]" />
                   <span>Phương thức thanh toán</span>
                 </div>
@@ -762,10 +766,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       onClick={() =>
                         setPaymentMethod(opt.id as typeof paymentMethod)
                       }
-                      className={`rounded-xl py-2 text-xs font-extrabold transition cursor-pointer ${
+                      className={`rounded py-2 text-tiny font-bold transition cursor-pointer ${
                         paymentMethod === opt.id
-                          ? "bg-[#0B2545] text-white dark:bg-amber-400 dark:text-slate-950"
-                          : "border border-[#E5E0D5] bg-[#FAF8F5] text-[#4A5568] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                          ? "bg-[#0B2545] text-[#F6F2E8]"
+                          : "border border-[#DCD5C7] dark:border-[#233044]"
                       }`}
                     >
                       {opt.label}
@@ -776,38 +780,38 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
 
             {/* Footer with Price Breakdown & Points Earned Upon Payment Confirmation */}
-            <div className="border-t border-[#E5DEC9] bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900 space-y-2">
+            <div className="border-t border-[#DCD5C7] bg-[#EFEAE0]/60 px-5 py-4 dark:border-[#233044] dark:bg-[#152033]/60 space-y-2">
               {totalDiscountAmount > 0 && (
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#64748B] dark:text-slate-400">
+                <div className="flex items-center justify-between text-tiny tabular-nums">
+                  <span>
                     Tạm tính: {subtotal.toLocaleString("vi-VN")}đ
                   </span>
-                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                  <span className="font-bold text-green-700 dark:text-green-400">
                     Giảm: -{totalDiscountAmount.toLocaleString("vi-VN")}đ
                   </span>
                 </div>
               )}
 
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-tiny">
                 <div>
-                  <span className="text-[#0B2545] dark:text-white font-bold block">
+                  <span className="font-bold block">
                     Tổng thanh toán ({items.length} mục)
                   </span>
-                  <span className="font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                  <span className="font-bold text-green-700 dark:text-green-400 tabular-nums">
                     +{totalPointsEarned} điểm VIP cộng khi hoàn tất
                     {activePointsRedeemed > 0
                       ? ` (Đổi -${activePointsRedeemed}đ VIP)`
                       : ""}
                   </span>
                 </div>
-                <span className="font-mono text-lg font-extrabold text-[#D95326] dark:text-amber-400">
+                <span className="text-h2 font-bold text-[#D95326] tabular-nums">
                   {finalTotal.toLocaleString("vi-VN")}đ
                 </span>
               </div>
 
               <button
                 type="submit"
-                className="w-full rounded-xl bg-[#D95326] py-3 text-xs font-extrabold text-white shadow-xs transition hover:bg-[#C0441B] cursor-pointer"
+                className="w-full rounded bg-[#D95326] py-3 text-small font-bold text-white transition hover:bg-[#C0441B] cursor-pointer"
               >
                 Xác nhận thanh toán (+{totalPointsEarned}đ VIP)
               </button>

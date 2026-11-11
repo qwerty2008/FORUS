@@ -1015,103 +1015,46 @@ export const VipHub: React.FC<VipHubProps> = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden">
-      {/* 1. TOP HEADER BANNER & STUDENT POINTS STATUS CARD */}
-      <div className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-5 sm:p-8 dark:border-slate-700/80 dark:bg-slate-800/90">
-        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-12 lg:items-center">
-          <div className="space-y-3 lg:col-span-7 min-w-0">
-            <h2 className="text-2xl font-extrabold tracking-tight text-[#0B2545] sm:text-4xl dark:text-white leading-[1.18] break-words">
-              Trung Tâm Tính Năng &amp; Tiện Ích Số FORUS
-            </h2>
-            <p className="text-xs sm:text-base leading-relaxed text-[#4A5568] dark:text-slate-300 break-words">
-              Tích hợp các công cụ thiết thực dành cho sinh viên{" "}
-              <strong className="font-bold text-[#0B2545] dark:text-white">
-                ĐH Khoa học Tự nhiên (Cơ sở 1 - 227 NVC)
-              </strong>
-              : tra cứu trực quan{" "}
-              <strong className="font-bold text-[#D95326] dark:text-amber-400">
-                Sơ đồ chỉ dẫn các tầng (B1 – L11)
-              </strong>
-              , hỏi đáp{" "}
-              <strong className="font-bold text-[#0B2545] dark:text-white">
-                Trợ lý AI FORUS
-              </strong>
-              , sao chép{" "}
-              <strong className="font-bold text-[#0B2545] dark:text-white">
-                Mẫu code LaTeX
-              </strong>{" "}
-              và đổi điểm nhận{" "}
-              <strong className="font-bold text-[#0B2545] dark:text-white">
-                Voucher ưu đãi
-              </strong>
-              .
+      {/* 1. COMPACT TOP HEADER & POINTS BAR */}
+      <div className="pb-5 border-b border-[#E2E8F0] dark:border-[#233044] pl-4 margin-rule flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div className="space-y-1 min-w-0">
+          <h1 className="font-serif-display text-h1 font-bold text-[#0B2545] dark:text-[#F8FAFC]">
+            Trung Tâm Tính Năng &amp; Tiện Ích Số
+          </h1>
+          <p className="text-small text-[#0B2545]/75 dark:text-[#F8FAFC]/75">
+            Tra cứu sơ đồ tầng Cơ sở 1, hỏi đáp Trợ lý AI FORUS, sao chép mẫu code LaTeX và đổi điểm nhận Voucher.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 rounded-md border border-[#E2E8F0] dark:border-[#233044] bg-white dark:bg-[#152033] px-4 py-2.5 shrink-0">
+          <div className="space-y-0.5">
+            <p className="text-tiny font-bold uppercase text-[#0B2545]/60 dark:text-[#F8FAFC]/60">
+              {membershipTierLabel}
+            </p>
+            <p className="tabular-nums text-small font-bold text-[#0B2545] dark:text-[#F8FAFC]">
+              {student.points} / 100 điểm
             </p>
           </div>
 
-          {/* Right White Status & Policy Card */}
-          <div className="rounded-2xl border border-[#E6E0D5] bg-white p-4 sm:p-5 shadow-2xs dark:border-slate-700 dark:bg-slate-900 lg:col-span-5 min-w-0">
-            <div className="flex flex-wrap items-center justify-between gap-1.5">
-              <p className="font-mono text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-[#64748B] dark:text-slate-400">
-                {membershipTierLabel}
-              </p>
-              <span className="font-mono text-xs sm:text-sm font-extrabold text-[#D95326] dark:text-amber-400">
-                {student.points} / 100 điểm
-              </span>
-            </div>
-
-            <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-[#EFECE6] dark:bg-slate-800">
-              <div
-                className="h-full rounded-full bg-[#0B2545] dark:bg-amber-400 transition-all duration-500"
-                style={{ width: `${Math.min(100, student.points)}%` }}
-              />
-            </div>
-
-            <div className="mt-3.5 divide-y divide-[#EAE5DC] text-xs dark:divide-slate-800">
-              <div className="flex flex-wrap items-center justify-between gap-1 py-2">
-                <span className="text-[#4A5568] dark:text-slate-300">
-                  Khi in ấn, thuê học cụ, kết nối gia sư:
-                </span>
-                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                  Cộng +5 đến +10 điểm
-                </span>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-1 py-2">
-                <span className="text-[#4A5568] dark:text-slate-300">
-                  Khi đổi điểm lấy Voucher ưu đãi:
-                </span>
-                <span className="font-mono font-bold text-[#D95326] dark:text-amber-400">
-                  Trừ điểm tương ứng
-                </span>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-1.5 pt-2">
-                <span className="text-[#4A5568] dark:text-slate-300">
-                  Quyền hỏi Trợ lý AI không giới hạn (100đ):
-                </span>
-                {isVipUnlocked ? (
-                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                    Đã mở khóa 100%
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={onUnlockDemoVip}
-                    className="inline-flex items-center gap-1 rounded-lg bg-[#D95326] px-2.5 py-1 font-mono text-[11px] font-bold text-white hover:bg-[#C0441B] transition cursor-pointer"
-                  >
-                    <Zap className="h-3 w-3 shrink-0" />
-                    <span>Kích hoạt nhanh 100đ</span>
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+          {!isVipUnlocked && (
+            <button
+              type="button"
+              onClick={onUnlockDemoVip}
+              className="inline-flex items-center gap-1 rounded bg-[#0B2545] px-3 py-1.5 text-tiny font-bold text-white hover:bg-[#163A66] transition cursor-pointer"
+            >
+              <Zap className="h-3.5 w-3.5 shrink-0" />
+              <span>Kích hoạt 100đ</span>
+            </button>
+          )}
         </div>
       </div>
 
       {/* 2. COMPACT MOBILE-FIRST FEATURE MODULE SELECTOR */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between gap-2 border-b border-[#E5DEC9] pb-2.5 dark:border-slate-800">
+        <div className="flex items-center justify-between gap-2 border-b border-[#0B2545]/10 pb-2.5 dark:border-white/10">
           <div className="flex items-center gap-2 min-w-0">
             <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-[#D95326] shrink-0" />
-            <h3 className="text-sm sm:text-lg font-extrabold text-[#0B2545] dark:text-white truncate">
+            <h3 className="text-body font-bold text-[#0B2545] dark:text-[#F6F2E8] truncate">
               Chọn Nhanh Tính Năng
             </h3>
           </div>
@@ -1119,10 +1062,10 @@ export const VipHub: React.FC<VipHubProps> = ({
           <button
             type="button"
             onClick={() => setActiveModule("all")}
-            className={`rounded-xl px-3 py-1.5 text-[11px] sm:text-xs font-extrabold transition cursor-pointer shrink-0 ${
+            className={`rounded-xl px-3 py-1.5 text-tiny font-bold transition cursor-pointer shrink-0 ${
               activeModule === "all"
-                ? "bg-[#0B2545] text-white shadow-2xs dark:bg-amber-400 dark:text-slate-950"
-                : "border border-[#E5DEC9] bg-white text-[#4A5568] hover:text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                ? "bg-[#0B2545] text-white dark:bg-[#D95326]"
+                : "border border-[#0B2545]/12 bg-white text-[#0B2545]/75 hover:text-[#0B2545] dark:border-white/10 dark:bg-[#152238] dark:text-[#F6F2E8]/75"
             }`}
           >
             {activeModule === "all" ? "✓ Đang hiện tất cả" : "Hiện tất cả (4)"}
@@ -1135,7 +1078,7 @@ export const VipHub: React.FC<VipHubProps> = ({
             {
               id: "campus-map" as FeatureModuleId,
               icon: <Map className="w-4 h-4" />,
-              iconBg: "bg-[#0B2545] text-emerald-300",
+              iconBg: "bg-[#0B2545] text-white",
               badge: "B1–L11",
               title: "Sơ Đồ Tầng CS1",
               desc: "Mặt bằng các tòa F, C, B, A, E, I",
@@ -1143,7 +1086,7 @@ export const VipHub: React.FC<VipHubProps> = ({
             {
               id: "ai-assistant" as FeatureModuleId,
               icon: <Bot className="w-4 h-4" />,
-              iconBg: "bg-[#0B2545] text-amber-300",
+              iconBg: "bg-[#0B2545] text-white",
               badge: "AI 24/7",
               title: "Trợ Lý AI Học Tập",
               desc: "Giải toán đại cương, code & LaTeX",
@@ -1151,7 +1094,7 @@ export const VipHub: React.FC<VipHubProps> = ({
             {
               id: "latex-snippets" as FeatureModuleId,
               icon: <Code2 className="w-4 h-4" />,
-              iconBg: "bg-[#0B2545] text-sky-300",
+              iconBg: "bg-[#0B2545] text-white",
               badge: "18 mẫu",
               title: "Khung Code LaTeX",
               desc: "Copy 1 chạm ma trận, tích phân, đồ án",
@@ -1175,8 +1118,8 @@ export const VipHub: React.FC<VipHubProps> = ({
                 }
                 className={`text-left rounded-2xl border p-3 sm:p-4 transition cursor-pointer flex flex-col justify-between min-w-0 ${
                   isSelected
-                    ? "border-[#D95326] bg-white shadow-sm ring-1 ring-[#D95326] dark:bg-slate-800"
-                    : "border-[#E6E0D5] bg-white/95 hover:border-[#0B2545]/40 dark:border-slate-700 dark:bg-slate-800/80"
+                    ? "border-[#D95326] bg-white ring-1 ring-[#D95326] dark:bg-[#152238]"
+                    : "border-[#0B2545]/12 bg-white hover:border-[#0B2545]/35 dark:border-white/10 dark:bg-[#152238]/80"
                 }`}
               >
                 <div className="min-w-0">
@@ -1186,18 +1129,18 @@ export const VipHub: React.FC<VipHubProps> = ({
                     >
                       {mod.icon}
                     </div>
-                    <span className="font-mono text-[10px] font-bold text-[#64748B] dark:text-slate-400 truncate">
+                    <span className="tabular-nums text-tiny font-bold text-[#0B2545]/60 dark:text-[#F6F2E8]/60 truncate">
                       {mod.badge}
                     </span>
                   </div>
-                  <h4 className="mt-2.5 text-xs sm:text-sm font-extrabold text-[#0B2545] dark:text-white leading-snug truncate">
+                  <h4 className="mt-2.5 text-small font-bold text-[#0B2545] dark:text-[#F6F2E8] leading-snug truncate">
                     {mod.title}
                   </h4>
-                  <p className="mt-0.5 text-[11px] sm:text-xs text-[#64748B] dark:text-slate-300 leading-snug line-clamp-1 sm:line-clamp-2">
+                  <p className="mt-0.5 text-tiny text-[#0B2545]/65 dark:text-[#F6F2E8]/65 leading-snug line-clamp-1 sm:line-clamp-2">
                     {mod.desc}
                   </p>
                 </div>
-                <span className="mt-2 inline-block font-mono text-[10px] sm:text-[11px] font-bold text-[#D95326] dark:text-amber-400 truncate">
+                <span className="mt-2 inline-block text-tiny font-bold text-[#D95326] truncate">
                   {isSelected ? "Đang mở · Chạm để thu gọn" : "Mở tính năng →"}
                 </span>
               </button>
@@ -1208,47 +1151,45 @@ export const VipHub: React.FC<VipHubProps> = ({
 
       {/* Toast Feedback */}
       {toastMessage && (
-        <div className="flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-3 text-xs font-semibold text-emerald-800 dark:text-emerald-200">
+        <div className="flex items-center gap-2 rounded-2xl border border-green-500/30 bg-green-500/15 px-4 py-3 text-tiny font-bold text-green-800 dark:text-green-300">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* ================= 3. MODULE 1: SƠ ĐỒ CHỈ DẪN CÁC TẦNG (EXACT BUILDING FRAMES FROM PDF) ================= */}
+      {/* 3. MODULE 1: SƠ ĐỒ CHỈ DẪN CÁC TẦNG */}
       {(activeModule === "all" || activeModule === "campus-map") && (
-        <section className="rounded-3xl border border-[#E5DEC9] bg-white p-4 sm:p-7 shadow-2xs dark:border-slate-700/80 dark:bg-slate-900 space-y-4">
-          {/* Top Bar: Title + Search Input */}
+        <section className="rounded-3xl border border-[#0B2545]/12 bg-white p-4 sm:p-7 dark:border-white/10 dark:bg-[#152238] space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#C81E32] text-white flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-[#D95326] text-white flex items-center justify-center shrink-0">
                 <Compass className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base sm:text-xl font-extrabold text-[#0B2545] dark:text-white">
+                <h3 className="text-h2 font-bold text-[#0B2545] dark:text-[#F6F2E8]">
                   Sơ Đồ Chỉ Dẫn Các Tầng &amp; Danh Bạ Phòng Ban (CS1 · 227 Nguyễn Văn Cừ)
                 </h3>
-                <p className="text-xs text-[#64748B] dark:text-slate-400">
+                <p className="text-tiny text-[#0B2545]/65 dark:text-[#F6F2E8]/65">
                   Bấm chọn từng tầng hoặc bấm trực tiếp vào ô phòng trên mặt bằng để xem thông tin
                 </p>
               </div>
             </div>
 
             <div className="relative w-full md:w-64 shrink-0">
-              <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#64748B]" />
+              <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#0B2545]/50" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm nhanh: B.02, A.02, I.53, F202..."
-                className="w-full rounded-xl border border-[#DDD6C7] bg-[#FAF8F5] py-2 pr-3 pl-8.5 text-xs font-semibold text-[#0B2545] focus:border-[#C81E32] focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="w-full rounded-xl border border-[#0B2545]/15 bg-[#F6F2E8] py-2 pr-3 pl-8.5 text-tiny font-bold text-[#0B2545] focus:border-[#D95326] focus:bg-white focus:outline-none dark:border-white/15 dark:bg-[#0E1624] dark:text-[#F6F2E8]"
               />
             </div>
           </div>
 
-          {/* Quick Search Results */}
           {searchQuery.trim() && (
-            <div className="rounded-2xl border border-[#E5DEC9] bg-[#F3EFE6] p-3 dark:border-slate-700 dark:bg-slate-800 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-extrabold text-[#0B2545] dark:text-white mr-1">
+            <div className="rounded-2xl border border-[#0B2545]/12 bg-[#EFEAE0] p-3 dark:border-white/10 dark:bg-[#0E1624] flex flex-wrap items-center gap-2">
+              <span className="text-tiny font-bold text-[#0B2545] dark:text-[#F6F2E8] mr-1">
                 Kết quả ({searchMatches.length}):
               </span>
               {searchMatches.map(([key, item]) => (
@@ -1265,9 +1206,9 @@ export const VipHub: React.FC<VipHubProps> = ({
                     setSelectedRoomKey(key);
                     setSearchQuery("");
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-[#DDD6C7] dark:border-slate-700 text-xs font-bold text-[#0B2545] dark:text-white hover:border-[#C81E32] cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#152238] border border-[#0B2545]/15 dark:border-white/15 text-tiny font-bold text-[#0B2545] dark:text-[#F6F2E8] hover:border-[#D95326] cursor-pointer"
                 >
-                  <span className="font-mono text-[#C81E32] dark:text-amber-400">
+                  <span className="text-[#D95326]">
                     {item.code}
                   </span>{" "}
                   · {item.floorLabel}
@@ -1276,7 +1217,7 @@ export const VipHub: React.FC<VipHubProps> = ({
             </div>
           )}
 
-          {/* PDF-STYLE FLOOR TABS ROW (Centered Rectangular Tabs like in PDF) */}
+          {/* FLOOR TABS ROW */}
           <div className="pt-1 flex flex-col items-center space-y-3">
             <div className="flex flex-wrap items-center justify-center gap-2">
               {[
@@ -1292,10 +1233,10 @@ export const VipHub: React.FC<VipHubProps> = ({
                     key={tab.id}
                     type="button"
                     onClick={() => switchFloor(tab.id)}
-                    className={`min-w-[104px] sm:min-w-[120px] py-2 px-4 rounded-md border text-xs sm:text-sm font-bold transition cursor-pointer ${
+                    className={`min-w-[104px] sm:min-w-[120px] py-2 px-4 rounded-xl border text-small font-bold transition cursor-pointer ${
                       active
-                        ? "bg-[#C81E32] border-[#A01425] text-white shadow-xs"
-                        : "bg-white border-slate-300 text-slate-700 hover:border-[#C81E32] dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
+                        ? "bg-[#D95326] border-[#D95326] text-white"
+                        : "bg-white border-[#0B2545]/15 text-[#0B2545] hover:border-[#D95326] dark:bg-[#0E1624] dark:border-white/15 dark:text-[#F6F2E8]"
                     }`}
                   >
                     {tab.label}
@@ -1304,8 +1245,7 @@ export const VipHub: React.FC<VipHubProps> = ({
               })}
             </div>
 
-            {/* BOLD CENTERED FLOOR HEADER MATCHING PDF */}
-            <h4 className="text-lg sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white uppercase text-center">
+            <h4 className="text-h2 font-bold tracking-tight text-[#0B2545] dark:text-[#F6F2E8] uppercase text-center">
               {selectedFloor === "B1-L1" && "TẦNG TRỆT (L1) & HẦM B1"}
               {selectedFloor === "L2" && "TẦNG L2 (LẦU 1)"}
               {selectedFloor === "L3" && "TẦNG L3 (LẦU 2)"}
@@ -1314,10 +1254,9 @@ export const VipHub: React.FC<VipHubProps> = ({
             </h4>
           </div>
 
-          {/* OUTER RED-BORDERED MAP CONTAINER (MATCHES FIGURES 1, 2, 3, 4 IN PDF) */}
-          <div className="relative rounded-[26px] border-[2.5px] border-[#C81E32] bg-white dark:bg-slate-900 overflow-hidden shadow-md">
-            {/* Top-Left Red Corner Ribbon Badge (e.g., "Tầng L2", "Tầng L3") */}
-            <div className="bg-[#C81E32] text-white font-bold text-xs sm:text-sm px-5 py-1.5 inline-block rounded-br-2xl shadow-xs">
+          {/* OUTER MAP CONTAINER */}
+          <div className="relative rounded-3xl border-2 border-[#D95326] bg-white dark:bg-[#0E1624] overflow-hidden">
+            <div className="bg-[#D95326] text-white font-bold text-small px-5 py-1.5 inline-block rounded-br-2xl">
               {selectedFloor === "B1-L1" && "Tầng B1 – L1"}
               {selectedFloor === "L2" && "Tầng L2"}
               {selectedFloor === "L3" && "Tầng L3"}
@@ -1326,17 +1265,16 @@ export const VipHub: React.FC<VipHubProps> = ({
             </div>
 
             <div className="p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-              {/* ================= LEFT 8 COLS: EXACT 2D ARCHITECTURAL FOOTPRINT ================= */}
-              <div className="lg:col-span-8 rounded-2xl bg-[#F2F1EC] dark:bg-slate-950 border border-slate-300 dark:border-slate-800 p-3 sm:p-4 flex flex-col justify-between overflow-x-auto">
+              {/* LEFT 8 COLS: 2D ARCHITECTURAL FOOTPRINT */}
+              <div className="lg:col-span-8 rounded-2xl bg-[#F6F2E8] dark:bg-[#152238] border border-[#0B2545]/15 dark:border-white/10 p-3 sm:p-4 flex flex-col justify-between overflow-x-auto">
                 <div className="min-w-[540px] space-y-2.5">
-                  {/* ROW 1: GĐ 2 (Top Left) + DÃY NGANG TÒA F (North Horizontal Bar) */}
+                  {/* ROW 1: GĐ 2 + DÃY NGANG TÒA F */}
                   <div className="grid grid-cols-12 gap-2 items-end">
-                    {/* Left Column Top: GĐ 2 & H */}
                     <div className="col-span-2 flex flex-col gap-1.5">
                       <button
                         type="button"
                         onClick={() => setSelectedRoomKey("GD2")}
-                        className={`h-9 rounded border flex items-center justify-center font-bold text-xs transition cursor-pointer ${
+                        className={`h-9 rounded border flex items-center justify-center font-bold text-tiny transition cursor-pointer ${
                           selectedFloor === "B1-L1"
                             ? "bg-[#E99695] border-[#B85D5C] text-slate-900"
                             : "bg-[#D5D5D2] border-slate-400 text-slate-600"
@@ -1348,7 +1286,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                         <button
                           type="button"
                           onClick={() => setSelectedRoomKey("H")}
-                          className={`h-7 rounded border bg-[#E99695] border-[#B85D5C] text-slate-900 flex items-center justify-center font-bold text-xs transition cursor-pointer ${ringIfSelected(
+                          className={`h-7 rounded border bg-[#E99695] border-[#B85D5C] text-slate-900 flex items-center justify-center font-bold text-tiny transition cursor-pointer ${ringIfSelected(
                             "H"
                           )}`}
                         >
@@ -1357,10 +1295,9 @@ export const VipHub: React.FC<VipHubProps> = ({
                       )}
                     </div>
 
-                    {/* Right 10 Cols: DÃY NGANG TÒA F */}
                     <div className="col-span-10">
                       {selectedFloor === "B1-L1" && (
-                        <div className="grid grid-cols-12 border border-[#B85D5C] bg-[#E99695] rounded overflow-hidden text-slate-900 text-[11px] font-bold">
+                        <div className="grid grid-cols-12 border border-[#B85D5C] bg-[#E99695] rounded overflow-hidden text-slate-900 text-tiny font-bold">
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("F.02")}
@@ -1369,7 +1306,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             )}`}
                           >
                             <span>F.02</span>
-                            <span className="text-[9px] font-semibold">P. TTTT</span>
+                            <span className="text-tiny">P. TTTT</span>
                           </button>
                           <button
                             type="button"
@@ -1379,9 +1316,9 @@ export const VipHub: React.FC<VipHubProps> = ({
                             )}`}
                           >
                             <span>F.05</span>
-                            <span className="text-[9px] font-semibold">VPK Sinh học</span>
+                            <span className="text-tiny">VPK Sinh học</span>
                           </button>
-                          <div className="col-span-3 py-2 border-r border-[#B85D5C] flex items-center justify-center font-black text-sm">
+                          <div className="col-span-3 py-2 border-r border-[#B85D5C] flex items-center justify-center font-bold text-small">
                             TÒA F
                           </div>
                           <button
@@ -1406,11 +1343,11 @@ export const VipHub: React.FC<VipHubProps> = ({
                       )}
 
                       {selectedFloor === "L2" && (
-                        <div className="grid grid-cols-12 border border-slate-400 rounded overflow-hidden text-[10px] font-bold">
+                        <div className="grid grid-cols-12 border border-slate-400 rounded overflow-hidden text-tiny font-bold">
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("F202-206")}
-                            className={`col-span-4 py-2.5 bg-[#D94362] text-white border-r border-white/40 flex items-center justify-around px-1 cursor-pointer ${ringIfSelected(
+                            className={`col-span-4 py-2.5 bg-[#D95326] text-white border-r border-white/40 flex items-center justify-around px-1 cursor-pointer ${ringIfSelected(
                               "F202-206"
                             )}`}
                           >
@@ -1426,12 +1363,12 @@ export const VipHub: React.FC<VipHubProps> = ({
                             )}`}
                           >
                             <span>F.101-105</span>
-                            <span className="text-[8px]">P. QHĐN</span>
+                            <span className="text-tiny">P. QHĐN</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("F.102")}
-                            className={`col-span-1 py-2 bg-[#D94362] text-white border-r border-white/40 flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`col-span-1 py-2 bg-[#D95326] text-white border-r border-white/40 flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "F.102"
                             )}`}
                           >
@@ -1445,7 +1382,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             )}`}
                           >
                             <span>F.106A</span>
-                            <span className="text-[8px]">Tâm lý</span>
+                            <span className="text-tiny">Tâm lý</span>
                           </button>
                           <button
                             type="button"
@@ -1455,12 +1392,12 @@ export const VipHub: React.FC<VipHubProps> = ({
                             )}`}
                           >
                             <span>F.107</span>
-                            <span className="text-[8px]">Thanh tra</span>
+                            <span className="text-tiny">Thanh tra</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("F.113")}
-                            className={`col-span-1 py-2 bg-[#D94362] text-white flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`col-span-1 py-2 bg-[#D95326] text-white flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "F.113"
                             )}`}
                           >
@@ -1470,11 +1407,11 @@ export const VipHub: React.FC<VipHubProps> = ({
                       )}
 
                       {selectedFloor === "L3" && (
-                        <div className="grid grid-cols-12 border border-slate-400 bg-[#C8C8C5] rounded overflow-hidden text-[11px] font-bold">
+                        <div className="grid grid-cols-12 border border-slate-400 bg-[#C8C8C5] rounded overflow-hidden text-tiny font-bold">
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("F301-304")}
-                            className={`col-span-4 py-2 bg-[#C8234B] text-white border-r border-white/40 flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`col-span-4 py-2 bg-[#D95326] text-white border-r border-white/40 flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "F301-304"
                             )}`}
                           >
@@ -1484,7 +1421,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("F301-304")}
-                            className={`col-span-3 py-2 bg-[#C8234B] text-white border-x border-white/40 flex items-center justify-around cursor-pointer ${ringIfSelected(
+                            className={`col-span-3 py-2 bg-[#D95326] text-white border-x border-white/40 flex items-center justify-around cursor-pointer ${ringIfSelected(
                               "F301-304"
                             )}`}
                           >
@@ -1495,7 +1432,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("F305")}
-                            className={`col-span-3 py-2 bg-[#C8234B] text-white flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`col-span-3 py-2 bg-[#D95326] text-white flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "F305"
                             )}`}
                           >
@@ -1505,29 +1442,28 @@ export const VipHub: React.FC<VipHubProps> = ({
                       )}
 
                       {(selectedFloor === "L4" || selectedFloor === "L5-L11") && (
-                        <div className="h-9 rounded bg-[#C8C8C5] border border-slate-400 flex items-center justify-center font-bold text-xs text-slate-600">
+                        <div className="h-9 rounded bg-[#C8C8C5] border border-slate-400 flex items-center justify-center font-bold text-tiny text-slate-600">
                           F (Dãy F chỉ có đến Tầng L3)
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* ROW 2: 4 CENTRAL PARALLEL WINGS (TÒA C — Tự học — TÒA B — Sân cờ — TÒA A — TÒA E) */}
+                  {/* ROW 2: 4 CENTRAL PARALLEL WINGS */}
                   <div className="grid grid-cols-12 gap-2 items-stretch min-h-[175px]">
-                    {/* Leftmost Perimeter Strip (Gray blocks under GĐ 2) */}
                     <div className="col-span-2 flex flex-col gap-2">
                       <div className="flex-1 rounded bg-[#D5D5D2] border border-slate-400" />
                       <div className="flex-1 rounded bg-[#D5D5D2] border border-slate-400" />
                     </div>
 
-                    {/* DÃY DỌC TÒA C (2 Cols) */}
+                    {/* DÃY DỌC TÒA C */}
                     <div className="col-span-2 flex flex-col border border-slate-400 rounded overflow-hidden bg-[#D5D5D2]">
                       {selectedFloor === "B1-L1" && (
                         <>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C01")}
-                            className={`flex-1 bg-[#E99695] border-b border-slate-400 font-bold text-xs text-slate-900 flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#E99695] border-b border-slate-400 font-bold text-tiny text-slate-900 flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C01"
                             )}`}
                           >
@@ -1536,7 +1472,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C11")}
-                            className={`flex-1 bg-[#F4C430] border-b border-slate-400 font-bold text-xs text-slate-900 flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#F4C430] border-b border-slate-400 font-bold text-tiny text-slate-900 flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C11"
                             )}`}
                           >
@@ -1545,7 +1481,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C12")}
-                            className={`flex-1 bg-[#2A8B8B] font-bold text-xs text-white flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#0B2545] font-bold text-tiny text-white flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C12"
                             )}`}
                           >
@@ -1559,17 +1495,17 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C21")}
-                            className={`flex-1 bg-[#D94362] text-white border-b border-white/40 font-bold text-[10px] flex flex-col items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex flex-col items-center justify-center cursor-pointer ${ringIfSelected(
                               "C21"
                             )}`}
                           >
                             <span>C21</span>
-                            <span className="text-[8px]">PTN Ngọc học</span>
+                            <span className="text-tiny">PTN Ngọc học</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C22-23")}
-                            className={`flex-1 bg-[#D94362] text-white border-b border-white/40 font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C22-23"
                             )}`}
                           >
@@ -1578,7 +1514,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C22-23")}
-                            className={`flex-1 bg-[#D94362] text-white border-b border-white/40 font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C22-23"
                             )}`}
                           >
@@ -1587,12 +1523,12 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C12A")}
-                            className={`flex-1 bg-[#F4C430] text-slate-900 font-bold text-[10px] flex flex-col items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#F4C430] text-slate-900 font-bold text-tiny flex flex-col items-center justify-center cursor-pointer ${ringIfSelected(
                               "C12A"
                             )}`}
                           >
                             <span>C12A</span>
-                            <span className="text-[8px]">VPK Địa chất</span>
+                            <span className="text-tiny">VPK Địa chất</span>
                           </button>
                         </>
                       )}
@@ -1602,7 +1538,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C31-33")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C31-33"
                             )}`}
                           >
@@ -1611,7 +1547,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C31-33")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C31-33"
                             )}`}
                           >
@@ -1620,7 +1556,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C31-33")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C31-33"
                             )}`}
                           >
@@ -1632,13 +1568,13 @@ export const VipHub: React.FC<VipHubProps> = ({
 
                       {(selectedFloor === "L4" || selectedFloor === "L5-L11") && (
                         <>
-                          <div className="py-1 bg-[#C8234B] text-white text-center font-black text-xs border-b border-white/30">
+                          <div className="py-1 bg-[#D95326] text-white text-center font-bold text-tiny border-b border-white/30">
                             C
                           </div>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C41-43")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C41-43"
                             )}`}
                           >
@@ -1647,7 +1583,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("C41-43")}
-                            className={`flex-1 bg-[#C8234B] text-white font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "C41-43"
                             )}`}
                           >
@@ -1657,17 +1593,17 @@ export const VipHub: React.FC<VipHubProps> = ({
                       )}
                     </div>
 
-                    {/* KHU GIỮA C & B (Nhà vòm Tự học) */}
+                    {/* KHU GIỮA C & B */}
                     <div className="col-span-2 flex flex-col items-center justify-center bg-[#E7E4DC] rounded border border-slate-300 p-1.5 text-center">
                       {selectedFloor === "B1-L1" ? (
                         <>
-                          <span className="font-black text-xs text-slate-900 mb-1">
+                          <span className="font-bold text-tiny text-slate-900 mb-1">
                             TÒA B
                           </span>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("TU_HOC")}
-                            className={`w-16 h-16 rounded-full bg-[#8CC6C6] border-2 border-[#3A7D7D] flex items-center justify-center font-extrabold text-xs text-slate-900 shadow-xs cursor-pointer ${ringIfSelected(
+                            className={`w-16 h-16 rounded-full bg-[#EFEAE0] border-2 border-[#0B2545] flex items-center justify-center font-bold text-tiny text-[#0B2545] cursor-pointer ${ringIfSelected(
                               "TU_HOC"
                             )}`}
                           >
@@ -1675,20 +1611,20 @@ export const VipHub: React.FC<VipHubProps> = ({
                           </button>
                         </>
                       ) : (
-                        <span className="text-[10px] font-bold text-slate-500">
+                        <span className="text-tiny font-bold text-slate-500">
                           Vòm Tự học
                         </span>
                       )}
                     </div>
 
-                    {/* DÃY DỌC TÒA B (2 Cols) */}
+                    {/* DÃY DỌC TÒA B */}
                     <div className="col-span-2 flex flex-col border border-slate-400 rounded overflow-hidden bg-[#D5D5D2]">
                       {selectedFloor === "B1-L1" && (
                         <>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B.02")}
-                            className={`py-1 bg-[#E99695] border-b border-slate-400 text-[9px] font-bold text-slate-900 cursor-pointer ${ringIfSelected(
+                            className={`py-1 bg-[#E99695] border-b border-slate-400 text-tiny font-bold text-slate-900 cursor-pointer ${ringIfSelected(
                               "B.02"
                             )}`}
                           >
@@ -1697,7 +1633,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B.01")}
-                            className={`py-1 bg-[#F4C430] border-b border-slate-400 text-[9px] font-bold text-slate-900 cursor-pointer ${ringIfSelected(
+                            className={`py-1 bg-[#F4C430] border-b border-slate-400 text-tiny font-bold text-slate-900 cursor-pointer ${ringIfSelected(
                               "B.01"
                             )}`}
                           >
@@ -1706,7 +1642,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B.04")}
-                            className={`py-1 bg-[#F4C430] border-b border-slate-400 text-[9px] font-bold text-slate-900 cursor-pointer ${ringIfSelected(
+                            className={`py-1 bg-[#F4C430] border-b border-slate-400 text-tiny font-bold text-slate-900 cursor-pointer ${ringIfSelected(
                               "B.04"
                             )}`}
                           >
@@ -1715,7 +1651,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B.07")}
-                            className={`py-1 bg-[#2A8B8B] border-b border-slate-400 text-[9px] font-bold text-white cursor-pointer ${ringIfSelected(
+                            className={`py-1 bg-[#0B2545] border-b border-slate-400 text-tiny font-bold text-white cursor-pointer ${ringIfSelected(
                               "B.07"
                             )}`}
                           >
@@ -1724,7 +1660,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B.08")}
-                            className={`py-1 bg-[#F4C430] border-b border-slate-400 text-[9px] font-bold text-slate-900 cursor-pointer ${ringIfSelected(
+                            className={`py-1 bg-[#F4C430] border-b border-slate-400 text-tiny font-bold text-slate-900 cursor-pointer ${ringIfSelected(
                               "B.08"
                             )}`}
                           >
@@ -1733,7 +1669,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B11")}
-                            className={`py-1.5 bg-[#E99695] text-[10px] font-black text-slate-900 cursor-pointer ${ringIfSelected(
+                            className={`py-1.5 bg-[#E99695] text-tiny font-bold text-slate-900 cursor-pointer ${ringIfSelected(
                               "B11"
                             )}`}
                           >
@@ -1743,7 +1679,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                       )}
 
                       {selectedFloor === "L2" && (
-                        <div className="flex-1 flex items-center justify-center text-[10px] font-bold text-slate-500 p-2 text-center">
+                        <div className="flex-1 flex items-center justify-center text-tiny font-bold text-slate-500 p-2 text-center">
                           Tòa B (Để trống)
                         </div>
                       )}
@@ -1753,7 +1689,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B37-43")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "B37-43"
                             )}`}
                           >
@@ -1762,7 +1698,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B37-43")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "B37-43"
                             )}`}
                           >
@@ -1774,13 +1710,13 @@ export const VipHub: React.FC<VipHubProps> = ({
 
                       {(selectedFloor === "L4" || selectedFloor === "L5-L11") && (
                         <>
-                          <div className="py-1 bg-[#C8234B] text-white text-center font-black text-xs border-b border-white/30">
+                          <div className="py-1 bg-[#D95326] text-white text-center font-bold text-tiny border-b border-white/30">
                             B
                           </div>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B42-44")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "B42-44"
                             )}`}
                           >
@@ -1789,7 +1725,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("B42-44")}
-                            className={`flex-1 bg-[#C8234B] text-white font-bold text-xs flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "B42-44"
                             )}`}
                           >
@@ -1799,7 +1735,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                       )}
                     </div>
 
-                    {/* SÂN CỘT CỜ (Giữa B & A - 1 Col) */}
+                    {/* SÂN CỘT CỜ */}
                     <button
                       type="button"
                       onClick={() => setSelectedRoomKey("SAN_CO")}
@@ -1807,48 +1743,48 @@ export const VipHub: React.FC<VipHubProps> = ({
                         "SAN_CO"
                       )}`}
                     >
-                      <span className="text-[10px] font-black text-slate-900 leading-tight">
+                      <span className="text-tiny font-bold text-slate-900 leading-tight">
                         Sân cờ
                       </span>
-                      <span className="text-sm my-1">🚩</span>
+                      <span className="text-small my-1">🚩</span>
                     </button>
 
-                    {/* DÃY DỌC TÒA A (1.5 Cols -> 1 Col) */}
+                    {/* DÃY DỌC TÒA A */}
                     <div className="col-span-1 flex flex-col border border-slate-400 rounded overflow-hidden bg-[#D5D5D2]">
                       {selectedFloor === "B1-L1" ? (
                         <>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("A.02")}
-                            className={`flex-1 bg-[#E99695] border-b border-slate-400 font-bold text-[10px] text-slate-900 flex flex-col items-center justify-center p-0.5 cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#E99695] border-b border-slate-400 font-bold text-tiny text-slate-900 flex flex-col items-center justify-center p-0.5 cursor-pointer ${ringIfSelected(
                               "A.02"
                             )}`}
                           >
                             <span>A.02</span>
-                            <span className="text-[8px]">CTSV</span>
+                            <span className="text-tiny">CTSV</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("A.04")}
-                            className={`flex-1 bg-[#2A8B8B] font-bold text-[10px] text-white flex flex-col items-center justify-center p-0.5 cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#0B2545] font-bold text-tiny text-white flex flex-col items-center justify-center p-0.5 cursor-pointer ${ringIfSelected(
                               "A.04"
                             )}`}
                           >
                             <span>A.04</span>
-                            <span className="text-[8px]">QTTB</span>
+                            <span className="text-tiny">QTTB</span>
                           </button>
                         </>
                       ) : (
-                        <div className="flex-1 flex items-center justify-center font-black text-xs text-slate-500">
+                        <div className="flex-1 flex items-center justify-center font-bold text-tiny text-slate-500">
                           A
                         </div>
                       )}
                     </div>
 
-                    {/* DÃY DỌC TÒA E (2 Cols) */}
+                    {/* DÃY DỌC TÒA E */}
                     <div className="col-span-2 flex flex-col border border-slate-400 rounded overflow-hidden bg-[#D5D5D2]">
                       {selectedFloor === "B1-L1" && (
-                        <div className="flex-1 bg-[#B8D0EB] flex flex-col items-center justify-center p-1.5 text-center font-black text-xs text-slate-900">
+                        <div className="flex-1 bg-[#B8D0EB] flex flex-col items-center justify-center p-1.5 text-center font-bold text-tiny text-slate-900">
                           <span>TÒA E</span>
                         </div>
                       )}
@@ -1859,12 +1795,12 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("E204")}
-                            className={`py-3 bg-[#D94362] text-white border-b border-white/40 font-bold text-[10px] flex flex-col items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`py-3 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex flex-col items-center justify-center cursor-pointer ${ringIfSelected(
                               "E204"
                             )}`}
                           >
                             <span>E204</span>
-                            <span className="text-[8px]">VL Chất rắn</span>
+                            <span className="text-tiny">VL Chất rắn</span>
                           </button>
                           <div className="flex-1 bg-[#D5D5D2]" />
                         </>
@@ -1875,7 +1811,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("E301-303B")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-[11px] flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "E301-303B"
                             )}`}
                           >
@@ -1884,7 +1820,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("E301-303B")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-[11px] flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "E301-303B"
                             )}`}
                           >
@@ -1893,7 +1829,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("E301-303B")}
-                            className={`flex-1 bg-[#C8234B] text-white border-b border-white/40 font-bold text-[10px] flex items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#D95326] text-white border-b border-white/40 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                               "E301-303B"
                             )}`}
                           >
@@ -1902,12 +1838,12 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("E303")}
-                            className={`flex-1 bg-[#F4C430] text-slate-900 font-bold text-[10px] flex flex-col items-center justify-center cursor-pointer ${ringIfSelected(
+                            className={`flex-1 bg-[#F4C430] text-slate-900 font-bold text-tiny flex flex-col items-center justify-center cursor-pointer ${ringIfSelected(
                               "E303"
                             )}`}
                           >
                             <span>E303</span>
-                            <span className="text-[8px]">BM VL Điện tử</span>
+                            <span className="text-tiny">BM VL Điện tử</span>
                           </button>
                         </>
                       )}
@@ -1919,7 +1855,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                               key={code}
                               type="button"
                               onClick={() => setSelectedRoomKey("E401-404")}
-                              className={`flex-1 bg-[#2E7D8B] text-white border-b border-white/30 font-bold text-[11px] flex items-center justify-center cursor-pointer ${ringIfSelected(
+                              className={`flex-1 bg-[#0B2545] text-white border-b border-white/30 font-bold text-tiny flex items-center justify-center cursor-pointer ${ringIfSelected(
                                 "E401-404"
                               )}`}
                             >
@@ -1931,14 +1867,13 @@ export const VipHub: React.FC<VipHubProps> = ({
                     </div>
                   </div>
 
-                  {/* ROW 3: PHÍA NAM (TÒA I — CỔNG CHÍNH — GĐ 1 & TT TIN HỌC / CHI TIẾT L5-11) */}
+                  {/* ROW 3: PHÍA NAM */}
                   <div className="grid grid-cols-12 gap-2 items-stretch">
-                    {/* Leftmost Perimeter Strip */}
                     <div className="col-span-2 flex flex-col justify-between">
                       <div className="h-20 rounded bg-[#D5D5D2] border border-slate-400" />
                     </div>
 
-                    {/* TÒA I BLOCK (4 Cols - Góc Tây Nam) */}
+                    {/* TÒA I BLOCK */}
                     <div className="col-span-4 flex flex-col gap-1">
                       {selectedFloor === "B1-L1" && (
                         <>
@@ -1950,22 +1885,22 @@ export const VipHub: React.FC<VipHubProps> = ({
                             )}`}
                           >
                             <div className="text-left">
-                              <div className="font-black text-xs">TÒA I</div>
-                              <div className="text-[10px] font-bold">
+                              <div className="font-bold text-tiny">TÒA I</div>
+                              <div className="text-tiny font-bold">
                                 Hội trường I
                               </div>
-                              <div className="text-[10px] font-bold mt-1">
+                              <div className="text-tiny font-bold mt-1">
                                 Phòng Hội nghị I
                               </div>
                             </div>
-                            <span className="px-1.5 py-1 rounded bg-slate-900 text-white text-xs">
+                            <span className="px-1.5 py-1 rounded bg-slate-900 text-white text-tiny">
                               🛗
                             </span>
                           </button>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("HAM_B1_I")}
-                            className={`py-1 px-2 rounded bg-[#2A8B8B] text-white font-bold text-[10px] text-center cursor-pointer ${ringIfSelected(
+                            className={`py-1 px-2 rounded bg-[#0B2545] text-white font-bold text-tiny text-center cursor-pointer ${ringIfSelected(
                               "HAM_B1_I"
                             )}`}
                           >
@@ -1977,7 +1912,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                       {selectedFloor === "L2" && (
                         <div className="flex-1 rounded border border-slate-400 bg-[#D5D5D2] p-2 grid grid-cols-3 gap-1.5 items-center">
                           <div className="col-span-2 flex items-center justify-center">
-                            <span className="p-1.5 rounded bg-slate-900 text-white text-xs">
+                            <span className="p-1.5 rounded bg-slate-900 text-white text-tiny">
                               🛗
                             </span>
                           </div>
@@ -1985,7 +1920,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("I23-24")}
-                              className={`py-2 rounded bg-[#D94362] text-white font-bold text-xs cursor-pointer ${ringIfSelected(
+                              className={`py-2 rounded bg-[#D95326] text-white font-bold text-tiny cursor-pointer ${ringIfSelected(
                                 "I23-24"
                               )}`}
                             >
@@ -1994,7 +1929,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("I23-24")}
-                              className={`py-2 rounded bg-[#D94362] text-white font-bold text-xs cursor-pointer ${ringIfSelected(
+                              className={`py-2 rounded bg-[#D95326] text-white font-bold text-tiny cursor-pointer ${ringIfSelected(
                                 "I23-24"
                               )}`}
                             >
@@ -2008,16 +1943,16 @@ export const VipHub: React.FC<VipHubProps> = ({
                         <button
                           type="button"
                           onClick={() => setSelectedRoomKey("I32-34")}
-                          className={`flex-1 rounded border border-teal-800 bg-[#2A8B8B] p-2.5 text-white grid grid-cols-3 gap-1 items-center cursor-pointer ${ringIfSelected(
+                          className={`flex-1 rounded border border-[#0B2545] bg-[#0B2545] p-2.5 text-white grid grid-cols-3 gap-1 items-center cursor-pointer ${ringIfSelected(
                             "I32-34"
                           )}`}
                         >
-                          <span className="font-bold text-xs">I32</span>
-                          <span className="p-1 rounded bg-slate-900 text-white text-xs mx-auto">
+                          <span className="font-bold text-tiny">I32</span>
+                          <span className="p-1 rounded bg-slate-900 text-white text-tiny mx-auto">
                             🛗
                           </span>
-                          <span className="font-bold text-xs">I33</span>
-                          <span className="col-span-3 font-bold text-xs pt-1 border-t border-white/25 text-center">
+                          <span className="font-bold text-tiny">I33</span>
+                          <span className="col-span-3 font-bold text-tiny pt-1 border-t border-white/25 text-center">
                             I34
                           </span>
                         </button>
@@ -2027,67 +1962,65 @@ export const VipHub: React.FC<VipHubProps> = ({
                         <button
                           type="button"
                           onClick={() => setSelectedRoomKey("I42-44")}
-                          className={`flex-1 rounded border border-teal-800 bg-[#2A8B8B] p-2.5 text-white grid grid-cols-2 gap-1.5 items-center cursor-pointer ${ringIfSelected(
+                          className={`flex-1 rounded border border-[#0B2545] bg-[#0B2545] p-2.5 text-white grid grid-cols-2 gap-1.5 items-center cursor-pointer ${ringIfSelected(
                             "I42-44"
                           )}`}
                         >
-                          <div className="col-span-2 text-center font-black text-[11px] border-b border-white/25 pb-1">
+                          <div className="col-span-2 text-center font-bold text-tiny border-b border-white/25 pb-1">
                             TẦNG L4 (TÒA I)
                           </div>
-                          <span className="font-bold text-xs">I42</span>
-                          <span className="font-bold text-xs">I43 🛗</span>
-                          <span className="col-span-2 font-bold text-xs pt-1 border-t border-white/25">
+                          <span className="font-bold text-tiny">I42</span>
+                          <span className="font-bold text-tiny">I43 🛗</span>
+                          <span className="col-span-2 font-bold text-tiny pt-1 border-t border-white/25">
                             I44
                           </span>
                         </button>
                       )}
                     </div>
 
-                    {/* RIGHT 6 COLS OF SOUTH ROW: Either GĐ 1 + Hầm E OR Inset CHI TIẾT TÒA I (L5-L11) */}
+                    {/* RIGHT 6 COLS OF SOUTH ROW */}
                     {selectedFloor !== "L5-L11" ? (
                       <>
-                        {/* GĐ 1 & Văn phòng thông tin (4 Cols) */}
                         <div className="col-span-4 flex flex-col justify-end">
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("GD1")}
                             className={`rounded border p-2 text-center transition cursor-pointer ${
                               selectedFloor === "B1-L1"
-                                ? "bg-[#F4C430] border-amber-600 text-slate-900"
+                                ? "bg-[#F4C430] border-slate-500 text-slate-900"
                                 : "bg-[#C8C8C5] border-slate-400 text-slate-700"
                             } ${ringIfSelected("GD1")}`}
                           >
-                            <div className="font-black text-xs">GĐ 1</div>
+                            <div className="font-bold text-tiny">GĐ 1</div>
                             {selectedFloor === "B1-L1" && (
-                              <div className="text-[10px] font-bold mt-0.5 border-t border-slate-900/20 pt-0.5">
+                              <div className="text-tiny font-bold mt-0.5 border-t border-slate-900/20 pt-0.5">
                                 Văn phòng thông tin
                               </div>
                             )}
                           </button>
                         </div>
 
-                        {/* Tòa E Hầm xe SV & Trung tâm Tin học (2 Cols) */}
                         <div className="col-span-2 flex flex-col gap-1 justify-end">
                           {selectedFloor === "B1-L1" && (
                             <>
                               <button
                                 type="button"
                                 onClick={() => setSelectedRoomKey("HAM_B1_E")}
-                                className={`rounded border border-sky-700 bg-[#9BC2E6] p-1.5 text-slate-900 text-center cursor-pointer ${ringIfSelected(
+                                className={`rounded border border-slate-500 bg-[#9BC2E6] p-1.5 text-slate-900 text-center cursor-pointer ${ringIfSelected(
                                   "HAM_B1_E"
                                 )}`}
                               >
-                                <div className="font-black text-[10px]">
+                                <div className="font-bold text-tiny">
                                   TÒA E
                                 </div>
-                                <div className="text-[9px] font-bold leading-tight">
-                                  Hầm xe SV B1 🏍️
+                                <div className="text-tiny font-bold leading-tight">
+                                  Hầm xe SV B1
                                 </div>
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setSelectedRoomKey("TTTH")}
-                                className={`rounded border border-amber-600 bg-[#F4C430] p-1.5 text-slate-900 font-bold text-[10px] text-center cursor-pointer ${ringIfSelected(
+                                className={`rounded border border-slate-500 bg-[#F4C430] p-1.5 text-slate-900 font-bold text-tiny text-center cursor-pointer ${ringIfSelected(
                                   "TTTH"
                                 )}`}
                               >
@@ -2098,16 +2031,16 @@ export const VipHub: React.FC<VipHubProps> = ({
                         </div>
                       </>
                     ) : (
-                      /* INSET BOX: CHI TIẾT TÒA I (TẦNG L5 - L11) EXACTLY LIKE FIGURE 4 IN PDF */
-                      <div className="col-span-6 rounded-xl border-2 border-slate-700 bg-white dark:bg-slate-900 p-2 space-y-1">
-                        <div className="grid grid-cols-12 gap-1 items-center text-[10px] font-bold">
-                          <span className="col-span-3 text-slate-700 dark:text-slate-300">
+                      /* INSET BOX: CHI TIẾT TÒA I (TẦNG L5 - L11) */
+                      <div className="col-span-6 rounded-xl border-2 border-[#0B2545] bg-white dark:bg-[#0E1624] p-2 space-y-1">
+                        <div className="grid grid-cols-12 gap-1 items-center text-tiny font-bold">
+                          <span className="col-span-3 text-[#0B2545] dark:text-[#F6F2E8]">
                             Tầng L11
                           </span>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("L11-I")}
-                            className={`col-span-9 py-1 rounded bg-[#2A8B8B] text-white text-center cursor-pointer ${ringIfSelected(
+                            className={`col-span-9 py-1 rounded bg-[#0B2545] text-white text-center cursor-pointer ${ringIfSelected(
                               "L11-I"
                             )}`}
                           >
@@ -2115,14 +2048,14 @@ export const VipHub: React.FC<VipHubProps> = ({
                           </button>
                         </div>
 
-                        <div className="grid grid-cols-12 gap-1 items-center text-[10px] font-bold">
-                          <span className="col-span-3 text-slate-700 dark:text-slate-300">
+                        <div className="grid grid-cols-12 gap-1 items-center text-tiny font-bold">
+                          <span className="col-span-3 text-[#0B2545] dark:text-[#F6F2E8]">
                             Tầng L9-10
                           </span>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("L9-10-I")}
-                            className={`col-span-9 py-1.5 rounded bg-[#2A8B8B] text-white text-center cursor-pointer ${ringIfSelected(
+                            className={`col-span-9 py-1.5 rounded bg-[#0B2545] text-white text-center cursor-pointer ${ringIfSelected(
                               "L9-10-I"
                             )}`}
                           >
@@ -2130,14 +2063,14 @@ export const VipHub: React.FC<VipHubProps> = ({
                           </button>
                         </div>
 
-                        <div className="grid grid-cols-12 gap-1 items-center text-[10px] font-bold">
-                          <span className="col-span-3 text-slate-700 dark:text-slate-300">
+                        <div className="grid grid-cols-12 gap-1 items-center text-tiny font-bold">
+                          <span className="col-span-3 text-[#0B2545] dark:text-[#F6F2E8]">
                             Tầng L7
                           </span>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("L7-I")}
-                            className={`col-span-9 py-1 rounded bg-[#2A8B8B] text-white text-center cursor-pointer ${ringIfSelected(
+                            className={`col-span-9 py-1 rounded bg-[#0B2545] text-white text-center cursor-pointer ${ringIfSelected(
                               "L7-I"
                             )}`}
                           >
@@ -2145,14 +2078,14 @@ export const VipHub: React.FC<VipHubProps> = ({
                           </button>
                         </div>
 
-                        <div className="grid grid-cols-12 gap-1 items-center text-[10px] font-bold">
-                          <span className="col-span-3 text-slate-700 dark:text-slate-300">
+                        <div className="grid grid-cols-12 gap-1 items-center text-tiny font-bold">
+                          <span className="col-span-3 text-[#0B2545] dark:text-[#F6F2E8]">
                             Tầng L6
                           </span>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("L6-I")}
-                            className={`col-span-9 py-1 rounded bg-[#2A8B8B] text-white text-center cursor-pointer ${ringIfSelected(
+                            className={`col-span-9 py-1 rounded bg-[#0B2545] text-white text-center cursor-pointer ${ringIfSelected(
                               "L6-I"
                             )}`}
                           >
@@ -2160,14 +2093,14 @@ export const VipHub: React.FC<VipHubProps> = ({
                           </button>
                         </div>
 
-                        <div className="grid grid-cols-12 gap-1 items-center text-[10px] font-bold">
-                          <span className="col-span-3 text-slate-700 dark:text-slate-300">
+                        <div className="grid grid-cols-12 gap-1 items-center text-tiny font-bold">
+                          <span className="col-span-3 text-[#0B2545] dark:text-[#F6F2E8]">
                             Tầng L5
                           </span>
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("L5-I")}
-                            className={`col-span-9 py-1 rounded bg-[#2A8B8B] text-white text-center cursor-pointer ${ringIfSelected(
+                            className={`col-span-9 py-1 rounded bg-[#0B2545] text-white text-center cursor-pointer ${ringIfSelected(
                               "L5-I"
                             )}`}
                           >
@@ -2175,46 +2108,45 @@ export const VipHub: React.FC<VipHubProps> = ({
                           </button>
                         </div>
 
-                        <div className="text-center font-black text-[10px] text-slate-800 dark:text-slate-200 pt-0.5">
+                        <div className="text-center font-bold text-tiny text-[#0B2545] dark:text-[#F6F2E8] pt-0.5">
                           CHI TIẾT TÒA I (TẦNG L5 – L11)
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* BOTTOM ROAD BAR: CỔNG CHÍNH & ĐƯỜNG NGUYỄN VĂN CỪ */}
+                  {/* BOTTOM ROAD BAR */}
                   <div className="pt-1">
                     <div className="flex items-center justify-center mb-1">
-                      <span className="px-3 py-0.5 rounded bg-white border border-slate-400 font-black text-[10px] text-slate-900 shadow-2xs">
+                      <span className="px-3 py-0.5 rounded bg-white border border-slate-400 font-bold text-tiny text-slate-900">
                         CỔNG CHÍNH
                       </span>
                     </div>
-                    <div className="h-6 rounded bg-[#6E6E6E] text-white text-[11px] font-bold flex items-center justify-center tracking-wide">
+                    <div className="h-6 rounded bg-[#0B2545] text-white text-tiny font-bold flex items-center justify-center tracking-wide">
                       Đường Nguyễn Văn Cừ (Cơ sở 1: 227 Nguyễn Văn Cừ, Q.5)
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* ================= RIGHT 4 COLS: CATEGORIZED LEGEND & SELECTED ROOM DETAIL ================= */}
+              {/* RIGHT 4 COLS: CATEGORIZED LEGEND & SELECTED ROOM DETAIL */}
               <div className="lg:col-span-4 flex flex-col justify-between space-y-4">
-                {/* 1. Categorized Mall-Style Directory Box (Matches Right Side of PDF Figures) */}
-                <div className="space-y-3 text-xs">
-                  {/* Category Pill 1: Red */}
+                <div className="space-y-3 text-tiny">
+                  {/* Category Pill 1 */}
                   <div>
-                    <div className="rounded-full bg-[#C81E32] text-white font-black text-[11px] py-1 px-3 text-center uppercase tracking-wide shadow-2xs">
+                    <div className="rounded-full bg-[#D95326] text-white font-bold text-tiny py-1 px-3 text-center uppercase tracking-wide">
                       {selectedFloor === "B1-L1"
                         ? "PHÒNG BAN & KHOA"
                         : "PHÒNG HỌC & PTN"}
                     </div>
-                    <ul className="mt-1.5 space-y-1 pl-1 text-[11px] font-bold text-slate-800 dark:text-slate-200">
+                    <ul className="mt-1.5 space-y-1 pl-1 text-tiny font-bold text-[#0B2545] dark:text-[#F6F2E8]">
                       {selectedFloor === "B1-L1" && (
                         <>
                           <li>
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("F.05")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + F.05: VPK Sinh học · F.02: P. TTTT
                             </button>
@@ -2223,7 +2155,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("B.01")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + B.01: P. Kế hoạch - Tài chính &amp; Y tế
                             </button>
@@ -2232,7 +2164,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("B.02")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + B.02: P. Đào tạo · B.04: P. Khảo thí
                             </button>
@@ -2241,7 +2173,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("B.07")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + B.07: P. KHCN · B.08: P. Sau đại học
                             </button>
@@ -2250,7 +2182,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("A.02")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + A.02: P. Công tác SV · A.04: P. Quản trị TB
                             </button>
@@ -2264,7 +2196,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("F202-206")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + F202, F203, F205, F206, F.102, F.113 (Tòa F)
                             </button>
@@ -2273,7 +2205,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("C21")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + C21 PTN Ngọc học, C22, C23 (Tòa C)
                             </button>
@@ -2282,7 +2214,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("E204")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + E204 BM Vật lý Chất rắn (Tòa E)
                             </button>
@@ -2291,7 +2223,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("I23-24")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + I23, I24 (Tòa I)
                             </button>
@@ -2305,7 +2237,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("F301-304")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + F301, F303, F304, F305 (Tòa F)
                             </button>
@@ -2314,7 +2246,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("C31-33")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + C31, C32, C33 (Tòa C) · B37, B43 (Tòa B)
                             </button>
@@ -2323,7 +2255,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("E301-303B")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + E301, E302, E303B (Tòa E)
                             </button>
@@ -2337,7 +2269,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("C41-43")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + C41, C43 (Tòa C) · B42, B44 (Tòa B)
                             </button>
@@ -2346,7 +2278,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("E401-404")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + E401, E402, E403, E404 (Tòa E)
                             </button>
@@ -2355,7 +2287,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("I42-44")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + I42, I43, I44 (Tòa I - Tầng L4)
                             </button>
@@ -2365,23 +2297,23 @@ export const VipHub: React.FC<VipHubProps> = ({
                     </ul>
                   </div>
 
-                  {/* Category Pill 2: Yellow/Gold */}
+                  {/* Category Pill 2 */}
                   <div>
-                    <div className="rounded-full bg-[#F4C430] text-slate-900 font-black text-[11px] py-1 px-3 text-center uppercase tracking-wide shadow-2xs">
+                    <div className="rounded-full bg-[#EFEAE0] border border-[#0B2545]/15 text-[#0B2545] font-bold text-tiny py-1 px-3 text-center uppercase tracking-wide">
                       {selectedFloor === "B1-L1"
                         ? "GIẢNG ĐƯỜNG & HỌC TẬP"
                         : selectedFloor === "L4" || selectedFloor === "L5-L11"
                         ? "TÒA I - TẦNG L5–L7"
                         : "VĂN PHÒNG & BỘ MÔN"}
                     </div>
-                    <ul className="mt-1.5 space-y-1 pl-1 text-[11px] font-bold text-slate-800 dark:text-slate-200">
+                    <ul className="mt-1.5 space-y-1 pl-1 text-tiny font-bold text-[#0B2545] dark:text-[#F6F2E8]">
                       {selectedFloor === "B1-L1" && (
                         <>
                           <li>
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("HOI_TRUONG_I")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + I: Hội trường I &amp; Phòng Hội nghị I
                             </button>
@@ -2390,7 +2322,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("GD1")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + GĐ 1 &amp; GĐ 2 · C01, C11, C12 · B11
                             </button>
@@ -2399,7 +2331,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("TTTH")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + TT: Trung tâm Tin học &amp; VP Thông tin
                             </button>
@@ -2413,7 +2345,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("F.101-105")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + F.101–105 P. QHĐN (Tòa F)
                             </button>
@@ -2422,7 +2354,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("F.106A")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + F.106A Tham vấn tâm lý · F.107 Thanh tra
                             </button>
@@ -2431,7 +2363,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("C12A")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + C12A VPK Địa chất (Tòa C)
                             </button>
@@ -2444,7 +2376,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("E303")}
-                            className="hover:text-[#C81E32] cursor-pointer text-left"
+                            className="hover:text-[#D95326] cursor-pointer text-left"
                           >
                             + E303 Bộ môn Vật lý Điện tử (Tòa E)
                           </button>
@@ -2457,7 +2389,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("L5-I")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + Tầng L5: I52, I.53 VPK CNTT, I59B VPK Hóa
                             </button>
@@ -2466,7 +2398,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("L6-I")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + Tầng L6: I61, I62, BM THCS
                             </button>
@@ -2475,7 +2407,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("L7-I")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + Tầng L7: I71, I72, BM MMT
                             </button>
@@ -2485,23 +2417,23 @@ export const VipHub: React.FC<VipHubProps> = ({
                     </ul>
                   </div>
 
-                  {/* Category Pill 3: Teal */}
+                  {/* Category Pill 3 */}
                   <div>
-                    <div className="rounded-full bg-[#2A8B8B] text-white font-black text-[11px] py-1 px-3 text-center uppercase tracking-wide shadow-2xs">
+                    <div className="rounded-full bg-[#0B2545] text-white font-bold text-tiny py-1 px-3 text-center uppercase tracking-wide">
                       {selectedFloor === "B1-L1"
                         ? "HẦM GỬI XE B1 & DỊCH VỤ"
                         : selectedFloor === "L4" || selectedFloor === "L5-L11"
                         ? "TÒA I - TẦNG CAO L9–L11"
                         : "KHU CÔNG NGHỆ & DỊCH VỤ"}
                     </div>
-                    <ul className="mt-1.5 space-y-1 pl-1 text-[11px] font-bold text-slate-800 dark:text-slate-200">
+                    <ul className="mt-1.5 space-y-1 pl-1 text-tiny font-bold text-[#0B2545] dark:text-[#F6F2E8]">
                       {selectedFloor === "B1-L1" && (
                         <>
                           <li>
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("HAM_B1_E")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + E: Hầm xe sinh viên B1 (Cổng phụ phải)
                             </button>
@@ -2510,7 +2442,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("HAM_B1_I")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + I: Hầm xe nhân viên B1 &amp; Thang máy Tòa I
                             </button>
@@ -2527,7 +2459,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedRoomKey("I32-34")}
-                            className="hover:text-[#C81E32] cursor-pointer text-left"
+                            className="hover:text-[#D95326] cursor-pointer text-left"
                           >
                             + I32, I33, I34 · Cụm Thang máy Tòa I
                           </button>
@@ -2540,7 +2472,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("L9-10-I")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + Tầng L9–10: Thư viện Trung tâm
                             </button>
@@ -2549,7 +2481,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                             <button
                               type="button"
                               onClick={() => setSelectedRoomKey("L11-I")}
-                              className="hover:text-[#C81E32] cursor-pointer text-left"
+                              className="hover:text-[#D95326] cursor-pointer text-left"
                             >
                               + Tầng L11: Phòng chuyên đề I11
                             </button>
@@ -2560,21 +2492,21 @@ export const VipHub: React.FC<VipHubProps> = ({
                   </div>
                 </div>
 
-                {/* 2. Active Selected Room Info Box */}
-                <div className="rounded-2xl border border-[#E5DEC9] bg-[#F3EFE6] dark:border-slate-700 dark:bg-slate-800 p-3.5 space-y-1.5">
+                {/* Active Selected Room Info Box */}
+                <div className="rounded-2xl border border-[#0B2545]/12 bg-[#F6F2E8] dark:border-white/10 dark:bg-[#152238] p-3.5 space-y-1.5">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1 font-mono text-[11px] font-extrabold text-[#C81E32] dark:text-amber-400">
+                    <span className="inline-flex items-center gap-1 text-tiny font-bold text-[#D95326]">
                       <Navigation className="w-3 h-3" />
                       Đang chọn: {activeRoomDetail.code}
                     </span>
-                    <span className="px-2 py-0.5 rounded bg-white dark:bg-slate-900 font-mono text-[10px] font-bold text-[#0B2545] dark:text-slate-200">
+                    <span className="px-2 py-0.5 rounded bg-white dark:bg-[#0E1624] text-tiny font-bold text-[#0B2545] dark:text-[#F6F2E8]">
                       {activeRoomDetail.building}
                     </span>
                   </div>
-                  <p className="text-xs font-extrabold text-[#0B2545] dark:text-white leading-snug">
+                  <p className="text-small font-bold text-[#0B2545] dark:text-[#F6F2E8] leading-snug">
                     {activeRoomDetail.title}
                   </p>
-                  <p className="text-[11px] text-[#4A5568] dark:text-slate-300 leading-relaxed">
+                  <p className="text-tiny text-[#0B2545]/75 dark:text-[#F6F2E8]/75 leading-relaxed">
                     {activeRoomDetail.desc}
                   </p>
                 </div>
@@ -2584,21 +2516,21 @@ export const VipHub: React.FC<VipHubProps> = ({
         </section>
       )}
 
-      {/* ================= 4. MODULE 2: AI ASSISTANT WORKSPACE ================= */}
+      {/* 4. MODULE 2: AI ASSISTANT WORKSPACE */}
       {(activeModule === "all" || activeModule === "ai-assistant") && (
         <section className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-12">
-          <div className="flex flex-col justify-between rounded-3xl border border-[#E6E0D5] bg-white p-4 sm:p-6 dark:border-slate-700/80 dark:bg-slate-800/95 lg:col-span-4 shadow-2xs min-w-0">
+          <div className="flex flex-col justify-between rounded-3xl border border-[#0B2545]/12 bg-white p-4 sm:p-6 dark:border-white/10 dark:bg-[#152238] lg:col-span-4 min-w-0">
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-2xl bg-[#0B2545] text-white shadow-xs">
-                    <Bot className="h-5 w-5 text-amber-300" />
+                  <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-2xl bg-[#0B2545] text-white">
+                    <Bot className="h-5 w-5 text-[#D95326]" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-sm font-extrabold text-[#0B2545] dark:text-white truncate">
+                    <h3 className="text-small font-bold text-[#0B2545] dark:text-[#F6F2E8] truncate">
                       Trợ Lý AI FORUS (Gemini)
                     </h3>
-                    <p className="text-xs text-[#D95326] dark:text-amber-400 font-bold truncate">
+                    <p className="text-tiny text-[#D95326] font-bold truncate">
                       Học vụ · Công thức LaTeX · Tiện ích CS1
                     </p>
                   </div>
@@ -2607,13 +2539,13 @@ export const VipHub: React.FC<VipHubProps> = ({
                   type="button"
                   onClick={handleResetChat}
                   title="Làm mới đoạn chat"
-                  className="p-2 rounded-xl border border-[#E5E0D5] dark:border-slate-700 text-[#64748B] hover:text-[#D95326] dark:text-slate-300 transition shrink-0 cursor-pointer"
+                  className="p-2 rounded-xl border border-[#0B2545]/12 dark:border-white/10 text-[#0B2545]/60 hover:text-[#D95326] dark:text-[#F6F2E8]/60 transition shrink-0 cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
 
-              <p className="text-xs text-[#4A5568] dark:text-slate-300 leading-relaxed">
+              <p className="text-tiny text-[#0B2545]/75 dark:text-[#F6F2E8]/75 leading-relaxed">
                 Chọn nhanh một câu hỏi mẫu dưới đây hoặc nhập bất kỳ bài toán, câu hỏi lập trình, đời sống hay tiện ích nào tại ĐH KHTN:
               </p>
 
@@ -2629,7 +2561,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                     type="button"
                     onClick={() => handleSendChat(sample)}
                     disabled={isSending || isAiLimitReached}
-                    className="w-full rounded-2xl border border-[#E5DEC9] bg-[#FAF8F5] p-3 text-left text-xs font-semibold text-[#0B2545] transition hover:border-[#0B2545] hover:bg-[#F3EFE6] disabled:opacity-50 dark:border-slate-700 dark:bg-slate-700/70 dark:text-slate-200 cursor-pointer break-words"
+                    className="w-full rounded-2xl border border-[#0B2545]/12 bg-[#F6F2E8] p-3 text-left text-tiny font-bold text-[#0B2545] transition hover:border-[#0B2545] hover:bg-[#EFEAE0] disabled:opacity-50 dark:border-white/10 dark:bg-[#0E1624] dark:text-[#F6F2E8] cursor-pointer break-words"
                   >
                     “{sample}”
                   </button>
@@ -2637,19 +2569,19 @@ export const VipHub: React.FC<VipHubProps> = ({
               </div>
             </div>
 
-            <div className="mt-5 space-y-2 rounded-2xl bg-[#F3EFE6] dark:bg-slate-900 p-3.5 text-[11px] text-[#0B2545] dark:text-slate-200 font-medium">
-              <div className="flex flex-wrap items-center justify-between gap-1 font-mono font-bold">
+            <div className="mt-5 space-y-2 rounded-2xl bg-[#F6F2E8] dark:bg-[#0E1624] p-3.5 text-tiny text-[#0B2545] dark:text-[#F6F2E8]">
+              <div className="flex flex-wrap items-center justify-between gap-1 font-bold">
                 <span>Lượt hỏi AI hiện tại:</span>
                 {isVipUnlocked ? (
-                  <span className="text-emerald-600 dark:text-emerald-400">
+                  <span className="text-green-600 dark:text-green-400">
                     Không giới hạn (∞)
                   </span>
                 ) : (
                   <span
                     className={
                       isAiLimitReached
-                        ? "text-rose-600 dark:text-rose-400"
-                        : "text-[#D95326] dark:text-amber-400"
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-[#D95326]"
                     }
                   >
                     Đã dùng {aiQuestionsUsed}/{maxFreeAiQuestions} câu (Còn{" "}
@@ -2657,29 +2589,29 @@ export const VipHub: React.FC<VipHubProps> = ({
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-[#4A5568] dark:text-slate-300 break-words">
+              <p className="text-tiny text-[#0B2545]/75 dark:text-[#F6F2E8]/75 break-words">
                 {isVipUnlocked
-                  ? "👑 Tài khoản đã đạt mốc ≥ 100 điểm: Bạn được hỏi Trợ lý AI FORUS không giới hạn."
-                  : `🔒 Khi chưa đạt 100 điểm, bạn được hỏi tối đa ${maxFreeAiQuestions} câu miễn phí. Kích hoạt nhanh 100đ để mở khóa không giới hạn.`}
+                  ? "Tài khoản đã đạt mốc ≥ 100 điểm: Bạn được hỏi Trợ lý AI FORUS không giới hạn."
+                  : `Khi chưa đạt 100 điểm, bạn được hỏi tối đa ${maxFreeAiQuestions} câu miễn phí. Kích hoạt nhanh 100đ để mở khóa không giới hạn.`}
               </p>
             </div>
           </div>
 
           {/* Chat Conversation Window */}
-          <div className="flex h-[500px] sm:h-[560px] flex-col rounded-3xl border border-[#E6E0D5] bg-white dark:border-slate-700/80 dark:bg-slate-800/95 lg:col-span-8 shadow-2xs overflow-hidden min-w-0">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EAE5DC] bg-[#F3EFE6]/80 px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex h-[500px] sm:h-[560px] flex-col rounded-3xl border border-[#0B2545]/12 bg-white dark:border-white/10 dark:bg-[#152238] lg:col-span-8 overflow-hidden min-w-0">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#0B2545]/10 bg-[#EFEAE0] px-3 sm:px-4 py-2.5 text-tiny dark:border-white/10 dark:bg-[#0E1624]">
               {isVipUnlocked ? (
-                <span className="font-mono font-extrabold text-emerald-700 dark:text-emerald-400 break-words">
-                  👑 Đã mở khóa ({student.points}/100đ): Trò chuyện AI không giới hạn (∞)
+                <span className="font-bold text-green-700 dark:text-green-400 break-words">
+                  Đã mở khóa ({student.points}/100đ): Trò chuyện AI không giới hạn (∞)
                 </span>
               ) : (
-                <span className="font-mono font-bold text-[#0B2545] dark:text-slate-200">
+                <span className="font-bold text-[#0B2545] dark:text-[#F6F2E8]">
                   Lượt hỏi miễn phí:{" "}
                   <strong
                     className={
                       isAiLimitReached
-                        ? "text-rose-600 dark:text-rose-400"
-                        : "text-[#D95326] dark:text-amber-400"
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-[#D95326]"
                     }
                   >
                     {aiQuestionsUsed}/{maxFreeAiQuestions} câu
@@ -2692,7 +2624,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                 <button
                   type="button"
                   onClick={onUnlockDemoVip}
-                  className="inline-flex items-center gap-1 rounded-lg bg-[#D95326] hover:bg-[#C0441B] px-2.5 py-1 font-mono text-[11px] font-extrabold text-white transition cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-lg bg-[#D95326] hover:bg-[#0B2545] px-2.5 py-1 text-tiny font-bold text-white transition cursor-pointer"
                 >
                   <Zap className="h-3 w-3 shrink-0" />
                   <span>Kích hoạt 100đ (Không giới hạn)</span>
@@ -2702,7 +2634,7 @@ export const VipHub: React.FC<VipHubProps> = ({
 
             <div
               ref={chatScrollContainerRef}
-              className="flex-1 space-y-4 overflow-y-auto p-3.5 sm:p-6 bg-[#FAF8F5]/60 dark:bg-slate-900/40"
+              className="flex-1 space-y-4 overflow-y-auto p-3.5 sm:p-6 bg-[#F6F2E8]/60 dark:bg-[#0E1624]/60"
             >
               {chatMessages.map((msg) => (
                 <div
@@ -2712,15 +2644,15 @@ export const VipHub: React.FC<VipHubProps> = ({
                   }`}
                 >
                   {msg.role === "model" && (
-                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl bg-[#0B2545] text-white shadow-xs">
-                      <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-300" />
+                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl bg-[#0B2545] text-white">
+                      <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#D95326]" />
                     </div>
                   )}
                   <div
-                    className={`max-w-[85%] min-w-0 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm leading-relaxed break-words [overflow-wrap:anywhere] ${
+                    className={`max-w-[85%] min-w-0 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-small leading-relaxed break-words [overflow-wrap:anywhere] ${
                       msg.role === "user"
-                        ? "bg-[#0B2545] text-white shadow-xs"
-                        : "border border-[#E6E0D5] bg-white text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                        ? "bg-[#0B2545] text-white"
+                        : "border border-[#0B2545]/12 bg-white text-[#0B2545] dark:border-white/10 dark:bg-[#152238] dark:text-[#F6F2E8]"
                     }`}
                   >
                     <FormattedAiMessage
@@ -2728,10 +2660,10 @@ export const VipHub: React.FC<VipHubProps> = ({
                       isUser={msg.role === "user"}
                     />
                     <span
-                      className={`mt-1.5 block text-[10px] ${
+                      className={`mt-1.5 block text-tiny ${
                         msg.role === "user"
-                          ? "text-slate-300"
-                          : "text-[#64748B] dark:text-slate-400"
+                          ? "text-white/70"
+                          : "text-[#0B2545]/55 dark:text-[#F6F2E8]/55"
                       }`}
                     >
                       {msg.timestamp}
@@ -2745,7 +2677,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                 </div>
               ))}
               {isSending && (
-                <div className="flex items-center gap-2 text-xs font-bold text-[#D95326] dark:text-amber-300">
+                <div className="flex items-center gap-2 text-tiny font-bold text-[#D95326]">
                   <Bot className="h-4 w-4 animate-bounce shrink-0" />
                   <span>Trợ lý AI FORUS đang soạn câu trả lời...</span>
                 </div>
@@ -2753,17 +2685,17 @@ export const VipHub: React.FC<VipHubProps> = ({
             </div>
 
             {isAiLimitReached ? (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-t border-rose-500/30 bg-rose-50/90 dark:bg-rose-950/30 p-3 sm:p-4">
-                <div className="text-xs text-rose-800 dark:text-rose-200 break-words">
-                  <strong className="font-extrabold">
-                    🔒 Đã đạt giới hạn {maxFreeAiQuestions}/{maxFreeAiQuestions} câu hỏi:
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-t border-red-500/30 bg-red-500/10 p-3 sm:p-4">
+                <div className="text-tiny text-red-800 dark:text-red-300 break-words">
+                  <strong className="font-bold">
+                    Đã đạt giới hạn {maxFreeAiQuestions}/{maxFreeAiQuestions} câu hỏi:
                   </strong>{" "}
                   Tích đủ 100 điểm hoặc kích hoạt nhanh 100đ để hỏi AI không giới hạn!
                 </div>
                 <button
                   type="button"
                   onClick={onUnlockDemoVip}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#D95326] hover:bg-[#C0441B] px-4 py-2.5 text-xs font-extrabold text-white transition shrink-0 cursor-pointer shadow-xs"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#D95326] hover:bg-[#0B2545] px-4 py-2.5 text-tiny font-bold text-white transition shrink-0 cursor-pointer"
                 >
                   <Zap className="h-3.5 w-3.5 shrink-0" />
                   <span>Kích Hoạt 100đ Ngay</span>
@@ -2775,7 +2707,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                   e.preventDefault();
                   handleSendChat();
                 }}
-                className="flex items-center gap-2 border-t border-[#E6E0D5] bg-[#F3EFE6]/70 dark:bg-slate-900/50 p-2.5 sm:p-4 dark:border-slate-700 min-w-0"
+                className="flex items-center gap-2 border-t border-[#0B2545]/10 bg-[#EFEAE0] dark:bg-[#0E1624] p-2.5 sm:p-4 dark:border-white/10 min-w-0"
               >
                 <input
                   type="text"
@@ -2786,12 +2718,12 @@ export const VipHub: React.FC<VipHubProps> = ({
                       ? "Không giới hạn ∞"
                       : `Còn ${remainingFreeQuestions}/${maxFreeAiQuestions} câu`
                   })`}
-                  className="flex-1 min-w-0 rounded-2xl border border-[#DDD6C7] bg-white px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                  className="flex-1 min-w-0 rounded-2xl border border-[#0B2545]/15 bg-white px-3.5 sm:px-4 py-2.5 text-small text-[#0B2545] focus:border-[#D95326] focus:outline-none dark:border-white/15 dark:bg-[#152238] dark:text-[#F6F2E8]"
                 />
                 <button
                   type="submit"
                   disabled={isSending || !chatInput.trim()}
-                  className="flex items-center gap-1.5 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] px-3.5 sm:px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white transition disabled:opacity-40 whitespace-nowrap shrink-0 cursor-pointer shadow-xs"
+                  className="flex items-center gap-1.5 rounded-2xl bg-[#D95326] hover:bg-[#0B2545] px-3.5 sm:px-5 py-2.5 text-small font-bold text-white transition disabled:opacity-40 whitespace-nowrap shrink-0 cursor-pointer"
                 >
                   <Send className="h-4 w-4 shrink-0" />
                   <span>Gửi</span>
@@ -2802,43 +2734,41 @@ export const VipHub: React.FC<VipHubProps> = ({
         </section>
       )}
 
-      {/* ================= 5. MODULE 3: QUICK LATEX SNIPPET GENERATOR ================= */}
+      {/* 5. MODULE 3: QUICK LATEX SNIPPET GENERATOR */}
       {(activeModule === "all" || activeModule === "latex-snippets") && (
-        <section className="rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-7 shadow-2xs dark:border-slate-700/80 dark:bg-slate-900 space-y-5">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#E5DEC9] pb-4 dark:border-slate-800">
+        <section className="rounded-3xl border border-[#0B2545]/12 bg-white p-5 sm:p-7 dark:border-white/10 dark:bg-[#152238] space-y-5">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#0B2545]/10 pb-4 dark:border-white/10">
             <div className="flex items-start sm:items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#0B2545] text-sky-300 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#0B2545] text-white flex items-center justify-center shrink-0">
                 <Code2 className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-base sm:text-lg font-extrabold text-[#0B2545] dark:text-white">
+                  <h3 className="text-h2 font-bold text-[#0B2545] dark:text-[#F6F2E8]">
                     Thư Viện Mẫu Code LaTeX Copy Nhanh (Đại Cương &amp; Đồ Án KHTN)
                   </h3>
-                  <span className="rounded-full bg-[#0B2545]/10 px-2.5 py-0.5 font-mono text-[11px] font-bold text-[#0B2545] dark:bg-sky-500/20 dark:text-sky-300">
+                  <span className="rounded-full bg-[#0B2545]/10 px-2.5 py-0.5 text-tiny font-bold text-[#0B2545] dark:bg-white/10 dark:text-[#F6F2E8]">
                     {QUICK_LATEX_TEMPLATES.length} mẫu chuẩn
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-[#64748B] dark:text-slate-300">
+                <p className="mt-0.5 text-tiny text-[#0B2545]/65 dark:text-[#F6F2E8]/65">
                   Lọc theo học phần hoặc tìm nhanh công thức, sao chép 1 chạm vào Overleaf hoặc gửi trực tiếp vào Trợ lý AI để tùy biến
                 </p>
               </div>
             </div>
 
-            {/* Search bar for LaTeX templates */}
             <div className="relative w-full lg:w-72 shrink-0">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-[#0B2545]/50 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={latexSearchQuery}
                 onChange={(e) => setLatexSearchQuery(e.target.value)}
                 placeholder="Tìm ma trận, tích phân, bìa đồ án, bảng..."
-                className="w-full rounded-xl border border-[#DCD5C7] bg-[#FAF8F5] pl-9 pr-3 py-2 text-xs text-[#0B2545] placeholder:text-slate-400 focus:border-[#0B2545] focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="w-full rounded-xl border border-[#0B2545]/15 bg-[#F6F2E8] pl-9 pr-3 py-2 text-tiny text-[#0B2545] placeholder:text-[#0B2545]/45 focus:border-[#D95326] focus:bg-white focus:outline-none dark:border-white/15 dark:bg-[#0E1624] dark:text-[#F6F2E8]"
               />
             </div>
           </div>
 
-          {/* Category filter pills */}
           <div className="flex flex-wrap items-center gap-2">
             {(
               [
@@ -2870,10 +2800,10 @@ export const VipHub: React.FC<VipHubProps> = ({
                   key={cat.id}
                   type="button"
                   onClick={() => setSelectedLatexCategory(cat.id)}
-                  className={`rounded-xl px-3.5 py-2 text-xs font-extrabold transition cursor-pointer ${
+                  className={`rounded-xl px-3.5 py-2 text-tiny font-bold transition cursor-pointer ${
                     isActive
-                      ? "bg-[#0B2545] text-white shadow-2xs dark:bg-amber-400 dark:text-slate-950"
-                      : "border border-[#E5DEC9] bg-[#FAF8F5] text-[#4A5568] hover:border-[#0B2545]/40 hover:text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                      ? "bg-[#0B2545] text-white dark:bg-[#D95326]"
+                      : "border border-[#0B2545]/12 bg-[#F6F2E8] text-[#0B2545]/75 hover:border-[#0B2545]/40 hover:text-[#0B2545] dark:border-white/10 dark:bg-[#0E1624] dark:text-[#F6F2E8]/75"
                   }`}
                 >
                   {cat.label}
@@ -2899,8 +2829,8 @@ export const VipHub: React.FC<VipHubProps> = ({
 
             if (filteredTemplates.length === 0) {
               return (
-                <div className="rounded-2xl border border-dashed border-[#DCD5C7] bg-[#FAF8F5] p-8 text-center dark:border-slate-700 dark:bg-slate-800/50">
-                  <p className="text-sm font-bold text-[#0B2545] dark:text-white">
+                <div className="rounded-2xl border border-dashed border-[#0B2545]/20 bg-[#F6F2E8] p-8 text-center dark:border-white/15 dark:bg-[#0E1624]">
+                  <p className="text-small font-bold text-[#0B2545] dark:text-[#F6F2E8]">
                     Không tìm thấy mẫu LaTeX phù hợp với từ khóa "{latexSearchQuery}"
                   </p>
                   <button
@@ -2909,7 +2839,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                       setSelectedLatexCategory("all");
                       setLatexSearchQuery("");
                     }}
-                    className="mt-3 rounded-xl bg-[#0B2545] px-4 py-2 text-xs font-extrabold text-white hover:bg-[#163A66] transition cursor-pointer"
+                    className="mt-3 rounded-xl bg-[#0B2545] px-4 py-2 text-tiny font-bold text-white hover:bg-[#D95326] transition cursor-pointer"
                   >
                     Hiển thị lại toàn bộ 18 mẫu LaTeX
                   </button>
@@ -2924,20 +2854,20 @@ export const VipHub: React.FC<VipHubProps> = ({
                   return (
                     <div
                       key={tpl.id}
-                      className="rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] p-4 flex flex-col justify-between dark:border-slate-700 dark:bg-slate-800/80 hover:border-[#0B2545]/40 transition"
+                      className="rounded-2xl border border-[#0B2545]/12 bg-[#F6F2E8] p-4 flex flex-col justify-between dark:border-white/10 dark:bg-[#0E1624] hover:border-[#0B2545]/35 transition"
                     >
                       <div>
-                        <span className="font-mono text-[11px] font-bold text-[#D95326] dark:text-amber-400">
+                        <span className="text-tiny font-bold text-[#D95326]">
                           {tpl.subject}
                         </span>
-                        <h4 className="mt-1 text-sm font-extrabold text-[#0B2545] dark:text-white leading-snug">
+                        <h4 className="mt-1 text-small font-bold text-[#0B2545] dark:text-[#F6F2E8] leading-snug">
                           {tpl.title}
                         </h4>
-                        <p className="mt-1 text-[11px] text-[#64748B] dark:text-slate-300 leading-relaxed">
+                        <p className="mt-1 text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70 leading-relaxed">
                           {tpl.description}
                         </p>
-                        <pre className="mt-2.5 max-h-48 p-3 rounded-xl bg-white dark:bg-slate-950 border border-[#E5DEC9] dark:border-slate-700 font-mono text-[11px] text-[#0B2545] dark:text-slate-200 overflow-auto whitespace-pre">
-                          {tpl.code}
+                        <pre className="mt-2.5 max-h-48 p-3 rounded-xl bg-white dark:bg-[#152238] border border-[#0B2545]/12 dark:border-white/10 text-tiny text-[#0B2545] dark:text-[#F6F2E8] overflow-auto whitespace-pre">
+                          <code>{tpl.code}</code>
                         </pre>
                       </div>
 
@@ -2947,11 +2877,11 @@ export const VipHub: React.FC<VipHubProps> = ({
                           onClick={() =>
                             handleCopySnippet(tpl.id, tpl.code, tpl.title)
                           }
-                          className="flex-1 py-2 px-3 rounded-xl bg-[#0B2545] hover:bg-[#163A66] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                          className="flex-1 py-2 px-3 rounded-xl bg-[#0B2545] hover:bg-[#D95326] text-white font-bold text-tiny flex items-center justify-center gap-1.5 transition cursor-pointer"
                         >
                           {isCopied ? (
                             <>
-                              <Check className="w-3.5 h-3.5 text-emerald-300" />
+                              <Check className="w-3.5 h-3.5 text-green-400" />
                               <span>Đã sao chép</span>
                             </>
                           ) : (
@@ -2969,7 +2899,7 @@ export const VipHub: React.FC<VipHubProps> = ({
                               `Giải thích và mở rộng giúp mình đoạn code LaTeX này cho bài tập:\n\`\`\`latex\n${tpl.code}\n\`\`\``
                             );
                           }}
-                          className="py-2 px-3 rounded-xl border border-[#E5DEC9] bg-white hover:bg-[#F3EFE6] text-[#0B2545] dark:border-slate-600 dark:bg-slate-700 dark:text-white font-bold text-xs transition cursor-pointer"
+                          className="py-2 px-3 rounded-xl border border-[#0B2545]/15 bg-white hover:bg-[#EFEAE0] text-[#0B2545] dark:border-white/15 dark:bg-[#152238] dark:text-[#F6F2E8] font-bold text-tiny transition cursor-pointer"
                         >
                           Hỏi AI
                         </button>
@@ -2983,13 +2913,13 @@ export const VipHub: React.FC<VipHubProps> = ({
         </section>
       )}
 
-      {/* ================= 6. MODULE 4: FULL-WIDTH VOUCHER REDEMPTION HUB ================= */}
+      {/* 6. MODULE 4: FULL-WIDTH VOUCHER REDEMPTION HUB */}
       {(activeModule === "all" || activeModule === "voucher-hub") && (
-        <section className="rounded-3xl border border-[#E5DEC9] bg-[#F3EFE6] p-5 sm:p-7 dark:border-slate-700/80 dark:bg-slate-800/90">
-          <div className="rounded-3xl border border-[#E6E0D5] bg-white p-5 sm:p-6 dark:border-slate-700 dark:bg-slate-900">
+        <section className="rounded-3xl border border-[#0B2545]/12 bg-[#EFEAE0] p-5 sm:p-7 dark:border-white/10 dark:bg-[#152238]">
+          <div className="rounded-3xl border border-[#0B2545]/12 bg-white p-5 sm:p-6 dark:border-white/10 dark:bg-[#0E1624]">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0B2545] px-3.5 py-1.5 font-mono text-xs font-bold text-white">
-                <Gift className="h-3.5 w-3.5 text-amber-300 shrink-0" />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0B2545] px-3.5 py-1.5 text-tiny font-bold text-white">
+                <Gift className="h-3.5 w-3.5 text-[#D95326] shrink-0" />
                 <span>
                   Kho Đổi Điểm &amp; Voucher FORUS ({student.points} điểm khả dụng)
                 </span>
@@ -2997,19 +2927,19 @@ export const VipHub: React.FC<VipHubProps> = ({
               <button
                 type="button"
                 onClick={onNavigateToShop}
-                className="text-xs font-extrabold text-[#D95326] hover:underline cursor-pointer"
+                className="text-tiny font-bold text-[#D95326] hover:underline cursor-pointer"
               >
                 Thuê &amp; mua học cụ tích thêm điểm →
               </button>
             </div>
 
-            <p className="mt-3 text-xs sm:text-sm leading-relaxed text-[#4A5568] dark:text-slate-300">
+            <p className="mt-3 text-small leading-relaxed text-[#0B2545]/75 dark:text-[#F6F2E8]/75">
               Khi{" "}
-              <strong className="text-[#0B2545] dark:text-white">
-                mua hoặc thuê học cụ, in tài liệu
+              <strong className="text-[#0B2545] dark:text-[#F6F2E8]">
+                xác nhận thanh toán đơn mua hoặc thuê học cụ, in tài liệu
               </strong>{" "}
               tại FORUS, bạn được cộng điểm trực tiếp vào tài khoản. Khi{" "}
-              <strong className="text-[#D95326] dark:text-amber-400">
+              <strong className="text-[#D95326]">
                 đổi điểm
               </strong>{" "}
               lấy các gói ưu đãi bên dưới, hệ thống sẽ trừ số điểm tương ứng:
@@ -3047,23 +2977,23 @@ export const VipHub: React.FC<VipHubProps> = ({
                 return (
                   <div
                     key={v.id}
-                    className="flex flex-col justify-between rounded-2xl border border-[#E6E0D5] bg-[#FAF8F5] p-4 dark:border-slate-700 dark:bg-slate-800/80"
+                    className="flex flex-col justify-between rounded-2xl border border-[#0B2545]/12 bg-[#F6F2E8] p-4 dark:border-white/10 dark:bg-[#152238]"
                   >
                     <div>
-                      <span className="block font-mono text-[11px] font-bold text-[#D95326] dark:text-amber-400">
+                      <span className="block tabular-nums text-tiny font-bold text-[#D95326]">
                         {v.req}
                       </span>
-                      <h4 className="mt-1.5 text-sm font-extrabold text-[#0B2545] leading-snug dark:text-white">
+                      <h4 className="mt-1.5 text-small font-bold text-[#0B2545] leading-snug dark:text-[#F6F2E8]">
                         {v.title}
                       </h4>
-                      <p className="mt-1.5 text-xs leading-relaxed text-[#64748B] dark:text-slate-300">
+                      <p className="mt-1.5 text-tiny leading-relaxed text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
                         {v.desc}
                       </p>
                     </div>
 
                     <div className="mt-4 space-y-1.5">
                       {isRedeemed && (
-                        <span className="block text-center font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                        <span className="block text-center text-tiny font-bold text-green-600 dark:text-green-400">
                           ✓ Đã đổi ưu đãi này
                         </span>
                       )}
@@ -3081,12 +3011,12 @@ export const VipHub: React.FC<VipHubProps> = ({
                             );
                           }
                         }}
-                        className={`w-full rounded-xl py-2.5 px-2 text-xs font-extrabold transition cursor-pointer ${
+                        className={`w-full rounded-xl py-2.5 px-2 text-tiny font-bold transition cursor-pointer ${
                           isRedeemed
-                            ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                            ? "bg-green-600 hover:bg-green-700 text-white"
                             : canAfford
-                            ? "bg-[#0B2545] hover:bg-[#163A66] text-white dark:bg-amber-400 dark:text-slate-950"
-                            : "bg-slate-200 hover:bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                            ? "bg-[#0B2545] hover:bg-[#D95326] text-white dark:bg-[#D95326]"
+                            : "bg-[#0B2545]/10 text-[#0B2545]/50 dark:bg-white/10 dark:text-[#F6F2E8]/50"
                         }`}
                       >
                         {isRedeemed

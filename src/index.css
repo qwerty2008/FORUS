@@ -2,24 +2,157 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --font-sans: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Newsreader', Georgia, Cambria, 'Times New Roman', serif;
+
+  /* 6-level fixed editorial typography scale (nothing smaller than 12px) */
+  --text-display: clamp(2.15rem, 4vw, 3.5rem);
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.025em;
+
+  --text-h1: clamp(1.5rem, 2.8vw, 2.35rem);
+  --text-h1--line-height: 1.16;
+  --text-h1--letter-spacing: -0.02em;
+
+  --text-h2: 1.25rem;
+  --text-h2--line-height: 1.3;
+  --text-h2--letter-spacing: -0.01em;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+
+  --text-tiny: 0.75rem;
+  --text-tiny--line-height: 1.4;
+
+  /* Unified FORUS Brand Palette (1 accent color) */
+  --color-cream: #F8FAFC;
+  --color-cream-subtle: #FFFFFF;
+  --color-navy: #0B2545;
+  --color-navy-dark: #0E1624;
+  --color-navy-surface: #152033;
+  --color-accent: #D95326;
+  --color-accent-hover: #C0441B;
+  --color-hairline-light: #E2E8F0;
+  --color-hairline-dark: #233044;
+  --grid-size: 24px;
+}
+
 @layer base {
   :root {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-sans);
+    background-color: #F8FAFC;
+    color: #0B2545;
+  }
+
+  .dark {
+    background-color: #0E1624;
+    color: #F8FAFC;
   }
 
   body {
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: var(--font-sans);
+    font-weight: 400;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+  h1, h2, h3, h4, strong, b {
+    font-weight: 700;
+  }
+
+  pre, code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-variant-numeric: tabular-nums;
   }
 
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
+}
+
+/* Lab Notebook ("Sổ tay phòng thí nghiệm") Utility Classes */
+.font-serif-display {
+  font-family: var(--font-serif);
+}
+
+.paper-grid {
+  background-image:
+    linear-gradient(to right, rgba(226, 232, 240, 0.7) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.7) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .paper-grid {
+  background-image:
+    linear-gradient(to right, rgba(35, 48, 68, 0.75) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(35, 48, 68, 0.75) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.blueprint-grid {
+  background-color: #0E1624;
+  background-image:
+    linear-gradient(to right, rgba(35, 48, 68, 0.85) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(35, 48, 68, 0.85) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.margin-rule {
+  border-left: 1.5px solid #D95326;
+}
+
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  font-size: var(--text-tiny);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid #D95326;
+  color: #D95326;
+  border-radius: 2px;
+  line-height: 1.3;
+}
+
+.stamp-navy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  font-size: var(--text-tiny);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  line-height: 1.3;
+}
+
+/* Clean Light Mode Surface Remapping (eliminates yellowish beige cast across all views) */
+html:not(.dark) .bg-\[\#F6F2E8\] {
+  background-color: #F8FAFC !important;
+}
+html:not(.dark) .bg-\[\#F6F2E8\]\/95 {
+  background-color: rgba(248, 250, 252, 0.95) !important;
+}
+html:not(.dark) .bg-\[\#EFEAE0\] {
+  background-color: #FFFFFF !important;
+}
+html:not(.dark) .bg-\[\#EFEAE0\]\/60,
+html:not(.dark) .bg-\[\#EFEAE0\]\/50,
+html:not(.dark) .bg-\[\#EFEAE0\]\/40,
+html:not(.dark) .bg-\[\#EFEAE0\]\/30 {
+  background-color: #F1F5F9 !important;
+}
+html:not(.dark) .border-\[\#DCD5C7\] {
+  border-color: #E2E8F0 !important;
 }
 
 /* KaTeX Math Rendering Enhancements */
@@ -35,7 +168,7 @@
   padding: 0.15em 0;
 }
 
-/* Custom subtle scrollbar */
+/* Subtle editorial scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -46,68 +179,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 3px;
+  background: rgba(11, 37, 69, 0.25);
+  border-radius: 2px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.6);
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(248, 250, 252, 0.25);
 }
-
-@keyframes forusFloatSlow {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  33% {
-    transform: translate3d(24px, -18px, 0) scale(1.06);
-  }
-  66% {
-    transform: translate3d(-18px, 14px, 0) scale(0.96);
-  }
-}
-
-@keyframes forusFloatReverse {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(-26px, -20px, 0) scale(1.08);
-  }
-}
-
-@keyframes forusPulseGlow {
-  0%, 100% {
-    opacity: 0.45;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.75;
-    transform: scale(1.05);
-  }
-}
-
-@keyframes forusSpinSlow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-forus-float-slow {
-  animation: forusFloatSlow 14s ease-in-out infinite;
-}
-
-.animate-forus-float-reverse {
-  animation: forusFloatReverse 18s ease-in-out infinite;
-}
-
-.animate-forus-pulse-glow {
-  animation: forusPulseGlow 9s ease-in-out infinite;
-}
-
-.animate-forus-spin-slow {
-  animation: forusSpinSlow 36s linear infinite;
-}
-

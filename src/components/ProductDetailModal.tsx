@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import {
   X,
   ShoppingBag,
@@ -49,6 +50,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
   const [addedFeedback, setAddedFeedback] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (product) {
@@ -56,6 +58,18 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       setSelectedModelId(initialModelId || product.modelOptions?.[0]?.id || "");
     }
   }, [product, initialModelId, initialVariantId]);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!product) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [product, onClose]);
 
   if (!product) return null;
 
@@ -72,6 +86,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const handleModelChange = (modelId: string) => {
     setSelectedModelId(modelId);
     onSelectModel?.(modelId);
+  };
+
+  const handleVariantChange = (variantId: string) => {
+    setSelectedVariantId(variantId);
+    onSelectVariant?.(variantId);
   };
 
   const getAdjustedPrice = (variant: PricingVariant) => {
@@ -93,7 +112,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     const metaLabel = currentModel
       ? `Phân loại: ${currentModel.name}${
           currentVariant.conditionBadge
-            ? ` • Tình trạng: ${currentVariant.conditionBadge}`
+            ? ` · Tình trạng: ${currentVariant.conditionBadge}`
             : ""
         }`
       : currentVariant.conditionBadge
@@ -130,336 +149,346 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-xs">
-      <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-[#E5DEC9] bg-[#FAF8F5] shadow-2xl dark:border-slate-800 dark:bg-slate-900">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#E5DEC9] bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center gap-2 text-xs text-[#64748B] dark:text-slate-400">
-            <span className="font-mono font-bold text-[#D95326] dark:text-amber-400">
-              {product.code}
-            </span>
-            <span aria-hidden="true">·</span>
-            <span>
-              {currentModel
-                ? `Đang xem: ${currentModel.name}`
-                : "Chi tiết sản phẩm / dịch vụ FORUS Cơ sở 1"}
-            </span>
+    <AnimatePresence>
+      <div
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0B2545]/60 sm:p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={product.name}
+          onClick={(e) => e.stopPropagation()}
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 48 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 48 }}
+          transition={{ duration: 0.18 }}
+          drag={shouldReduceMotion ? false : "y"}
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={{ top: 0, bottom: 0.35 }}
+          onDragEnd={(_e, info) => {
+            if (info.offset.y > 90 || info.velocity.y > 500) {
+              onClose();
+            }
+          }}
+          className="relative flex max-h-[92vh] sm:max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-lg sm:rounded-lg border border-[#DCD5C7] dark:border-[#233044] bg-[#F6F2E8] dark:bg-[#0E1624] text-[#0B2545] dark:text-[#F6F2E8]"
+        >
+          {/* Mobile Bottom-Sheet Swipe Handle */}
+          <div className="sm:hidden flex justify-center pt-2.5 pb-1">
+            <div className="h-1 w-10 rounded-full bg-[#0B2545]/25 dark:bg-[#F6F2E8]/25" />
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl p-1.5 text-[#0B2545] hover:bg-[#F3EFE6] dark:text-slate-300 dark:hover:bg-slate-800 cursor-pointer"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
 
-        {/* Scrollable Content */}
-        <div className="grid flex-1 grid-cols-1 gap-8 overflow-y-auto p-6 lg:grid-cols-12">
-          {/* Left Image, Model Thumbnail Strip & Highlights */}
-          <div className="space-y-4 lg:col-span-6">
-            <div className="space-y-2.5">
-              <ProductVisual
-                imageUrl={activeImageUrl}
-                alt={
-                  currentModel
-                    ? `${product.name} — ${currentModel.name}`
-                    : product.name
-                }
-                fallbackIcon={product.fallbackIcon}
-                fallbackGradient={product.fallbackGradient}
-                code={
-                  currentModel
-                    ? `${product.code} · ${currentModel.name}`
-                    : product.code
-                }
-                className="h-64 sm:h-72 w-full rounded-2xl border border-[#E6E0D5] dark:border-slate-700"
-              />
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-[#DCD5C7] dark:border-[#233044] px-6 py-4">
+            <div className="flex items-center gap-2 text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70 truncate">
+              <span className="font-bold text-[#D95326]">{product.code}</span>
+              <span aria-hidden="true">·</span>
+              <span className="truncate">
+                {currentModel ? currentModel.name : product.subtitle}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Đóng cửa sổ"
+              className="rounded p-1.5 text-[#0B2545] hover:bg-[#EFEAE0] dark:text-[#F6F2E8] dark:hover:bg-[#152033] cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-              {/* Interactive Thumbnail Gallery when product has model images */}
-              {hasModelImages && product.modelOptions && (
-                <div className="space-y-1.5">
-                  <p className="text-[11px] font-bold text-[#64748B] dark:text-slate-300">
-                    Bấm chọn mẫu để xem ảnh thực tế ({product.modelOptions.length}{" "}
-                    lựa chọn):
-                  </p>
-                  <div className="grid grid-cols-5 gap-2">
-                    {product.modelOptions.map((mod) => {
-                      const isActive = currentModel?.id === mod.id;
-                      return (
-                        <button
-                          key={mod.id}
-                          type="button"
-                          onClick={() => handleModelChange(mod.id)}
-                          title={mod.name}
-                          className={`group/thumb relative flex flex-col items-center rounded-xl border p-1.5 text-center transition cursor-pointer ${
-                            isActive
-                              ? "border-2 border-[#D95326] bg-white shadow-xs dark:border-amber-400 dark:bg-slate-800"
-                              : "border-[#E6E0D5] bg-white/80 hover:border-[#0B2545] dark:border-slate-700 dark:bg-slate-800/50"
-                          }`}
-                        >
-                          {mod.imageUrl && (
-                            <div className="h-11 w-full overflow-hidden rounded-lg bg-white dark:bg-slate-900 flex items-center justify-center p-0.5">
-                              <img
-                                src={mod.imageUrl}
-                                alt={mod.name}
-                                className="h-full w-full object-contain"
-                              />
-                            </div>
-                          )}
-                          <span
-                            className={`mt-1 line-clamp-1 text-[9px] font-extrabold leading-tight ${
+          {/* Scrollable Content */}
+          <div className="grid flex-1 grid-cols-1 gap-8 overflow-y-auto p-6 lg:grid-cols-12">
+            {/* Left Image, Model Thumbnail Strip & Highlights */}
+            <div className="space-y-6 lg:col-span-6">
+              <div className="space-y-3">
+                <ProductVisual
+                  imageUrl={activeImageUrl}
+                  alt={
+                    currentModel
+                      ? `${product.name} — ${currentModel.name}`
+                      : product.name
+                  }
+                  fallbackIcon={product.fallbackIcon}
+                  code={product.code}
+                  className="aspect-[4/3] w-full rounded border border-[#DCD5C7] dark:border-[#233044]"
+                />
+
+                {hasModelImages && product.modelOptions && (
+                  <div className="space-y-2">
+                    <p className="text-tiny font-bold text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
+                      Chọn mẫu thực tế ({product.modelOptions.length} lựa chọn):
+                    </p>
+                    <div className="grid grid-cols-5 gap-2">
+                      {product.modelOptions.map((mod) => {
+                        const isActive = currentModel?.id === mod.id;
+                        return (
+                          <button
+                            key={mod.id}
+                            type="button"
+                            onClick={() => handleModelChange(mod.id)}
+                            title={mod.name}
+                            className={`flex flex-col items-center rounded border p-1.5 text-center transition cursor-pointer ${
                               isActive
-                                ? "text-[#D95326] dark:text-amber-300"
-                                : "text-[#0B2545] dark:text-slate-300"
+                                ? "border-[#D95326] bg-[#EFEAE0] dark:bg-[#152033]"
+                                : "border-[#DCD5C7] dark:border-[#233044] hover:border-[#0B2545]"
                             }`}
                           >
-                            {mod.name.replace("Giáo trình ", "").replace("Toán cao cấp: ", "")}
+                            {mod.imageUrl && (
+                              <div className="h-11 w-full overflow-hidden rounded bg-white dark:bg-[#0E1624] flex items-center justify-center p-0.5">
+                                <img
+                                  src={mod.imageUrl}
+                                  alt={mod.name}
+                                  className="h-full w-full object-contain"
+                                />
+                              </div>
+                            )}
+                            <span
+                              className={`mt-1 line-clamp-1 text-tiny leading-tight ${
+                                isActive
+                                  ? "font-bold text-[#D95326]"
+                                  : "text-[#0B2545] dark:text-[#F6F2E8]"
+                              }`}
+                            >
+                              {mod.name
+                                .replace("Giáo trình ", "")
+                                .replace("Toán cao cấp: ", "")}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-[#DCD5C7] dark:border-[#233044] pt-4">
+                <h4 className="text-small font-bold text-[#0B2545] dark:text-[#F6F2E8]">
+                  Đặc điểm học cụ tại Cơ sở 1:
+                </h4>
+                <ul className="mt-2.5 space-y-2 text-small text-[#0B2545]/80 dark:text-[#F6F2E8]/80">
+                  {product.highlights.map((h, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <Check className="mt-1 h-4 w-4 shrink-0 text-[#D95326]" />
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Right Contiguous Purchase Module */}
+            <div className="flex flex-col justify-between space-y-6 lg:col-span-6">
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-2 text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
+                  {product.availabilityStatus === "rented" ||
+                  product.inStock <= 0 ? (
+                    <span className="font-bold text-[#D95326]">
+                      Đang cho thuê hết
+                    </span>
+                  ) : (
+                    <span className="font-bold text-green-700 dark:text-green-400">
+                      Còn sẵn {product.inStock} sản phẩm
+                    </span>
+                  )}
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    +{product.pointsReward} điểm VIP khi xác nhận thanh toán
+                  </span>
+                </div>
+
+                <h2 className="text-h2 font-bold text-[#0B2545] dark:text-[#F6F2E8]">
+                  {product.name}
+                </h2>
+
+                <p className="text-small text-[#0B2545]/80 dark:text-[#F6F2E8]/80">
+                  {product.description}
+                </p>
+
+                {/* Step 1: Model / Type Selector */}
+                {product.modelOptions && product.modelOptions.length > 0 && (
+                  <div className="space-y-1.5 border-t border-[#DCD5C7] dark:border-[#233044] pt-4">
+                    <label className="block text-small font-bold">
+                      1. {product.modelSelectorLabel || "Chọn phân loại:"}
+                    </label>
+                    <select
+                      value={currentModel?.id || ""}
+                      onChange={(e) => handleModelChange(e.target.value)}
+                      className="w-full rounded border border-[#DCD5C7] dark:border-[#233044] bg-[#EFEAE0] dark:bg-[#152033] px-3 py-2.5 text-small font-bold text-[#0B2545] dark:text-[#F6F2E8] focus:border-[#0B2545] focus:outline-none"
+                    >
+                      {product.modelOptions.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name}
+                        </option>
+                      ))}
+                    </select>
+                    {currentModel?.spec && (
+                      <p className="text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
+                        {currentModel.spec}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Step 2: Condition / Variant Selector */}
+                <div className="space-y-2 border-t border-[#DCD5C7] dark:border-[#233044] pt-4">
+                  <label className="block text-small font-bold">
+                    {product.modelOptions
+                      ? "2. Chọn gói thuê hoặc mua:"
+                      : "Chọn gói thuê hoặc mua:"}
+                  </label>
+                  <div className="space-y-2">
+                    {product.variants.map((v) => {
+                      const isSelected = currentVariant.id === v.id;
+                      const vPrice = getAdjustedPrice(v);
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => handleVariantChange(v.id)}
+                          className={`flex w-full items-center justify-between gap-3 rounded border p-3 text-left transition cursor-pointer ${
+                            isSelected
+                              ? "border-[#0B2545] dark:border-[#F6F2E8] bg-[#EFEAE0] dark:bg-[#152033]"
+                              : "border-[#DCD5C7] dark:border-[#233044] hover:border-[#0B2545]/50"
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              {v.conditionBadge && (
+                                <span className="text-tiny font-bold text-[#D95326]">
+                                  {v.conditionBadge}
+                                </span>
+                              )}
+                              {v.conditionBadge && (
+                                <span aria-hidden="true">·</span>
+                              )}
+                              <span className="text-small font-bold truncate">
+                                {v.label}
+                              </span>
+                            </div>
+                            {v.conditionDesc && (
+                              <p className="mt-0.5 text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
+                                {v.conditionDesc}
+                              </p>
+                            )}
+                          </div>
+                          <span className="text-small font-bold text-[#D95326] shrink-0 tabular-nums">
+                            {vPrice.toLocaleString("vi-VN")}đ{" "}
+                            <span className="text-tiny font-normal text-[#0B2545]/60 dark:text-[#F6F2E8]/60">
+                              {v.unitLabel}
+                            </span>
                           </span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
-              )}
-            </div>
 
-            <div className="rounded-2xl border border-[#E6E0D5] bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-800/70">
-              <h4 className="text-xs font-extrabold text-[#0B2545] dark:text-white">
-                Điểm khác biệt dành riêng cho Sinh viên ĐH KHTN:
-              </h4>
-              <ul className="mt-2.5 space-y-2 text-xs text-[#4A5568] dark:text-slate-300">
-                {product.highlights.map((h, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#D95326]" />
-                    <span>{h}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+                <div className="flex items-center gap-2 text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
+                  <MapPin className="h-4 w-4 shrink-0 text-[#D95326]" />
+                  <span>{product.deliveryInfo}</span>
+                </div>
 
-          {/* Right Contiguous Purchase Module */}
-          <div className="flex flex-col justify-between space-y-5 lg:col-span-6">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748B] dark:text-slate-400">
                 {product.availabilityStatus === "rented" ||
                 product.inStock <= 0 ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/15 px-2.5 py-0.5 font-mono text-[11px] font-extrabold text-[#D95326] dark:text-amber-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#D95326] dark:bg-amber-400" />
-                    Đang cho thuê
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onNotifyWhenAvailable?.(product)}
+                    className={`flex w-full items-center justify-center gap-2 rounded py-3.5 px-4 text-small font-bold transition cursor-pointer ${
+                      isNotified
+                        ? "bg-green-700 text-white"
+                        : "bg-[#0B2545] text-[#F6F2E8] dark:bg-[#F6F2E8] dark:text-[#0B2545]"
+                    }`}
+                  >
+                    {isNotified ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        <span>Đã đăng ký nhận thông báo có hàng</span>
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="h-4 w-4" />
+                        <span>Nhận thông báo khi có hàng</span>
+                      </>
+                    )}
+                  </button>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Còn hàng ({product.inStock})
-                  </span>
+                  <button
+                    type="button"
+                    onClick={handleAdd}
+                    className="flex w-full items-center justify-center gap-2 rounded bg-[#D95326] hover:bg-[#C0441B] py-3.5 px-4 text-small font-bold text-white transition cursor-pointer"
+                  >
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>
+                      {addedFeedback
+                        ? "Đã thêm vào giỏ hàng"
+                        : `Thêm vào giỏ — ${finalPrice.toLocaleString("vi-VN")}đ`}
+                    </span>
+                  </button>
                 )}
-                <span aria-hidden="true">·</span>
-                <span className="font-mono font-bold text-[#D95326] dark:text-amber-400">
-                  +{product.pointsReward} điểm thưởng FORUS
-                </span>
               </div>
 
-              <h2 className="text-xl font-extrabold text-[#0B2545] dark:text-white leading-snug">
-                {product.name}
-              </h2>
-
-              <p className="text-xs leading-relaxed text-[#4A5568] dark:text-slate-300">
-                {product.description}
-              </p>
-
-              {/* Step 1: Model / Type Selector (if product has modelOptions) */}
-              {product.modelOptions && product.modelOptions.length > 0 && (
-                <div className="space-y-1.5 rounded-2xl border border-[#E5DEC9] bg-[#F3EFE6] p-3.5 dark:border-slate-700 dark:bg-slate-800">
-                  <label className="block text-xs font-extrabold text-[#0B2545] dark:text-white">
-                    1. {product.modelSelectorLabel || "Chọn phân loại:"}
-                  </label>
-                  <select
-                    value={currentModel?.id || ""}
-                    onChange={(e) => handleModelChange(e.target.value)}
-                    className="w-full rounded-xl border border-[#DDD6C7] bg-white px-3 py-2 text-xs font-bold text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
-                  >
-                    {product.modelOptions.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.name}
-                      </option>
-                    ))}
-                  </select>
-                  {currentModel?.spec && (
-                    <p className="text-[11px] text-[#4A5568] dark:text-slate-300">
-                      • {currentModel.spec}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* Step 2: Condition / Variant Selector (Thuê | Độ mới 80% | Độ mới 90% | Mới 100%) */}
-              <div className="space-y-2">
-                <label className="block text-xs font-extrabold text-[#0B2545] dark:text-white">
-                  {product.modelOptions
-                    ? "2. Chọn tình trạng (Thuê / Độ mới 80% / 90% / Mới 100%):"
-                    : "Chọn hình thức (Thuê / Mua):"}
-                </label>
-                <div className="space-y-2">
-                  {product.variants.map((v) => {
-                    const isSelected = currentVariant.id === v.id;
-                    const vPrice = getAdjustedPrice(v);
-                    return (
-                      <button
-                        key={v.id}
-                        type="button"
-                        onClick={() => setSelectedVariantId(v.id)}
-                        className={`flex w-full items-center justify-between gap-2 rounded-2xl border p-3 text-left transition cursor-pointer ${
-                          isSelected
-                            ? "border-2 border-[#0B2545] bg-white shadow-2xs dark:border-amber-400 dark:bg-slate-800"
-                            : "border-[#E6E0D5] bg-white/70 hover:border-[#C8C0B0] dark:border-slate-800 dark:bg-slate-800/40"
-                        }`}
-                      >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            {v.conditionBadge && (
-                              <span
-                                className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                                  v.conditionBadge === "Mới 100%"
-                                    ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                                    : v.conditionBadge === "Độ mới 90%"
-                                    ? "bg-[#0B2545]/10 text-[#0B2545] dark:bg-sky-500/20 dark:text-sky-300"
-                                    : v.conditionBadge === "Độ mới 80%"
-                                    ? "bg-amber-500/15 text-amber-800 dark:text-amber-300"
-                                    : "bg-[#D95326]/15 text-[#D95326] dark:text-orange-300"
-                                }`}
-                              >
-                                {v.conditionBadge}
-                              </span>
-                            )}
-                            <span className="text-xs font-extrabold text-[#0B2545] dark:text-white truncate">
-                              {v.label}
-                            </span>
-                          </div>
-                          {v.conditionDesc && (
-                            <p className="mt-1 text-[11px] text-[#64748B] dark:text-slate-400">
-                              {v.conditionDesc}
-                            </p>
-                          )}
-                        </div>
-                        <span className="font-mono text-sm font-extrabold text-[#D95326] dark:text-amber-400 shrink-0 tabular-nums">
-                          {vPrice.toLocaleString("vi-VN")}đ{" "}
-                          <span className="text-[11px] font-normal text-[#64748B]">
-                            {v.unitLabel}
-                          </span>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-[#64748B] dark:text-slate-400">
-                <MapPin className="h-4 w-4 shrink-0 text-[#D95326]" />
-                <span>{product.deliveryInfo}</span>
-              </div>
-
-              {product.availabilityStatus === "rented" ||
-              product.inStock <= 0 ? (
-                <button
-                  type="button"
-                  onClick={() => onNotifyWhenAvailable?.(product)}
-                  className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-xs sm:text-sm font-extrabold transition cursor-pointer shadow-xs ${
-                    isNotified
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : "bg-[#0B2545] text-white hover:bg-[#163A66] dark:bg-amber-500 dark:text-slate-950"
-                  }`}
-                >
-                  {isNotified ? (
-                    <>
-                      <Check className="h-4 w-4" />
-                      <span>Đã Đăng Ký Nhận Thông Báo Khi Có Hàng</span>
-                    </>
-                  ) : (
-                    <>
-                      <Bell className="h-4 w-4" />
-                      <span>Thông báo khi có hàng</span>
-                    </>
-                  )}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleAdd}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#D95326] hover:bg-[#C0441B] py-3.5 text-xs sm:text-sm font-extrabold text-white transition cursor-pointer shadow-xs"
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  <span>
-                    {addedFeedback
-                      ? "Đã Thêm Vào Giỏ Hàng (✓)"
-                      : `Thêm Vào Giỏ — ${finalPrice.toLocaleString("vi-VN")}đ (+${product.pointsReward} điểm)`}
-                  </span>
-                </button>
-              )}
-            </div>
-
-            {/* Student Reviews Section */}
-            <div className="space-y-3 border-t border-[#E5DEC9] pt-4 dark:border-slate-800">
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-extrabold text-[#0B2545] dark:text-white">
-                  Đánh giá từ Sinh viên KHTN ({product.reviews.length})
-                </h4>
-                <div className="flex items-center gap-1 text-[#D95326]">
-                  <Star className="h-3.5 w-3.5 fill-current" />
-                  <span className="font-mono text-xs font-bold">5.0</span>
-                </div>
-              </div>
-
-              <div className="max-h-32 space-y-2 overflow-y-auto pr-1">
-                {product.reviews.map((rev) => (
-                  <div
-                    key={rev.id}
-                    className="rounded-xl bg-white border border-[#E6E0D5] p-3 text-xs dark:border-slate-700 dark:bg-slate-800/60"
-                  >
-                    <div className="flex items-center justify-between text-[11px] text-[#64748B] dark:text-slate-400">
-                      <span className="font-bold text-[#0B2545] dark:text-slate-200">
-                        {rev.studentName} ({rev.studentIdMasked}) · {rev.faculty}
-                      </span>
-                      <span>{rev.date}</span>
-                    </div>
-                    <p className="mt-1 text-[#4A5568] dark:text-slate-300">
-                      {rev.comment}
-                    </p>
+              {/* Student Reviews Section */}
+              <div className="space-y-3 border-t border-[#DCD5C7] dark:border-[#233044] pt-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-small font-bold">
+                    Đánh giá sinh viên ({product.reviews.length})
+                  </h4>
+                  <div className="flex items-center gap-1 text-[#D95326]">
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    <span className="text-tiny font-bold tabular-nums">5.0</span>
                   </div>
-                ))}
-              </div>
+                </div>
 
-              {/* Add Review Form */}
-              <form onSubmit={handleSubmitReview} className="flex gap-2 pt-1">
-                <select
-                  value={rating}
-                  onChange={(e) => setRating(Number(e.target.value))}
-                  className="rounded-xl border border-[#DDD6C7] bg-white px-2.5 py-1.5 font-mono text-xs font-bold text-[#0B2545] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                >
-                  <option value={5}>5 ★</option>
-                  <option value={4}>4 ★</option>
-                </select>
-                <input
-                  type="text"
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  placeholder="Viết nhận xét của bạn..."
-                  className="flex-1 rounded-xl border border-[#DDD6C7] bg-white px-3 py-1.5 text-xs text-[#0B2545] focus:border-[#0B2545] focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                />
-                <button
-                  type="submit"
-                  className="flex items-center gap-1 rounded-xl bg-[#0B2545] px-3.5 py-1.5 text-xs font-bold text-white whitespace-nowrap shrink-0 cursor-pointer"
-                >
-                  <MessageSquarePlus className="h-3.5 w-3.5" />
-                  <span>Gửi</span>
-                </button>
-              </form>
+                <div className="max-h-32 space-y-2 overflow-y-auto pr-1">
+                  {product.reviews.map((rev) => (
+                    <div
+                      key={rev.id}
+                      className="rounded border border-[#DCD5C7] dark:border-[#233044] p-3 text-tiny"
+                    >
+                      <div className="flex items-center justify-between text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
+                        <span className="font-bold text-[#0B2545] dark:text-[#F6F2E8]">
+                          {rev.studentName} ({rev.studentIdMasked}) · {rev.faculty}
+                        </span>
+                        <span>{rev.date}</span>
+                      </div>
+                      <p className="mt-1 text-[#0B2545]/80 dark:text-[#F6F2E8]/80">
+                        {rev.comment}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <form onSubmit={handleSubmitReview} className="flex gap-2 pt-1">
+                  <select
+                    value={rating}
+                    onChange={(e) => setRating(Number(e.target.value))}
+                    className="rounded border border-[#DCD5C7] dark:border-[#233044] bg-[#EFEAE0] dark:bg-[#152033] px-2.5 py-2 text-tiny font-bold"
+                  >
+                    <option value={5}>5 sao</option>
+                    <option value={4}>4 sao</option>
+                  </select>
+                  <input
+                    type="text"
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    placeholder="Viết nhận xét của bạn..."
+                    className="flex-1 rounded border border-[#DCD5C7] dark:border-[#233044] bg-transparent px-3 py-2 text-tiny focus:border-[#0B2545] focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="flex items-center gap-1 rounded bg-[#0B2545] dark:bg-[#F6F2E8] px-3.5 py-2 text-tiny font-bold text-[#F6F2E8] dark:text-[#0B2545] whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    <MessageSquarePlus className="h-3.5 w-3.5" />
+                    <span>Gửi</span>
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 };
 

@@ -7,10 +7,6 @@ import {
   Terminal,
   Sparkles,
   Calculator,
-  Utensils,
-  Flame,
-  Coffee,
-  CupSoda,
   Package,
   ShieldCheck,
 } from "lucide-react";
@@ -19,7 +15,7 @@ interface ProductVisualProps {
   imageUrl?: string;
   alt: string;
   fallbackIcon: string;
-  fallbackGradient: string;
+  fallbackGradient?: string;
   code: string;
   className?: string;
 }
@@ -28,14 +24,15 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
   imageUrl,
   alt,
   fallbackIcon,
-  fallbackGradient,
   code,
-  className = "h-56 w-full",
+  className = "aspect-[4/3] w-full",
 }) => {
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   useEffect(() => {
     setImgError(false);
+    setImgLoaded(false);
   }, [imageUrl]);
 
   const isPortraitProduct =
@@ -49,87 +46,65 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
   if (imageUrl && !imgError) {
     return (
       <div
-        className={`relative overflow-hidden ${
-          isPortraitProduct
-            ? "bg-white dark:bg-slate-900 flex items-center justify-center p-2.5"
-            : "bg-slate-100 dark:bg-slate-800/80"
+        className={`relative overflow-hidden bg-[#EFEAE0] dark:bg-[#152033] ${
+          isPortraitProduct ? "flex items-center justify-center p-4" : ""
         } ${className}`}
       >
-        {isPortraitProduct && (
-          <img
-            src={imageUrl}
-            alt=""
+        {!imgLoaded && (
+          <div
             aria-hidden="true"
-            referrerPolicy="no-referrer"
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-15 blur-xl scale-110"
+            className="absolute inset-0 animate-pulse bg-[#E5DEC9]/60 dark:bg-[#1E2B42]"
           />
         )}
         <img
           src={imageUrl}
           alt={alt}
+          loading="lazy"
           referrerPolicy="no-referrer"
+          onLoad={() => setImgLoaded(true)}
           onError={() => setImgError(true)}
           className={`relative z-10 h-full w-full transition-transform duration-300 group-hover:scale-[1.03] ${
-            isPortraitProduct ? "object-contain drop-shadow-md" : "object-cover"
-          }`}
+            isPortraitProduct ? "object-contain" : "object-cover"
+          } ${imgLoaded ? "opacity-100" : "opacity-0"}`}
         />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-slate-950/65 via-slate-950/20 to-transparent z-10" />
-        <span className="absolute bottom-2.5 left-3 z-20 font-mono text-[11px] font-semibold text-white/95 drop-shadow">
-          {code}
-        </span>
       </div>
     );
   }
 
-  // Special Editorial Textbook Illustration Fallback
+  // Editorial Textbook Fallback
   if (fallbackIcon === "TextbookStack" || code.includes("FORUS-08")) {
     return (
       <div
-        className={`relative flex items-center justify-center overflow-hidden bg-[#EEF4FB] dark:bg-slate-800 ${className}`}
+        className={`relative flex items-center justify-center overflow-hidden bg-[#EFEAE0] dark:bg-[#152033] p-6 ${className}`}
       >
-        <div className="pointer-events-none absolute -top-6 right-8 h-36 w-36 rounded-full bg-[#DCE8F7] dark:bg-slate-700/60" />
-        <div className="relative z-10 flex items-center justify-center py-4">
-          {/* Left Navy Book */}
-          <div className="w-28 sm:w-32 h-36 sm:h-40 -rotate-6 rounded-lg bg-[#0B2545] border-l-4 border-[#D95326] p-2.5 text-white shadow-lg flex flex-col justify-between">
-            <span className="font-mono text-[8px] tracking-wider text-slate-300">
-              ĐHQG-HCM · KHTN
-            </span>
+        <div className="relative z-10 flex items-center justify-center gap-3">
+          <div className="w-28 h-36 -rotate-3 rounded bg-[#0B2545] border border-[#DCD5C7]/30 p-3 text-[#F6F2E8] flex flex-col justify-between">
+            <span className="text-tiny text-[#F6F2E8]/70">ĐHQG-HCM · KHTN</span>
             <div>
-              <p className="font-extrabold text-[11px] leading-tight uppercase">
+              <p className="font-bold text-tiny leading-tight">
                 ĐẠI SỐ TUYẾN TÍNH
               </p>
-              <p className="mt-1 font-mono text-[8px] text-sky-300">
-                [ A | I ] · SVD · Eigen
-              </p>
+              <p className="mt-1 text-tiny text-[#F6F2E8]/80">SVD · Eigen</p>
             </div>
-            <span className="font-mono text-[7px] text-amber-300">
-              Mới 100% / 90% / 80%
-            </span>
+            <span className="text-tiny text-[#D95326] font-bold">FORUS</span>
           </div>
 
-          {/* Right White/Orange Book */}
-          <div className="-ml-4 w-30 sm:w-34 h-38 sm:h-42 rotate-3 rounded-lg bg-white border-2 border-[#D95326] p-2.5 text-[#0B2545] shadow-xl flex flex-col justify-between">
-            <span className="font-mono text-[8px] font-bold text-[#D95326]">
-              FIT PASSBOOK · CS1
-            </span>
+          <div className="-ml-4 w-28 h-36 rotate-3 rounded bg-[#F6F2E8] dark:bg-[#0E1624] border border-[#0B2545] dark:border-[#F6F2E8]/30 p-3 text-[#0B2545] dark:text-[#F6F2E8] flex flex-col justify-between">
+            <span className="text-tiny font-bold text-[#D95326]">CS1 · 227 NVC</span>
             <div>
-              <p className="font-extrabold text-xs leading-tight text-[#0B2545]">
+              <p className="font-bold text-tiny leading-tight">
                 VI TÍCH PHÂN 1B
               </p>
-              <p className="text-[8px] text-[#64748B] mt-0.5">
-                Chuỗi số &amp; Tích phân suy rộng
-              </p>
-              {/* Sine wave curve */}
               <svg
                 viewBox="0 0 100 28"
-                className="w-full h-6 mt-1 stroke-[#D95326] fill-none"
-                strokeWidth="2.5"
+                className="w-full h-5 mt-2 stroke-[#D95326] fill-none"
+                strokeWidth="2"
               >
                 <path d="M 4 22 Q 28 2, 52 14 T 96 8" />
               </svg>
             </div>
-            <span className="rounded bg-[#FFF3D6] px-1.5 py-0.5 font-mono text-[8px] font-bold text-[#B45309] text-center">
-              + Tặng Note giải đề KHTN
+            <span className="text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
+              Thuê / Mua
             </span>
           </div>
         </div>
@@ -137,24 +112,23 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
     );
   }
 
-  // Special Lab Coat (Áo Blouse) Illustration for FORUS-09
+  // Lab Coat (Áo Blouse) Fallback
   if (fallbackIcon === "LabCoat" || code.includes("FORUS-09")) {
     return (
       <div
-        className={`relative flex flex-col justify-between overflow-hidden bg-gradient-to-br from-[#EEF4FB] via-[#F8FAFC] to-[#E2E8F0] dark:from-slate-800 dark:to-slate-900 p-5 ${className}`}
+        className={`relative flex flex-col justify-between overflow-hidden bg-[#EFEAE0] dark:bg-[#152033] p-5 ${className}`}
       >
-        <div className="flex items-center justify-between text-xs font-mono text-[#0B2545] dark:text-slate-200">
-          <span className="font-bold text-[#D95326]">FORUS-09 · LAB CS1</span>
+        <div className="flex items-center justify-between text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70">
+          <span className="font-bold text-[#D95326]">FORUS-09</span>
           <span>Size S · M · L · XL</span>
         </div>
 
         <div className="my-auto flex items-center justify-center gap-4">
-          {/* Crisp White Lab Coat Graphic */}
-          <div className="relative flex h-28 w-28 items-center justify-center rounded-2xl border-2 border-[#0B2545]/15 bg-white shadow-md dark:bg-slate-800">
+          <div className="flex h-24 w-24 items-center justify-center rounded border border-[#DCD5C7] bg-[#F6F2E8] dark:border-[#233044] dark:bg-[#0E1624]">
             <svg
               viewBox="0 0 64 64"
-              className="h-20 w-20 stroke-[#0B2545] dark:stroke-sky-300 fill-none"
-              strokeWidth="2.2"
+              className="h-16 w-16 stroke-[#0B2545] dark:stroke-[#F6F2E8] fill-none"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -169,35 +143,31 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
                 rx="1"
                 className="stroke-[#D95326]"
               />
-              <circle cx="29" cy="30" r="1" fill="currentColor" />
-              <circle cx="29" cy="38" r="1" fill="currentColor" />
-              <circle cx="29" cy="46" r="1" fill="currentColor" />
             </svg>
           </div>
-
-          <div className="space-y-1.5 text-left">
-            <span className="inline-flex items-center gap-1 rounded-md bg-[#0B2545] px-2 py-0.5 font-mono text-[10px] font-bold text-white">
-              <ShieldCheck className="h-3 w-3 text-emerald-400" />
+          <div className="space-y-1 text-left">
+            <span className="inline-flex items-center gap-1 text-tiny font-bold text-[#0B2545] dark:text-[#F6F2E8]">
+              <ShieldCheck className="h-3.5 w-3.5 text-green-600" />
               Đã giặt khử khuẩn
             </span>
-            <p className="text-xs font-extrabold text-[#0B2545] dark:text-white leading-snug">
-              Áo Blouse Trắng Chuẩn Phòng Lab
-            </p>
-            <p className="font-mono text-[11px] font-semibold text-[#D95326] dark:text-amber-400">
-              Thuê 15k · Mua 80% / 90% / Mới 100%
+            <p className="text-small font-bold text-[#0B2545] dark:text-[#F6F2E8]">
+              Áo Blouse Phòng Lab
             </p>
           </div>
         </div>
 
-        <div className="text-[11px] font-medium text-[#4A5568] dark:text-slate-300 truncate">
-          Nhận liền trước ca thực hành Hóa – Sinh – Vật liệu tại 227 NVC
+        <div className="text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70 truncate">
+          Nhận tại Sảnh Tòa I · 227 Nguyễn Văn Cừ
         </div>
       </div>
     );
   }
 
   const renderIcon = () => {
-    const props = { className: "w-10 h-10 text-sky-300/90 stroke-[1.5]" };
+    const props = {
+      className:
+        "w-8 h-8 text-[#0B2545] dark:text-[#F6F2E8] stroke-[1.5]",
+    };
     switch (fallbackIcon) {
       case "PenTool":
         return <PenTool {...props} />;
@@ -213,14 +183,6 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
         return <Sparkles {...props} />;
       case "Calculator":
         return <Calculator {...props} />;
-      case "Utensils":
-        return <Utensils {...props} />;
-      case "Flame":
-        return <Flame {...props} />;
-      case "Coffee":
-        return <Coffee {...props} />;
-      case "CupSoda":
-        return <CupSoda {...props} />;
       default:
         return <Package {...props} />;
     }
@@ -228,30 +190,22 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
 
   return (
     <div
-      className={`relative flex flex-col justify-between overflow-hidden bg-gradient-to-br ${fallbackGradient} p-5 text-white ${className}`}
+      className={`relative flex flex-col justify-between overflow-hidden bg-[#EFEAE0] dark:bg-[#152033] p-5 text-[#0B2545] dark:text-[#F6F2E8] ${className}`}
     >
-      <div className="flex items-center justify-between text-xs text-slate-300/80">
-        <span className="font-mono">{code}</span>
-        <span>FORUS CS1 · HCMUS</span>
+      <div className="flex items-center justify-between text-tiny text-[#0B2545]/60 dark:text-[#F6F2E8]/60">
+        <span>{code}</span>
+        <span>227 NVC</span>
       </div>
 
-      <div className="my-auto flex flex-col items-start gap-2.5">
-        <div className="rounded-xl bg-white/10 p-3 backdrop-blur-xs">
+      <div className="my-auto flex flex-col items-start gap-2">
+        <div className="rounded border border-[#DCD5C7] dark:border-[#233044] bg-[#F6F2E8] dark:bg-[#0E1624] p-3">
           {renderIcon()}
         </div>
-        {fallbackIcon === "Sparkles" && code.includes("FORUS-06") && (
-          <div className="font-mono text-xs tracking-wider text-sky-200/90">
-            ∀x ∈ ℝ · ∃y : P(x) ⇒ Q(y) ⇔ ∫f(x)dx
-          </div>
-        )}
-        {fallbackIcon === "Terminal" && (
-          <div className="font-mono text-[11px] text-emerald-300/90">
-            \documentclass[a4paper]&#123;article&#125; · \usepackage&#123;amsmath&#125;
-          </div>
-        )}
       </div>
 
-      <div className="text-[11px] text-slate-300/80 line-clamp-1">{alt}</div>
+      <div className="text-tiny text-[#0B2545]/70 dark:text-[#F6F2E8]/70 truncate">
+        {alt}
+      </div>
     </div>
   );
 };

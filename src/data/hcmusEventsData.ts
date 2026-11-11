@@ -88,7 +88,7 @@ export const HCMUS_OFFICIAL_CHANNELS: OfficialChannelInfo[] = [
   },
 ];
 
-// Local helper to construct local date ISO so real-time countdowns match the user's clock in November 2026 - January 2027
+// Local helper to construct dynamic future ISO timestamps relative to the current day so real-time countdowns always tick live
 const localIso = (
   year: number,
   month: number,
@@ -96,8 +96,24 @@ const localIso = (
   hour = 8,
   minute = 0
 ): string => {
-  const d = new Date(year, month - 1, day, hour, minute, 0);
-  return d.toISOString();
+  const now = new Date();
+  const baselineStart = new Date(2026, 10, 2, 0, 0, 0).getTime();
+  const todayStart = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    0,
+    0,
+    0
+  ).getTime();
+  const dayShiftMs = Math.max(0, todayStart - baselineStart);
+
+  let targetMs =
+    new Date(year, month - 1, day, hour, minute, 0).getTime() + dayShiftMs;
+  while (targetMs <= now.getTime()) {
+    targetMs += 24 * 60 * 60 * 1000;
+  }
+  return new Date(targetMs).toISOString();
 };
 
 export const HCMUS_DOCUMENT_EVENTS: HcmusDocumentEvent[] = [

@@ -64,22 +64,17 @@ function replaceRawLatexSymbolsWithUnicode(input: string): string {
 function preprocessAiMathText(rawText: string): string {
   let processed = rawText;
 
-  // Remove section headers that introduce redundant raw LaTeX blocks
   processed = processed.replace(
     /(?:^\s*(?:\d+\.\s*)?\*{0,2}(?:Mã|Code|Khung(?:\s+code)?)\s+LaTeX[^:\n]*:\*{0,2}\s*\n?)/gim,
     "\n"
   );
 
-  // Handle ```latex ... ``` or ```tex ... ``` blocks:
-  // Convert mathematical expressions inside them to visual $$ ... $$ display math,
-  // or hide pure preamble boilerplate unless it contains formulas.
   processed = processed.replace(
     /```(?:latex|tex)\s*\n([\s\S]*?)```/gi,
     (_match, inner: string) => {
       const trimmed = inner.trim();
       if (!trimmed) return "";
 
-      // If it's a full Overleaf document template (\documentclass), extract any math or summarize cleanly
       if (trimmed.includes("\\documentclass")) {
         const cleanedLines = trimmed
           .split("\n")
@@ -98,7 +93,6 @@ function preprocessAiMathText(rawText: string): string {
         return "";
       }
 
-      // Strip LaTeX comments and package imports inside formula blocks
       const formulaLines = trimmed
         .split("\n")
         .filter(
@@ -114,17 +108,14 @@ function preprocessAiMathText(rawText: string): string {
     }
   );
 
-  // Convert display math \[ ... \] to $$ ... $$
   processed = processed.replace(/\\\[([\s\S]*?)\\\]/g, (_m, inner: string) => {
     return `\n$$\n${inner.trim()}\n$$\n`;
   });
 
-  // Convert inline math \( ... \) to $ ... $
   processed = processed.replace(/\\\(([\s\S]*?)\\\)/g, (_m, inner: string) => {
     return `$${inner.trim()}$`;
   });
 
-  // Collapse 3+ consecutive newlines
   processed = processed.replace(/\n{3,}/g, "\n\n").trim();
 
   return processed;
@@ -154,7 +145,6 @@ function renderMathToHtml(latexExpr: string, displayMode: boolean): string {
 }
 
 function renderInlineFormatting(line: string): React.ReactNode[] {
-  // Match **bold**, `inline code`, and $inline math$
   const tokenRegex = /(\*\*[^*]+\*\*|`[^`]+`|\$[^$\n]+\$)/g;
   const parts = line.split(tokenRegex);
 
@@ -163,11 +153,10 @@ function renderInlineFormatting(line: string): React.ReactNode[] {
 
     if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
       const inner = part.slice(2, -2);
-      // If bold contains inline math $...$, recursively render it
       return (
         <strong
           key={idx}
-          className="font-extrabold text-[#0B2545] dark:text-amber-300"
+          className="font-bold text-current"
         >
           {inner.includes("$")
             ? renderInlineFormatting(inner)
@@ -178,7 +167,6 @@ function renderInlineFormatting(line: string): React.ReactNode[] {
 
     if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
       const innerCode = part.slice(1, -1).trim();
-      // If someone put a math formula inside backticks like `\frac{a}{b}` or `x^2 - 5x + 6 = 0`, render it nicely
       if (
         /\\(?:frac|sqrt|lim|int|sum|det|begin|ge|le|ne|cdot|pm|Delta|alpha|beta|lambda|pi)\b|\^[0-9a-zA-Z{]/.test(
           innerCode
@@ -188,7 +176,7 @@ function renderInlineFormatting(line: string): React.ReactNode[] {
         return (
           <span
             key={idx}
-            className="inline-block px-1.5 py-0.5 mx-0.5 rounded-md bg-amber-50/80 dark:bg-slate-800/90 text-[#0B2545] dark:text-amber-200 border border-amber-200/60 dark:border-slate-700 align-middle"
+            className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-[#F1F5F9] dark:bg-[#0E1624] text-[#0B2545] dark:text-[#F8FAFC] border border-[#E2E8F0] dark:border-[#233044] align-middle"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         );
@@ -196,7 +184,7 @@ function renderInlineFormatting(line: string): React.ReactNode[] {
       return (
         <code
           key={idx}
-          className="px-1.5 py-0.5 mx-0.5 rounded-md bg-[#F3EFE6] dark:bg-slate-700 font-mono text-[11px] sm:text-xs font-bold text-[#D95326] dark:text-amber-300 border border-[#E5DEC9] dark:border-slate-600"
+          className="px-1.5 py-0.5 mx-0.5 rounded bg-[#F1F5F9] dark:bg-[#0E1624] text-tiny font-bold text-[#D95326] border border-[#E2E8F0] dark:border-[#233044]"
         >
           {innerCode}
         </code>
@@ -209,7 +197,7 @@ function renderInlineFormatting(line: string): React.ReactNode[] {
       return (
         <span
           key={idx}
-          className="inline-block mx-0.5 text-[#0B2545] dark:text-amber-200 align-middle"
+          className="inline-block mx-1 px-1.5 py-0.5 rounded-[3px] bg-[#F1F5F9] dark:bg-[#0E1624]/90 text-[#0B2545] dark:text-[#F8FAFC] border border-[#E2E8F0] dark:border-[#233044] align-middle"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       );
@@ -245,7 +233,6 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
 
   const normalizedText = preprocessAiMathText(text);
 
-  // Split by fenced code blocks ```lang ... ``` or display math $$ ... $$
   const blockRegex = /(```[\s\S]*?```|\$\$[\s\S]*?\$\$)/g;
   const segments = normalizedText.split(blockRegex);
 
@@ -254,7 +241,6 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
       {segments.map((segment, segIdx) => {
         if (!segment || !segment.trim()) return null;
 
-        // Fenced code block (for C++, Python, JS, SQL, etc.)
         if (segment.startsWith("```") && segment.endsWith("```")) {
           const lines = segment.slice(3, -3).trim().split("\n");
           const firstLine = lines[0]?.trim() || "";
@@ -267,21 +253,21 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
           return (
             <div
               key={segIdx}
-              className="my-2 rounded-xl overflow-hidden border border-[#E5DEC9] dark:border-slate-700 bg-[#0B2545] text-slate-100 shadow-2xs"
+              className="my-2 rounded-md overflow-hidden border border-[#DCD5C7] dark:border-[#233044] bg-[#0B2545] text-[#F6F2E8]"
             >
-              <div className="flex items-center justify-between px-3 py-1.5 bg-[#071930] border-b border-white/10 text-[10px] font-mono">
-                <span className="font-bold text-amber-300 uppercase tracking-wider">
+              <div className="flex items-center justify-between px-3 py-1.5 bg-[#0E1624] border-b border-white/10 text-tiny">
+                <span className="font-bold text-[#D95326] uppercase tracking-wider">
                   {lang}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleCopyCode(codeContent, segIdx)}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-white font-semibold transition cursor-pointer"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-white font-bold transition cursor-pointer"
                 >
                   {copiedBlockIdx === segIdx ? (
                     <>
-                      <Check className="w-3 h-3 text-emerald-400" />
-                      <span className="text-emerald-300">Đã chép</span>
+                      <Check className="w-3 h-3 text-green-400" />
+                      <span className="text-green-400">Đã chép</span>
                     </>
                   ) : (
                     <>
@@ -291,14 +277,13 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
                   )}
                 </button>
               </div>
-              <pre className="p-3 text-[11px] sm:text-xs font-mono leading-relaxed overflow-x-auto whitespace-pre">
+              <pre className="p-3 text-tiny leading-relaxed overflow-x-auto whitespace-pre">
                 <code>{codeContent}</code>
               </pre>
             </div>
           );
         }
 
-        // Visual Display Math Block $$ ... $$ rendered via KaTeX
         if (segment.startsWith("$$") && segment.endsWith("$$")) {
           const mathContent = segment.slice(2, -2).trim();
           if (!mathContent) return null;
@@ -306,13 +291,12 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
           return (
             <div
               key={segIdx}
-              className="my-2 rounded-2xl border border-[#E5DEC9] dark:border-slate-700 bg-[#F3EFE6]/85 dark:bg-slate-900/90 px-4 py-3 text-[#0B2545] dark:text-amber-200 overflow-x-auto"
+              className="my-2.5 rounded-[4px] border border-[#E2E8F0] dark:border-[#233044] bg-[#F8FAFC] dark:bg-[#0E1624] px-4 py-3 text-[#0B2545] dark:text-[#F8FAFC] overflow-x-auto"
               dangerouslySetInnerHTML={{ __html: html }}
             />
           );
         }
 
-        // Regular markdown lines
         const lines = segment.split("\n");
         return (
           <div key={segIdx} className="space-y-1.5">
@@ -324,17 +308,16 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
                 return (
                   <hr
                     key={lineIdx}
-                    className="my-2 border-[#E5DEC9] dark:border-slate-700"
+                    className="my-2 border-[#DCD5C7] dark:border-[#233044]"
                   />
                 );
               }
 
-              // Headings ####, ###, or ##
               if (line.startsWith("#### ")) {
                 return (
                   <h5
                     key={lineIdx}
-                    className="pt-1 text-xs font-extrabold text-[#0B2545] dark:text-amber-300"
+                    className="pt-1 text-tiny font-bold text-[#0B2545] dark:text-[#F6F2E8]"
                   >
                     {renderInlineFormatting(line.slice(5))}
                   </h5>
@@ -344,7 +327,7 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
                 return (
                   <h4
                     key={lineIdx}
-                    className="pt-1 text-xs sm:text-sm font-extrabold text-[#D95326] dark:text-amber-400"
+                    className="pt-1 text-small font-bold text-[#D95326]"
                   >
                     {renderInlineFormatting(line.slice(4))}
                   </h4>
@@ -354,14 +337,13 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
                 return (
                   <h3
                     key={lineIdx}
-                    className="pt-1 text-sm sm:text-base font-extrabold text-[#0B2545] dark:text-white"
+                    className="pt-1 text-body font-bold text-[#0B2545] dark:text-[#F6F2E8]"
                   >
                     {renderInlineFormatting(line.slice(3))}
                   </h3>
                 );
               }
 
-              // Bullet points
               if (
                 line.startsWith("• ") ||
                 line.startsWith("- ") ||
@@ -372,7 +354,7 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
                     key={lineIdx}
                     className="flex items-start gap-2 pl-1 leading-relaxed"
                   >
-                    <span className="text-[#D95326] dark:text-amber-400 font-extrabold mt-0.5 shrink-0">
+                    <span className="text-[#D95326] font-bold mt-0.5 shrink-0">
                       •
                     </span>
                     <div className="flex-1 min-w-0">
@@ -382,7 +364,6 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
                 );
               }
 
-              // Numbered list (1. , 2. , etc.)
               const numMatch = line.match(/^(\d+\.)\s+(.*)$/);
               if (numMatch) {
                 return (
@@ -390,7 +371,7 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
                     key={lineIdx}
                     className="flex items-start gap-2 pl-0.5 leading-relaxed"
                   >
-                    <span className="font-mono font-extrabold text-[#0B2545] dark:text-amber-300 shrink-0">
+                    <span className="font-bold tabular-nums text-[#D95326] shrink-0">
                       {numMatch[1]}
                     </span>
                     <div className="flex-1 min-w-0">
