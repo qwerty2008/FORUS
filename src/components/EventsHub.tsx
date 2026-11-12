@@ -128,8 +128,18 @@ export const EventsHub: React.FC<EventsHubProps> = ({
         ev.organizer.toLowerCase().includes(q) ||
         ev.location.toLowerCase().includes(q);
       return matchCat && matchSearch;
+    }).sort((a, b) => {
+      const remA = calculateTimeRemaining(a.targetTimestamp, nowMs);
+      const remB = calculateTimeRemaining(b.targetTimestamp, nowMs);
+      const closedA = a.statusType === "closed" || remA.isExpired;
+      const closedB = b.statusType === "closed" || remB.isExpired;
+      if (closedA !== closedB) return closedA ? 1 : -1;
+      return (
+        new Date(a.targetTimestamp).getTime() -
+        new Date(b.targetTimestamp).getTime()
+      );
     });
-  }, [selectedCategory, searchQuery, student.remindedEventIds]);
+  }, [selectedCategory, searchQuery, student.remindedEventIds, nowMs]);
 
   const handleSaveNote = (eventId: string) => {
     onSaveEventNote(eventId, noteDrafts[eventId] || "");
@@ -382,13 +392,22 @@ export const EventsHub: React.FC<EventsHubProps> = ({
 
                   <div className="pt-3 border-t border-[#E2E8F0] dark:border-[#233044] space-y-3">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-serif-display text-small font-bold text-[#0B2545] dark:text-[#F8FAFC] tabular-nums">
+                      <span
+                        className={`font-serif-display text-tiny sm:text-small font-bold tabular-nums ${
+                          isClosed
+                            ? "text-[#0B2545]/50 dark:text-[#F8FAFC]/50"
+                            : "text-[#0B2545] dark:text-[#F8FAFC]"
+                        }`}
+                      >
                         {isClosed
                           ? "Đã khép lại"
                           : `Còn ${rem.days}n ${String(rem.hours).padStart(
                               2,
                               "0"
-                            )}g`}
+                            )}g ${String(rem.minutes).padStart(
+                              2,
+                              "0"
+                            )}p ${String(rem.seconds).padStart(2, "0")}s`}
                       </span>
 
                       <div className="flex items-center gap-1.5">

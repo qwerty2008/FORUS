@@ -247,14 +247,14 @@ export const About: React.FC<AboutProps> = ({
     "https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=0&color=0B2545&bgcolor=FFFFFF&data=https%3A%2F%2Fqwerty2008.github.io%2FFORUS%2F";
 
   return (
-    <div className="space-y-24 sm:space-y-28 pb-20">
+    <div className="w-full space-y-20 sm:space-y-24 pb-20">
       {/* =================================================================
-          SECTION 1 OF 6: HERO (MID EDITORIAL, IMAGE-AS-CANVAS)
+          SECTION 1 OF 6: HERO (FULL-SCREEN WIDTH & VIEWPORT HEIGHT)
           Anchor: Bottom-left text over full-bleed desk & paper sailboat art
           ================================================================= */}
       <section
         ref={heroRef}
-        className="relative min-h-[500px] sm:min-h-[560px] lg:min-h-[620px] rounded-[4px] overflow-hidden border border-[#E2E8F0] dark:border-[#233044] flex items-end"
+        className="relative w-full min-h-[560px] sm:min-h-[640px] lg:min-h-[calc(100vh-4rem)] overflow-hidden border-b border-[#E2E8F0] dark:border-[#233044] flex items-end"
       >
         {/* Full-bleed Lab Notebook Desk Illustration with subtle parallax */}
         <motion.div
@@ -279,12 +279,12 @@ export const About: React.FC<AboutProps> = ({
         {/* Vertical Red Margin Line running down the left */}
         <div
           aria-hidden="true"
-          className="absolute top-0 bottom-0 left-5 sm:left-10 w-[1.5px] bg-[#D95326]/85 z-10"
+          className="absolute top-0 bottom-0 left-5 sm:left-10 lg:left-16 w-[1.5px] bg-[#D95326]/85 z-10"
         />
 
         {/* Bottom Safe Area Content + Aesthetic Lab-Notebook QR Stamp Card */}
-        <div className="relative z-20 w-full p-6 pl-9 sm:p-10 sm:pl-14 lg:p-14 lg:pl-20 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-          <div className="max-w-2xl space-y-5">
+        <div className="relative z-20 w-full px-6 pl-9 sm:px-12 sm:pl-16 lg:px-20 lg:pl-24 py-10 sm:py-14 lg:py-16 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="max-w-3xl space-y-5">
             <span className="stamp bg-[#0B2545]/80 text-[#F8FAFC] border-[#D95326]">
               Sổ tay tiện ích · 227 Nguyễn Văn Cừ
             </span>
@@ -382,7 +382,7 @@ export const About: React.FC<AboutProps> = ({
           SECTION 2 OF 6: HỌC CỤ CHO TUẦN THI (4 SPACIOUS PRODUCT CARDS)
           Anchor: Top-left headline, balanced spec cards, bottom-right link
           ================================================================= */}
-      <section className="paper-grid rounded-[4px] border border-[#E2E8F0] dark:border-[#233044] p-6 sm:p-10 lg:p-12 space-y-8">
+      <section className="w-full paper-grid border-y border-[#E2E8F0] dark:border-[#233044] px-6 sm:px-12 lg:px-20 py-14 sm:py-16 lg:py-20 space-y-10">
         <div className="pl-4 margin-rule flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-1.5">
             <RevealHeading text="Học cụ cho tuần thi" />
@@ -393,8 +393,8 @@ export const About: React.FC<AboutProps> = ({
           <span className="stamp">Cọc 0đ với thẻ sinh viên KHTN</span>
         </div>
 
-        {/* 4 Spacious Product Frames: 1 col mobile, 2x2 tablet/laptop, 4 cols wide desktop */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 sm:gap-6">
+        {/* 4 Spacious Product Frames across full width */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8">
           {featuredGearProducts.map((product) => (
             <ProductCard
               key={product.id}
@@ -417,19 +417,19 @@ export const About: React.FC<AboutProps> = ({
       </section>
 
       {/* =================================================================
-          SECTION 3 OF 6: BA TÌNH HUỐNG (OFF-GRID EDITORIAL DIPTYCH)
+          SECTION 3 OF 6: BA TÌNH HUỐNG (FULL-WIDTH EDITORIAL DIPTYCH)
           Anchor: Color-blocked diptych (left paper / right navy)
           ================================================================= */}
-      <section className="rounded-[4px] overflow-hidden border border-[#E2E8F0] dark:border-[#233044] grid grid-cols-1 lg:grid-cols-12">
+      <section className="w-full min-h-[560px] lg:min-h-[78vh] overflow-hidden border-y border-[#E2E8F0] dark:border-[#233044] grid grid-cols-1 lg:grid-cols-12">
         {/* Left Field: Paper White (Scenes 1 & 2 staggered off-grid) */}
-        <div className="lg:col-span-7 bg-white dark:bg-[#152033] paper-grid p-6 sm:p-10 lg:p-14 flex flex-col justify-between gap-12 relative">
+        <div className="lg:col-span-7 bg-white dark:bg-[#152033] paper-grid px-6 sm:px-12 lg:px-20 py-12 sm:py-16 lg:py-20 flex flex-col justify-between gap-12 relative">
           <div
             aria-hidden="true"
-            className="hidden sm:block absolute top-0 bottom-0 left-6 w-[1.5px] bg-[#D95326]/70"
+            className="hidden sm:block absolute top-0 bottom-0 left-8 lg:left-14 w-[1.5px] bg-[#D95326]/70"
           />
 
           {/* Scene 01 */}
-          <div className="sm:pl-6 max-w-md space-y-3">
+          <div className="sm:pl-8 lg:pl-6 max-w-xl space-y-3.5">
             <div className="flex items-center gap-3">
               {/* Small Ink-Line Calculator Icon */}
               <svg
@@ -466,7 +466,7 @@ export const About: React.FC<AboutProps> = ({
           </div>
 
           {/* Scene 02 — Shifted right off-grid on desktop */}
-          <div className="sm:pl-6 lg:ml-24 max-w-md space-y-3 border-t border-[#E2E8F0] dark:border-[#233044] pt-8">
+          <div className="sm:pl-8 lg:pl-6 lg:ml-28 max-w-xl space-y-3.5 border-t border-[#E2E8F0] dark:border-[#233044] pt-10">
             <div className="flex items-center gap-3">
               {/* Small Ink-Line Poster Tube Icon */}
               <svg
@@ -502,7 +502,7 @@ export const About: React.FC<AboutProps> = ({
         </div>
 
         {/* Right Field: Deep Navy #0B2545 (Scene 3) */}
-        <div className="lg:col-span-5 bg-[#0B2545] text-[#F8FAFC] p-6 sm:p-10 lg:p-14 flex flex-col justify-center space-y-5 border-t lg:border-t-0 lg:border-l border-[#233044]">
+        <div className="lg:col-span-5 bg-[#0B2545] text-[#F8FAFC] px-6 sm:px-12 lg:px-16 py-12 sm:py-16 lg:py-20 flex flex-col justify-center space-y-6 border-t lg:border-t-0 lg:border-l border-[#233044]">
           <div className="flex items-center gap-3">
             {/* Small Ink-Line Countdown Clock Icon */}
             <svg
@@ -523,7 +523,7 @@ export const About: React.FC<AboutProps> = ({
             Form đóng sau 2 giờ.
           </h3>
 
-          <p className="text-small text-[#F8FAFC]/80">
+          <p className="text-small text-[#F8FAFC]/80 max-w-md">
             Theo dõi đồng hồ đếm ngược các buổi seminar, học bổng và hoạt động tình nguyện tại Cơ sở 1.
           </p>
 
@@ -542,9 +542,9 @@ export const About: React.FC<AboutProps> = ({
 
       {/* =================================================================
           SECTION 4 OF 6: BA LỐI TẮT (HOVER-ACCORDION SLICES)
-          Anchor: 3 tall vertical slices that expand on hover
+          Anchor: 3 tall vertical slices that expand on hover across full width
           ================================================================= */}
-      <section className="space-y-6">
+      <section className="w-full px-6 sm:px-12 lg:px-20 space-y-8">
         <div className="pl-4 margin-rule flex items-baseline justify-between gap-4">
           <RevealHeading text="Ba lối tắt dịch vụ tại Sảnh Tòa I" />
           <span className="text-tiny text-[#0B2545]/60 dark:text-[#F8FAFC]/60 hidden sm:inline">
@@ -552,7 +552,7 @@ export const About: React.FC<AboutProps> = ({
           </span>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-4 lg:h-[460px]">
+        <div className="flex flex-col lg:flex-row gap-5 lg:h-[520px]">
           {[
             {
               id: "print" as const,
@@ -587,7 +587,7 @@ export const About: React.FC<AboutProps> = ({
                 onMouseEnter={() => setActiveSlice(slice.id)}
                 onFocus={() => setActiveSlice(slice.id)}
                 onClick={() => onNavigateTab(slice.tab)}
-                className={`group relative overflow-hidden rounded-[4px] border border-[#E2E8F0] dark:border-[#233044] text-left transition-all duration-300 cursor-pointer min-h-[240px] lg:min-h-0 flex flex-col justify-end p-6 ${
+                className={`group relative overflow-hidden rounded-[4px] border border-[#E2E8F0] dark:border-[#233044] text-left transition-all duration-300 cursor-pointer min-h-[260px] lg:min-h-0 flex flex-col justify-end p-6 sm:p-8 ${
                   isExpanded ? "lg:flex-[1.85]" : "lg:flex-1"
                 }`}
               >
@@ -605,7 +605,7 @@ export const About: React.FC<AboutProps> = ({
                 />
                 <div
                   aria-hidden="true"
-                  className="absolute top-0 bottom-0 left-4 w-[1px] bg-[#D95326]/75"
+                  className="absolute top-0 bottom-0 left-5 w-[1px] bg-[#D95326]/75"
                 />
 
                 <div className="relative z-10 pl-3 space-y-1.5">
@@ -629,11 +629,11 @@ export const About: React.FC<AboutProps> = ({
       </section>
 
       {/* =================================================================
-          SECTION 5 OF 6: TRỢ LÝ AI & SƠ ĐỒ CS1 (BLUEPRINT DARK)
+          SECTION 5 OF 6: TRỢ LÝ AI & SƠ ĐỒ CS1 (FULL-WIDTH BLUEPRINT DARK)
           Anchor: Right 1/3 serif caption + ghost button; Left 2/3 real UI
           ================================================================= */}
-      <section className="dark blueprint-grid rounded-[4px] border border-[#233044] p-6 sm:p-10 lg:p-14 text-[#F8FAFC]">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+      <section className="w-full min-h-[540px] lg:min-h-[76vh] dark blueprint-grid border-y border-[#233044] px-6 sm:px-12 lg:px-20 py-14 sm:py-18 lg:py-24 text-[#F8FAFC] flex items-center">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Right 1/3 Caption (lg:order-2) */}
           <div className="lg:col-span-4 lg:order-2 space-y-5 pl-4 margin-rule">
             <span className="stamp border-[#D95326] text-[#F8FAFC]">
@@ -658,10 +658,10 @@ export const About: React.FC<AboutProps> = ({
           </div>
 
           {/* Left 2/3 Real Believable UI Panel (lg:order-1) */}
-          <div className="lg:col-span-8 lg:order-1 space-y-4">
+          <div className="lg:col-span-8 lg:order-1 space-y-5">
             {/* Thin-line Architectural Floor Plan Preview */}
-            <div className="rounded-[4px] border border-[#233044] bg-[#152033]/90 p-4 sm:p-5 space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#233044] pb-2.5 text-tiny">
+            <div className="rounded-[4px] border border-[#233044] bg-[#152033]/90 p-5 sm:p-6 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#233044] pb-3 text-tiny">
                 <span className="font-bold text-[#F8FAFC]">
                   MẶT BẰNG CƠ SỞ 1 — 227 NGUYỄN VĂN CỪ (TẦNG B1 → L11)
                 </span>
@@ -670,7 +670,7 @@ export const About: React.FC<AboutProps> = ({
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-tiny">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 text-tiny">
                 {[
                   { code: "Tòa F", desc: "P.F102 · F203", highlight: false },
                   { code: "Tòa C", desc: "Lab Địa chất", highlight: false },
@@ -681,7 +681,7 @@ export const About: React.FC<AboutProps> = ({
                 ].map((b) => (
                   <div
                     key={b.code}
-                    className={`p-2.5 rounded-[2px] border ${
+                    className={`p-3 rounded-[2px] border ${
                       b.highlight
                         ? "border-[#D95326] bg-[#D95326]/15 text-[#F8FAFC]"
                         : "border-[#233044] bg-[#0E1624]/70 text-[#F8FAFC]/80"
@@ -697,12 +697,12 @@ export const About: React.FC<AboutProps> = ({
             </div>
 
             {/* Real KaTeX Math Chat Preview Card */}
-            <div className="rounded-[4px] border border-[#233044] bg-[#0E1624] p-4 sm:p-5 space-y-3">
+            <div className="rounded-[4px] border border-[#233044] bg-[#0E1624] p-5 sm:p-6 space-y-3">
               <div className="flex items-center justify-between text-tiny text-[#F8FAFC]/60">
                 <span>TRỢ LÝ AI HỌC THUẬT FORUS</span>
                 <span>KaTeX Math</span>
               </div>
-              <div className="text-small text-[#F8FAFC] bg-[#152033] border border-[#233044] rounded-[4px] p-3.5">
+              <div className="text-small text-[#F8FAFC] bg-[#152033] border border-[#233044] rounded-[4px] p-4">
                 <FormattedAiMessage
                   text={
                     "Khai triển Maclaurin của hàm số $f(x) = \\sin(x)$ đến bậc 5:\n$$\\sin(x) = x - \\frac{x^3}{3!} + \\frac{x^5}{5!} + O(x^7)$$"
@@ -719,7 +719,7 @@ export const About: React.FC<AboutProps> = ({
           SECTION 6 OF 6: KẾT (PAPER SAILBOAT SECOND-READ + SỔ TAY FAQ)
           Anchor: Centered minimalist closing + Notebook FAQ & Contact
           ================================================================= */}
-      <section className="space-y-16">
+      <section className="w-full px-6 sm:px-12 lg:px-20 space-y-16">
         {/* Centered Minimalist Closing with Second-Read Paper Boat (hidden when logged in) */}
         {!isLoggedIn && (
           <div className="py-12 sm:py-16 px-4 text-center max-w-xl mx-auto space-y-5 border-b border-[#E2E8F0] dark:border-[#233044]">
@@ -761,7 +761,7 @@ export const About: React.FC<AboutProps> = ({
         <div
           ref={faqSectionRef}
           id="faq-notebook-section"
-          className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start pt-4"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start pt-4"
         >
           {/* Left 7 Cols: Lab Notebook FAQ */}
           <div className="lg:col-span-7 space-y-5">
@@ -827,7 +827,7 @@ export const About: React.FC<AboutProps> = ({
           </div>
 
           {/* Right 5 Cols: Contact Station Sảnh Tòa I */}
-          <div className="lg:col-span-5 rounded-[4px] border border-[#E2E8F0] dark:border-[#233044] bg-white dark:bg-[#152033] p-6 space-y-5">
+          <div className="lg:col-span-5 rounded-[4px] border border-[#E2E8F0] dark:border-[#233044] bg-white dark:bg-[#152033] p-6 sm:p-8 space-y-5">
             <div className="pl-3 margin-rule space-y-1">
               <h3 className="font-serif-display text-h2 font-bold">
                 Trạm trực Sảnh Tòa I — CS1

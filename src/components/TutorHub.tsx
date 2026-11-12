@@ -438,27 +438,15 @@ export const TutorHub: React.FC<TutorHubProps> = ({
                     </span>
                   </div>
 
-                  {/* Body with ID Avatar Box & Margin Rule */}
+                  {/* Body with Margin Rule */}
                   <div className="p-4 sm:p-5 space-y-3 flex-1">
-                    <div className="flex items-start gap-3">
-                      {/* Square Student ID Portrait Box */}
-                      <div className="w-11 h-12 rounded-[2px] border border-[#0B2545]/25 dark:border-[#233044] bg-[#F8FAFC] dark:bg-[#0E1624] flex flex-col items-center justify-center shrink-0">
-                        <span className="font-serif-display text-body font-bold text-[#0B2545] dark:text-[#F8FAFC]">
-                          {item.subject.slice(0, 2).toUpperCase()}
-                        </span>
-                        <span className="text-tiny text-[#D95326] font-bold leading-none">
-                          CS1
-                        </span>
-                      </div>
-
-                      <div className="pl-2.5 margin-rule min-w-0 space-y-1">
-                        <p className="text-tiny font-bold text-[#0B2545]/65 dark:text-[#F8FAFC]/65 truncate">
-                          {item.subject}
-                        </p>
-                        <h3 className="font-serif-display text-h2 font-bold text-[#0B2545] dark:text-[#F8FAFC] line-clamp-2">
-                          {item.title}
-                        </h3>
-                      </div>
+                    <div className="pl-3 margin-rule min-w-0 space-y-1">
+                      <p className="text-tiny font-bold text-[#0B2545]/65 dark:text-[#F8FAFC]/65 truncate">
+                        {item.subject}
+                      </p>
+                      <h3 className="font-serif-display text-h2 font-bold text-[#0B2545] dark:text-[#F8FAFC] line-clamp-2">
+                        {item.title}
+                      </h3>
                     </div>
 
                     <div className="space-y-1 text-tiny text-[#0B2545]/75 dark:text-[#F8FAFC]/75 pt-1">

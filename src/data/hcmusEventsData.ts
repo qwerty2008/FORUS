@@ -88,7 +88,7 @@ export const HCMUS_OFFICIAL_CHANNELS: OfficialChannelInfo[] = [
   },
 ];
 
-// Local helper to construct dynamic future ISO timestamps relative to the current day so real-time countdowns always tick live
+// Construct real-time local ISO timestamps matching the exact event date & time
 const localIso = (
   year: number,
   month: number,
@@ -96,24 +96,7 @@ const localIso = (
   hour = 8,
   minute = 0
 ): string => {
-  const now = new Date();
-  const baselineStart = new Date(2026, 10, 2, 0, 0, 0).getTime();
-  const todayStart = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    0,
-    0,
-    0
-  ).getTime();
-  const dayShiftMs = Math.max(0, todayStart - baselineStart);
-
-  let targetMs =
-    new Date(year, month - 1, day, hour, minute, 0).getTime() + dayShiftMs;
-  while (targetMs <= now.getTime()) {
-    targetMs += 24 * 60 * 60 * 1000;
-  }
-  return new Date(targetMs).toISOString();
+  return new Date(year, month - 1, day, hour, minute, 0).toISOString();
 };
 
 export const HCMUS_DOCUMENT_EVENTS: HcmusDocumentEvent[] = [
@@ -464,7 +447,7 @@ export const HCMUS_DOCUMENT_EVENTS: HcmusDocumentEvent[] = [
     statusText: "Mở tham dự tự do; chuẩn bị nhận Full-text (01/12/2026)",
     statusType: "open",
     location: "Cơ sở 1 (227 Nguyễn Văn Cừ, Phường Chợ Quán, TP.HCM)",
-    targetTimestamp: localIso(2026, 11, 9, 8, 0),
+    targetTimestamp: localIso(2026, 11, 16, 17, 30),
     eventStartTimestamp: localIso(2026, 11, 9, 8, 0),
     eventEndTimestamp: localIso(2026, 11, 16, 17, 30),
     summary:
@@ -489,10 +472,10 @@ export const HCMUS_DOCUMENT_EVENTS: HcmusDocumentEvent[] = [
       "09/11 – 16/11/2026 (Các phiên chính: 09/11, 12/11, 15/11/2026)",
     deadlineText:
       "Hạn nộp bản hoàn chỉnh: 30/10/2026; Nộp toàn văn đăng tạp chí: từ 01/12/2026",
-    statusText: "Sắp diễn ra (Mở tham dự tự do)",
-    statusType: "upcoming",
+    statusText: "Đang diễn ra (Mở tham dự tự do)",
+    statusType: "open",
     location: "Cơ sở 1 (227 Nguyễn Văn Cừ, Phường Chợ Quán, TP.HCM)",
-    targetTimestamp: localIso(2026, 11, 9, 8, 30),
+    targetTimestamp: localIso(2026, 11, 15, 17, 30),
     eventStartTimestamp: localIso(2026, 11, 9, 8, 30),
     eventEndTimestamp: localIso(2026, 11, 15, 17, 30),
     summary:
@@ -513,10 +496,10 @@ export const HCMUS_DOCUMENT_EVENTS: HcmusDocumentEvent[] = [
     categoryLabel: "Hội thảo Liên Khoa (HNKH 15)",
     eventTimeText: "12/11 – 13/11/2026 (Thứ Năm – Thứ Sáu)",
     deadlineText: "Hạn hoàn tất đăng ký trình bày: 30/10/2026",
-    statusText: "Sắp diễn ra",
-    statusType: "upcoming",
+    statusText: "Đang diễn ra",
+    statusType: "open",
     location: "Cơ sở 1 (227 Nguyễn Văn Cừ, Phường Chợ Quán, TP.HCM)",
-    targetTimestamp: localIso(2026, 11, 12, 8, 0),
+    targetTimestamp: localIso(2026, 11, 13, 17, 0),
     eventStartTimestamp: localIso(2026, 11, 12, 8, 0),
     eventEndTimestamp: localIso(2026, 11, 13, 17, 0),
     summary:
@@ -539,7 +522,7 @@ export const HCMUS_DOCUMENT_EVENTS: HcmusDocumentEvent[] = [
     statusText: "Sắp diễn ra",
     statusType: "upcoming",
     location: "Cơ sở 1 (227 Nguyễn Văn Cừ, Phường Chợ Quán, TP.HCM)",
-    targetTimestamp: localIso(2026, 11, 13, 8, 0),
+    targetTimestamp: localIso(2026, 11, 14, 17, 0),
     eventStartTimestamp: localIso(2026, 11, 13, 8, 0),
     eventEndTimestamp: localIso(2026, 11, 14, 17, 0),
     summary:

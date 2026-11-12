@@ -1587,7 +1587,13 @@ export default function App() {
       )}
 
       {/* Main Content Area with Subtle Fade Transition */}
-      <main className="max-w-[1320px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-28 lg:pb-16">
+      <main
+        className={
+          activeTab === "home" || activeTab === "about"
+            ? "w-full pb-28 lg:pb-16"
+            : "max-w-[1320px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-28 lg:pb-16"
+        }
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
