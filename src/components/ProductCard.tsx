@@ -20,9 +20,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   );
 
   const hasRent = product.variants.some((v) => v.type === "rent");
-  const hasBuy = product.variants.some((v) => v.type === "buy");
-  const stampLabel =
-    hasRent && hasBuy ? "THUÊ & MUA" : hasRent ? "CHO THUÊ" : "MUA ĐỨT";
   const pricePrefix = hasRent ? "Thuê từ" : "Giá từ";
 
   const minVariant = product.variants.reduce(
@@ -34,29 +31,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const displayImage =
     product.imageUrl || product.modelOptions?.[0]?.imageUrl;
 
-  const optionCountLabel =
-    product.modelOptions && product.modelOptions.length > 0
-      ? `${product.modelOptions.length} mẫu tùy chọn`
-      : `${product.variants.length} gói giá`;
-
   return (
     <button
       type="button"
       onClick={() => onSelect(product)}
-      className={`group relative flex flex-col justify-between text-left w-full h-full border border-[#E2E8F0] dark:border-[#233044] bg-white dark:bg-[#152033] rounded-[4px] overflow-hidden transition-all hover:border-[#0B2545] dark:hover:border-[#F8FAFC]/60 cursor-pointer focus-visible:outline-2 focus-visible:outline-[#D95326] ${className}`}
+      className={`group relative flex flex-col justify-between text-left w-full h-full border border-[#E4E0D8] dark:border-[#1E353F] bg-white dark:bg-[#122128] rounded-md overflow-hidden transition-all hover:border-[#0D9488] dark:hover:border-[#2DD4BF] cursor-pointer focus-visible:outline-2 focus-visible:outline-[#0D9488] ${className}`}
     >
       <div className="w-full">
-        {/* Top Archival Spec Header: Code + Option Count & Stamp (never clips) */}
-        <div className="px-4 pt-3.5 flex items-center justify-between gap-2">
-          <span className="text-tiny font-bold text-[#0B2545]/60 dark:text-[#F8FAFC]/60 tabular-nums truncate">
-            {product.code} · {optionCountLabel}
-          </span>
-          <span className="stamp shrink-0">{stampLabel}</span>
-        </div>
-
         {/* Layered Image Frame */}
-        <div className="px-4 pt-2.5 pb-0 w-full">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2px] border border-[#E2E8F0] dark:border-[#233044] bg-[#F8FAFC] dark:bg-[#0E1624]">
+        <div className="px-4 pt-4 pb-0 w-full">
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5] dark:bg-[#0B1519]">
             <ProductVisual
               imageUrl={displayImage}
               alt={product.name}
@@ -67,28 +51,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
 
-        {/* Title (2 lines) & Subtitle (2 lines) */}
-        <div className="px-4 pt-3.5 pb-3 space-y-1.5 w-full">
-          <h3 className="text-body font-bold text-[#0B2545] dark:text-[#F8FAFC] line-clamp-2 leading-snug group-hover:text-[#D95326] transition-colors">
+        {/* Title (2 lines) & 1-line/2-line Subtitle (>=16px) */}
+        <div className="px-4 pt-4 pb-3 space-y-1.5 w-full">
+          <h3 className="font-serif-display text-[18px] font-bold text-[#0F2228] dark:text-[#F1F5F9] line-clamp-2 leading-snug group-hover:text-[#0D9488] dark:group-hover:text-[#2DD4BF] transition-colors">
             {product.name}
           </h3>
-          <p className="text-tiny text-[#0B2545]/70 dark:text-[#F8FAFC]/70 line-clamp-2 leading-relaxed">
+          <p className="text-[16px] text-[#334E58] dark:text-[#CBD5E1] line-clamp-2 leading-relaxed">
             {product.subtitle}
           </p>
         </div>
       </div>
 
-      {/* Bottom Price & Action Bar */}
-      <div className="px-4 pb-4 pt-2.5 w-full mt-auto">
-        <div className="pt-3 border-t border-[#E2E8F0] dark:border-[#233044] flex items-end justify-between gap-2">
+      {/* Bottom Price & Action Bar (min-h 44px touch target) */}
+      <div className="px-4 pb-4 pt-2 w-full mt-auto">
+        <div className="pt-3 border-t border-[#E4E0D8] dark:border-[#1E353F] flex items-end justify-between gap-2 min-h-[44px]">
           <div>
-            <span className="block text-tiny text-[#0B2545]/65 dark:text-[#F8FAFC]/65">
+            <span className="block text-[14px] font-medium text-[#334E58] dark:text-[#CBD5E1]">
               {pricePrefix}
             </span>
-            <span className="text-h2 font-bold text-[#0B2545] dark:text-[#F8FAFC] tabular-nums">
+            <span className="font-serif-display text-[20px] font-bold text-[#0F2228] dark:text-[#F1F5F9] tabular-nums">
               {minPrice.toLocaleString("vi-VN")}đ
               {priceUnit && (
-                <span className="text-tiny font-normal text-[#0B2545]/65 dark:text-[#F8FAFC]/65">
+                <span className="text-[14px] font-normal text-[#334E58] dark:text-[#CBD5E1]">
                   {priceUnit}
                 </span>
               )}
@@ -96,12 +80,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           <div className="flex flex-col items-end gap-0.5 shrink-0">
-            <span className="text-tiny font-bold text-[#D95326] tabular-nums">
+            <span className="text-[14px] font-bold text-[#0F766E] dark:text-[#2DD4BF] tabular-nums">
               +{product.pointsReward}đ VIP
             </span>
-            <span className="inline-flex items-center gap-0.5 text-tiny font-bold text-[#0B2545] dark:text-[#F8FAFC] group-hover:text-[#D95326] transition-colors">
+            <span className="inline-flex items-center gap-1 text-[15px] font-bold text-[#0F2228] dark:text-[#F1F5F9] group-hover:text-[#0D9488] dark:group-hover:text-[#2DD4BF] transition-colors">
               <span>Chi tiết</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-4 h-4" />
             </span>
           </div>
         </div>

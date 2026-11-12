@@ -5,6 +5,7 @@ import {
   subscribeSharedChatExchange,
 } from "./utils/forusChatService";
 import {
+  Home,
   Calendar,
   Printer,
   GraduationCap,
@@ -1051,38 +1052,38 @@ export default function App() {
     {
       id: "home",
       shortLabel: "Trang chủ",
-      icon: <Sparkles className="w-5 h-5" />,
+      icon: <Home className="w-6 h-6" />,
     },
     {
       id: "gear",
       shortLabel: "Học cụ",
-      icon: <ShoppingBag className="w-5 h-5" />,
+      icon: <ShoppingBag className="w-6 h-6" />,
     },
     {
       id: "events",
       shortLabel: "Sự kiện",
-      icon: <Calendar className="w-5 h-5" />,
+      icon: <Calendar className="w-6 h-6" />,
     },
     {
       id: "print",
       shortLabel: "In ấn",
-      icon: <Printer className="w-5 h-5" />,
+      icon: <Printer className="w-6 h-6" />,
     },
     {
       id: "tutor",
       shortLabel: "Gia sư",
-      icon: <GraduationCap className="w-5 h-5" />,
+      icon: <GraduationCap className="w-6 h-6" />,
     },
     {
       id: "vip",
       shortLabel: "Tính năng",
-      icon: <Crown className="w-5 h-5" />,
+      icon: <Crown className="w-6 h-6" />,
     },
   ];
 
   return (
     <div
-      className={`min-h-screen w-full max-w-[100vw] overflow-x-clip transition-colors duration-200 ${
+      className={`min-h-screen w-full max-w-[100vw] overflow-x-clip pt-20 transition-colors duration-200 ${
         isDark
           ? "dark bg-[#0E1624] text-[#F8FAFC]"
           : "bg-[#F8FAFC] text-[#0B2545]"
@@ -1096,14 +1097,14 @@ export default function App() {
         </div>
       )}
 
-      {/* Editorial Top Header */}
-      <header className="sticky top-0 z-40 bg-[#F8FAFC]/95 dark:bg-[#0E1624]/95 backdrop-blur-md border-b border-[#E2E8F0] dark:border-[#233044]">
-        <div className="max-w-[1320px] mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
+      {/* Fixed Top Header (Always visible at top: 0 when scrolling) */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#FAF8F5]/95 dark:bg-[#0B1519]/95 backdrop-blur-md border-b border-[#E4E0D8] dark:border-[#1E353F] shadow-2xs">
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16 h-20 flex items-center justify-between gap-4">
           {/* Brand Logo */}
           <button
             type="button"
             onClick={() => switchTab("home")}
-            className="flex items-center gap-2.5 text-left shrink-0 cursor-pointer py-1"
+            className="min-h-[44px] flex items-center gap-2.5 text-left shrink-0 cursor-pointer py-1"
           >
             <img
               src={isDark ? BRAND_ASSETS.logoDark : BRAND_ASSETS.logoLight}
@@ -1112,8 +1113,8 @@ export default function App() {
             />
           </button>
 
-          {/* Desktop Unboxed Editorial Navigation */}
-          <nav className="hidden lg:flex items-center gap-7">
+          {/* Desktop Editorial Navigation */}
+          <nav className="hidden lg:flex items-center gap-7" aria-label="Điều hướng chính">
             {desktopNavItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -1121,35 +1122,35 @@ export default function App() {
                   key={item.id}
                   type="button"
                   onClick={() => switchTab(item.id)}
-                  className={`relative py-2 text-small font-bold transition-colors cursor-pointer ${
+                  className={`relative min-h-[44px] px-1 py-2 text-[16px] font-bold transition-colors cursor-pointer ${
                     isActive
-                      ? "text-[#D95326]"
-                      : "text-[#0B2545]/75 hover:text-[#0B2545] dark:text-[#F8FAFC]/75 dark:hover:text-[#F8FAFC]"
+                      ? "text-[#0F766E] dark:text-[#2DD4BF]"
+                      : "text-[#0F2228]/80 hover:text-[#0F2228] dark:text-[#F1F5F9]/80 dark:hover:text-[#F1F5F9]"
                   }`}
                 >
                   <span>{item.label}</span>
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D95326]" />
+                    <span className="absolute bottom-1 left-0 right-0 h-0.5 bg-[#0D9488]" />
                   )}
                 </button>
               );
             })}
           </nav>
 
-          {/* Right Controls: Theme, Cart, Account */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Right Controls: Theme, Cart, Account (min-h 44px touch targets) */}
+          <div className="flex items-center gap-2.5 shrink-0">
             <button
               type="button"
               onClick={() =>
                 setTheme((prev) => (prev === "dark" ? "light" : "dark"))
               }
               aria-label="Đổi chế độ Sáng / Tối"
-              className="w-10 h-10 rounded border border-[#DCD5C7] dark:border-[#233044] flex items-center justify-center hover:border-[#0B2545] dark:hover:border-[#F6F2E8] transition cursor-pointer"
+              className="w-11 h-11 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] flex items-center justify-center hover:border-[#0D9488] dark:hover:border-[#2DD4BF] transition cursor-pointer"
             >
               {isDark ? (
-                <Sun className="w-4 h-4 text-[#D95326]" />
+                <Sun className="w-4 h-4 text-[#2DD4BF]" />
               ) : (
-                <Moon className="w-4 h-4" />
+                <Moon className="w-4 h-4 text-[#0F2228]" />
               )}
             </button>
 
@@ -1161,11 +1162,11 @@ export default function App() {
                 }
               }}
               aria-label="Giỏ hàng"
-              className="relative w-10 h-10 rounded border border-[#DCD5C7] dark:border-[#233044] flex items-center justify-center hover:border-[#0B2545] dark:hover:border-[#F6F2E8] transition cursor-pointer"
+              className="relative w-11 h-11 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] flex items-center justify-center hover:border-[#0D9488] dark:hover:border-[#2DD4BF] transition cursor-pointer"
             >
               <ShoppingCart className="w-4 h-4" />
               {totalCartItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded bg-[#D95326] text-white font-bold text-tiny flex items-center justify-center tabular-nums">
+                <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded bg-[#0D9488] text-white font-bold text-[13px] flex items-center justify-center tabular-nums">
                   {totalCartItems}
                 </span>
               )}
@@ -1179,7 +1180,7 @@ export default function App() {
                   ? "Hồ sơ cá nhân & Thành tích Gia sư"
                   : "Đăng nhập tài khoản Sinh viên"
               }
-              className="h-10 px-3 rounded border border-[#DCD5C7] dark:border-[#233044] flex items-center gap-2 hover:border-[#0B2545] dark:hover:border-[#F6F2E8] transition cursor-pointer"
+              className="min-h-[44px] px-3.5 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] flex items-center gap-2 hover:border-[#0D9488] dark:hover:border-[#2DD4BF] transition cursor-pointer"
             >
               {student.isLoggedIn && student.avatarUrl ? (
                 <img
@@ -1191,9 +1192,9 @@ export default function App() {
                   className="w-6 h-6 rounded-full object-cover"
                 />
               ) : (
-                <UserCheck className="w-4 h-4 text-[#D95326]" />
+                <UserCheck className="w-4 h-4 text-[#0D9488]" />
               )}
-              <span className="hidden sm:inline text-tiny font-bold truncate max-w-[110px]">
+              <span className="hidden sm:inline text-[15px] font-bold truncate max-w-[120px]">
                 {student.isLoggedIn
                   ? student.fullName.split(" ").slice(-2).join(" ")
                   : "Đăng nhập"}
@@ -1590,8 +1591,8 @@ export default function App() {
       <main
         className={
           activeTab === "home" || activeTab === "about"
-            ? "w-full pb-28 lg:pb-16"
-            : "max-w-[1320px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-28 lg:pb-16"
+            ? "w-full pb-28 lg:pb-0"
+            : "max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16 pt-8 sm:pt-12 pb-28 lg:pb-16"
         }
       >
         <AnimatePresence mode="wait">
@@ -1677,91 +1678,121 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      {/* Editorial Footer */}
-      <footer className="border-t border-[#DCD5C7] dark:border-[#233044] bg-[#EFEAE0]/60 dark:bg-[#152033]/60 py-12 pb-28 lg:pb-12">
-        <div className="max-w-[1320px] mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-small">
-          <div className="space-y-2">
-            <h4 className="text-body font-bold">FORUS — 227 Nguyễn Văn Cừ</h4>
-            <p className="text-tiny text-[#0B2545]/75 dark:text-[#F6F2E8]/75">
-              “Tiện ích trong tay, học hay mỗi ngày” — Trạm học cụ, in ấn, sự kiện rèn luyện và gia sư phục vụ sinh viên ĐH Khoa học Tự nhiên (ĐHQG-HCM).
-            </p>
+      {/* Compact Aligned Footer with Contact & Social Links */}
+      <footer className="border-t border-[#E4E0D8] dark:border-[#1E353F] bg-[#F3EFEA] dark:bg-[#122128] py-12 pb-28 lg:pb-12">
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16 space-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-[16px]">
+            <div className="space-y-2.5">
+              <h4 className="font-serif-display text-[18px] font-bold text-[#0F2228] dark:text-[#F1F5F9]">
+                FORUS — 227 Nguyễn Văn Cừ
+              </h4>
+              <p className="text-[16px] text-[#334E58] dark:text-[#CBD5E1] leading-relaxed">
+                “Tiện ích trong tay, học hay mỗi ngày” — Hệ sinh thái học cụ, in ấn, sự kiện rèn luyện, gia sư và Trợ lý AI phục vụ sinh viên ĐH Khoa học Tự nhiên (ĐHQG-HCM).
+              </p>
+            </div>
+
+            <div className="space-y-2.5">
+              <h4 className="font-serif-display text-[16px] font-bold uppercase tracking-wider text-[#0F766E] dark:text-[#2DD4BF]">
+                Danh mục dịch vụ
+              </h4>
+              <ul className="space-y-1 text-[16px]">
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => switchTab("gear")}
+                    className="min-h-[38px] text-left hover:text-[#0D9488] cursor-pointer"
+                  >
+                    Thuê &amp; Bán học cụ (80% · 90% · 100%)
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => switchTab("print")}
+                    className="min-h-[38px] text-left hover:text-[#0D9488] cursor-pointer"
+                  >
+                    In ấn tài liệu &amp; Poster A5 – A1
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => switchTab("events")}
+                    className="min-h-[38px] text-left hover:text-[#0D9488] cursor-pointer"
+                  >
+                    Sự kiện săn điểm rèn luyện HCMUS
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => switchTab("tutor")}
+                    className="min-h-[38px] text-left hover:text-[#0D9488] cursor-pointer"
+                  >
+                    Kết nối Gia sư Tự Nhiên
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => switchTab("vip")}
+                    className="min-h-[38px] text-left hover:text-[#0D9488] cursor-pointer"
+                  >
+                    Đặc quyền VIP &amp; Trợ lý AI
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-2.5">
+              <h4 className="font-serif-display text-[16px] font-bold uppercase tracking-wider text-[#0F766E] dark:text-[#2DD4BF]">
+                Điểm giao nhận Cơ sở 1
+              </h4>
+              <p className="text-[16px] text-[#334E58] dark:text-[#CBD5E1] leading-relaxed">
+                Sảnh Tòa I (Khoa CNTT) · Tòa F · Giảng đường B · Dãy C–E · Thư viện Cơ sở 1 · Cổng 227 Nguyễn Văn Cừ, P.4, Q.5, TP.HCM.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="font-serif-display text-[16px] font-bold uppercase tracking-wider text-[#0F766E] dark:text-[#2DD4BF]">
+                Liên hệ &amp; Cộng đồng
+              </h4>
+              <p className="text-[16px] text-[#334E58] dark:text-[#CBD5E1]">
+                Giờ trực: 06:45 – 20:30 (Thứ 2 – Thứ 7).
+              </p>
+              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                <a
+                  href="https://www.facebook.com/VNUHCM.US"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="min-h-[40px] px-3.5 py-1.5 rounded border border-[#E4E0D8] dark:border-[#1E353F] bg-white dark:bg-[#0B1519] text-[15px] font-bold hover:border-[#0D9488] inline-flex items-center gap-1.5"
+                >
+                  <span>Facebook KHTN</span>
+                </a>
+                <a
+                  href="https://github.com/qwerty2008/FORUS"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="min-h-[40px] px-3.5 py-1.5 rounded border border-[#E4E0D8] dark:border-[#1E353F] bg-white dark:bg-[#0B1519] text-[15px] font-bold hover:border-[#0D9488] inline-flex items-center gap-1.5"
+                >
+                  <span>GitHub FORUS</span>
+                </a>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <h4 className="text-tiny font-bold text-[#D95326]">Danh mục</h4>
-            <ul className="space-y-1.5 text-tiny">
-              <li>
-                <button
-                  type="button"
-                  onClick={() => switchTab("gear")}
-                  className="hover:text-[#D95326] cursor-pointer"
-                >
-                  Thuê &amp; Bán học cụ (80% · 90% · 100%)
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => switchTab("print")}
-                  className="hover:text-[#D95326] cursor-pointer"
-                >
-                  In ấn tài liệu &amp; Poster A5 – A1
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => switchTab("events")}
-                  className="hover:text-[#D95326] cursor-pointer"
-                >
-                  Sự kiện săn điểm rèn luyện HCMUS
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => switchTab("tutor")}
-                  className="hover:text-[#D95326] cursor-pointer"
-                >
-                  Gia sư Tự Nhiên
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => switchTab("home")}
-                  className="hover:text-[#D95326] cursor-pointer"
-                >
-                  Trang chủ · Câu chuyện FORUS &amp; Giải đáp FAQ
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          <div className="space-y-2">
-            <h4 className="text-tiny font-bold text-[#D95326]">
-              Điểm giao nhận Cơ sở 1
-            </h4>
-            <p className="text-tiny text-[#0B2545]/75 dark:text-[#F6F2E8]/75">
-              Sảnh Tòa I (Khoa CNTT) · Tòa F · Giảng đường B · Dãy C–E · Thư viện Cơ sở 1 · Cổng 227 Nguyễn Văn Cừ, P.4, Q.5, TP.HCM.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <h4 className="text-tiny font-bold text-[#D95326]">
-              Thông tin vận hành
-            </h4>
-            <p className="text-tiny text-[#0B2545]/75 dark:text-[#F6F2E8]/75">
-              Giờ hoạt động: 06:45 – 20:30 (Thứ 2 – Thứ 7).
-              <br />
-              Đồ án học phần CSC00006 — Khoa CNTT, Trường ĐH Khoa học Tự nhiên, ĐHQG-HCM.
-            </p>
+          <div className="pt-6 border-t border-[#E4E0D8] dark:border-[#1E353F] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[14px] text-[#334E58] dark:text-[#CBD5E1]">
+            <span>© 2026 FORUS · Đồ án học phần CSC00006 — Khoa CNTT, Trường ĐH Khoa học Tự nhiên, ĐHQG-HCM.</span>
+            <span>Cơ sở 1: 227 Nguyễn Văn Cừ, Phường 4, Quận 5, TP.HCM</span>
           </div>
         </div>
       </footer>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#F6F2E8]/95 dark:bg-[#0E1624]/95 backdrop-blur-md border-t border-[#DCD5C7] dark:border-[#233044] px-2 py-1.5">
+      {/* Mobile Bottom Navigation Bar (Icon-only) */}
+      <nav
+        aria-label="Điều hướng di động"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF8F5]/95 dark:bg-[#0B1519]/95 backdrop-blur-md border-t border-[#E4E0D8] dark:border-[#1E353F] px-2 py-1"
+      >
         <div className="grid grid-cols-6 items-center max-w-lg mx-auto">
           {mobileBottomNavItems.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -1769,17 +1800,16 @@ export default function App() {
               <button
                 key={tab.id}
                 type="button"
+                aria-label={tab.shortLabel}
+                title={tab.shortLabel}
                 onClick={() => switchTab(tab.id)}
-                className={`flex flex-col items-center justify-center py-1 px-0.5 transition-colors cursor-pointer ${
+                className={`min-h-[48px] flex items-center justify-center transition-colors cursor-pointer ${
                   isActive
-                    ? "text-[#D95326] font-bold"
-                    : "text-[#0B2545]/70 dark:text-[#F6F2E8]/70"
+                    ? "text-[#0D9488] dark:text-[#2DD4BF]"
+                    : "text-[#0F2228]/65 dark:text-[#F1F5F9]/65 hover:text-[#0F2228] dark:hover:text-[#F1F5F9]"
                 }`}
               >
                 {tab.icon}
-                <span className="text-tiny mt-0.5 truncate max-w-full">
-                  {tab.shortLabel}
-                </span>
               </button>
             );
           })}

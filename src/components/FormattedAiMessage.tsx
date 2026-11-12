@@ -176,7 +176,7 @@ function renderInlineFormatting(line: string): React.ReactNode[] {
         return (
           <span
             key={idx}
-            className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-[#F1F5F9] dark:bg-[#0E1624] text-[#0B2545] dark:text-[#F8FAFC] border border-[#E2E8F0] dark:border-[#233044] align-middle"
+            className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-[#F1F5F9] dark:bg-[#0B1519] text-[#0F2228] dark:text-[#F8FAFC] border border-[#CBD5E1] dark:border-[#2A434E] align-middle"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         );
@@ -184,7 +184,7 @@ function renderInlineFormatting(line: string): React.ReactNode[] {
       return (
         <code
           key={idx}
-          className="px-1.5 py-0.5 mx-0.5 rounded bg-[#F1F5F9] dark:bg-[#0E1624] text-tiny font-bold text-[#D95326] border border-[#E2E8F0] dark:border-[#233044]"
+          className="px-1.5 py-0.5 mx-0.5 rounded bg-[#F1F5F9] dark:bg-[#0B1519] text-tiny font-bold text-[#0F766E] dark:text-[#2DD4BF] border border-[#CBD5E1] dark:border-[#2A434E]"
         >
           {innerCode}
         </code>
@@ -197,7 +197,7 @@ function renderInlineFormatting(line: string): React.ReactNode[] {
       return (
         <span
           key={idx}
-          className="inline-block mx-1 px-1.5 py-0.5 rounded-[3px] bg-[#F1F5F9] dark:bg-[#0E1624]/90 text-[#0B2545] dark:text-[#F8FAFC] border border-[#E2E8F0] dark:border-[#233044] align-middle"
+          className="inline-block mx-1 px-1.5 py-0.5 rounded-[3px] bg-[#F1F5F9] dark:bg-[#0B1519] text-[#0F2228] dark:text-[#F8FAFC] border border-[#CBD5E1] dark:border-[#2A434E] align-middle"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       );
@@ -253,10 +253,10 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
           return (
             <div
               key={segIdx}
-              className="my-2 rounded-md overflow-hidden border border-[#DCD5C7] dark:border-[#233044] bg-[#0B2545] text-[#F6F2E8]"
+              className="my-2 rounded-md overflow-hidden border border-[#CBD5E1] dark:border-[#2A434E] bg-[#0B1519] text-[#F8FAFC]"
             >
-              <div className="flex items-center justify-between px-3 py-1.5 bg-[#0E1624] border-b border-white/10 text-tiny">
-                <span className="font-bold text-[#D95326] uppercase tracking-wider">
+              <div className="flex items-center justify-between px-3 py-1.5 bg-[#122128] border-b border-white/10 text-tiny">
+                <span className="font-bold text-[#2DD4BF] uppercase tracking-wider">
                   {lang}
                 </span>
                 <button
@@ -291,7 +291,7 @@ export const FormattedAiMessage: React.FC<FormattedAiMessageProps> = ({
           return (
             <div
               key={segIdx}
-              className="my-2.5 rounded-[4px] border border-[#E2E8F0] dark:border-[#233044] bg-[#F8FAFC] dark:bg-[#0E1624] px-4 py-3 text-[#0B2545] dark:text-[#F8FAFC] overflow-x-auto"
+              className="my-2.5 rounded-[4px] border border-[#CBD5E1] dark:border-[#2A434E] bg-[#F1F5F9] dark:bg-[#0B1519] px-4 py-3 text-[#0F2228] dark:text-[#F8FAFC] overflow-x-auto"
               dangerouslySetInnerHTML={{ __html: html }}
             />
           );
