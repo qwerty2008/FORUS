@@ -119,6 +119,30 @@
   background-size: 24px 24px;
 }
 
+.service-card-teal {
+  background-color: #E4F2EF;
+  background-image: radial-gradient(circle, rgba(13, 148, 136, 0.24) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.dark .service-card-teal {
+  background-color: #0D2C34;
+  background-image: radial-gradient(circle, rgba(94, 234, 212, 0.24) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.service-card-sand {
+  background-color: #EFE7DB;
+  background-image: radial-gradient(circle, rgba(15, 34, 40, 0.16) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.dark .service-card-sand {
+  background-color: #20292D;
+  background-image: radial-gradient(circle, rgba(235, 224, 204, 0.20) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
 .margin-rule {
   border-left: 3px solid #0D9488;
 }

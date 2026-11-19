@@ -347,7 +347,7 @@ export const About: React.FC<AboutProps> = ({
           SECTION 1: HERO MỘT MÀN HÌNH (FULL-VIEWPORT, WARM LIGHT & TEAL)
           Aligned left/right container: max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16
           ================================================================= */}
-      <section className="relative w-full min-h-[calc(100vh-5rem)] overflow-hidden border-b border-[#E4E0D8] dark:border-[#1E353F] flex items-center bg-[#0F2228]">
+      <section className="relative w-full min-h-[500px] sm:min-h-[520px] lg:min-h-[560px] xl:min-h-[600px] overflow-hidden border-b border-[#E4E0D8] dark:border-[#1E353F] flex items-center bg-[#0F2228]">
         {/* Full-bleed Lab Notebook Desk Illustration */}
         <div className="absolute inset-0 w-full h-full">
           <img
@@ -367,34 +367,34 @@ export const About: React.FC<AboutProps> = ({
         />
 
         {/* Aligned Content Container */}
-        <div className="relative z-20 w-full max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16 py-10 sm:py-14 lg:pt-12 lg:pb-24 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
-          <div className="max-w-3xl space-y-5 pl-4 sm:pl-6 border-l-3 border-[#14B8A6]">
-            <h1 className="font-serif-display text-display font-bold text-white text-balance">
+        <div className="relative z-20 w-full max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16 py-10 sm:py-12 lg:py-14 xl:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-10 lg:gap-12">
+          <div className="max-w-3xl xl:max-w-[780px] space-y-5 lg:space-y-6 pl-4 sm:pl-6 lg:pl-7 border-l-3 border-[#14B8A6]">
+            <h1 className="font-serif-display text-display lg:text-[3.75rem] xl:text-[4.25rem] lg:leading-[1.06] font-bold text-white text-balance">
               Tiện ích trong tay, học hay mỗi ngày
             </h1>
 
-            <p className="text-[17px] sm:text-[18px] text-[#F1F5F9] max-w-2xl leading-relaxed">
+            <p className="text-[17px] sm:text-[18px] lg:text-[19px] xl:text-[20px] text-[#F1F5F9] max-w-2xl leading-relaxed">
               Thuê học cụ cọc 0đ, in tài liệu lấy liền, săn điểm rèn luyện, kết nối gia sư và hỏi Trợ lý AI ngay giữa các tiết học.
             </p>
 
             {/* Primary CTA ("Khám phá tiện ích") + Secondary CTA */}
-            <div className="pt-3 flex flex-wrap items-center gap-4">
+            <div className="pt-2 lg:pt-3 flex flex-wrap items-center gap-4">
               <button
                 type="button"
                 onClick={scrollToServices}
-                className="min-h-[48px] px-7 py-3 rounded-md bg-[#0D9488] hover:bg-[#0F766E] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer shadow-sm"
+                className="min-h-[48px] lg:min-h-[54px] px-7 lg:px-8 py-3 lg:py-3.5 rounded-md bg-[#0D9488] hover:bg-[#0F766E] text-white text-[16px] lg:text-[17px] font-bold inline-flex items-center gap-2.5 transition cursor-pointer shadow-sm"
               >
                 <span>Khám phá tiện ích</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5" />
               </button>
 
               <button
                 type="button"
                 onClick={scrollToFaq}
-                className="min-h-[48px] px-5 py-3 rounded-md border border-white/40 hover:border-[#2DD4BF] bg-white/10 hover:bg-white/15 text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
+                className="min-h-[48px] lg:min-h-[54px] px-5 lg:px-7 py-3 lg:py-3.5 rounded-md border border-white/40 hover:border-[#2DD4BF] bg-white/10 hover:bg-white/15 text-white text-[16px] lg:text-[17px] font-bold inline-flex items-center gap-2.5 transition cursor-pointer"
               >
                 <span>Liên hệ và FAQ</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5" />
               </button>
             </div>
           </div>
@@ -404,51 +404,51 @@ export const About: React.FC<AboutProps> = ({
             type="button"
             onClick={() => setIsQrModalOpen(true)}
             title="Nhấn để phóng to mã QR trải nghiệm trên điện thoại"
-            className="group relative self-start lg:self-center flex sm:flex-row lg:flex-col items-center gap-4 lg:gap-2.5 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5]/95 dark:bg-[#122128]/95 p-4 text-left lg:text-center text-[#0F2228] dark:text-[#F1F5F9] transition hover:border-[#0D9488] cursor-pointer shrink-0 lg:w-[224px]"
+            className="group relative self-start lg:self-center flex sm:flex-row lg:flex-col items-center gap-4 lg:gap-3.5 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5]/95 dark:bg-[#122128]/95 p-4 lg:p-5 text-left lg:text-center text-[#0F2228] dark:text-[#F1F5F9] transition hover:border-[#0D9488] cursor-pointer shrink-0 lg:w-[280px] xl:w-[300px]"
           >
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute top-1.5 left-1.5 w-2.5 h-2.5 border-t-2 border-l-2 border-[#0D9488]"
+              className="pointer-events-none absolute top-1.5 left-1.5 w-3 h-3 border-t-2 border-l-2 border-[#0D9488]"
             />
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute top-1.5 right-1.5 w-2.5 h-2.5 border-t-2 border-r-2 border-[#0D9488]"
+              className="pointer-events-none absolute top-1.5 right-1.5 w-3 h-3 border-t-2 border-r-2 border-[#0D9488]"
             />
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-1.5 left-1.5 w-2.5 h-2.5 border-b-2 border-l-2 border-[#0D9488]"
+              className="pointer-events-none absolute bottom-1.5 left-1.5 w-3 h-3 border-b-2 border-l-2 border-[#0D9488]"
             />
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-1.5 right-1.5 w-2.5 h-2.5 border-b-2 border-r-2 border-[#0D9488]"
+              className="pointer-events-none absolute bottom-1.5 right-1.5 w-3 h-3 border-b-2 border-r-2 border-[#0D9488]"
             />
 
-            <div className="hidden lg:flex items-center justify-between w-full pb-1.5 border-b border-[#E4E0D8] dark:border-[#1E353F] text-[13px] font-bold">
+            <div className="hidden lg:flex items-center justify-between w-full pb-2 border-b border-[#E4E0D8] dark:border-[#1E353F] text-[13px] lg:text-[14px] font-bold">
               <span className="text-[#334E58] dark:text-[#CBD5E1]">
                 FORUS MOBILE
               </span>
               <span className="text-[#0F766E] dark:text-[#2DD4BF]">CS1 · NVC</span>
             </div>
 
-            <div className="relative w-20 h-20 lg:w-36 lg:h-36 rounded border border-[#E4E0D8] bg-white p-2 shrink-0 flex items-center justify-center">
+            <div className="relative w-20 h-20 lg:w-48 lg:h-48 xl:w-52 xl:h-52 rounded border border-[#E4E0D8] bg-white p-2.5 shrink-0 flex items-center justify-center">
               <img
                 src={qrCodeImageUrl}
                 alt="Mã QR truy cập nhanh hệ sinh thái FORUS trên điện thoại"
-                width={144}
-                height={144}
+                width={208}
+                height={208}
                 className="w-full h-full object-contain"
               />
             </div>
 
-            <div className="space-y-0.5 min-w-0">
+            <div className="space-y-1 min-w-0">
               <div className="inline-flex items-center gap-1.5 text-[14px] font-bold text-[#0F766E] dark:text-[#2DD4BF] lg:hidden">
                 <QrCode className="w-4 h-4 shrink-0" />
                 <span>FORUS MOBILE · CS1</span>
               </div>
-              <p className="text-[16px] font-bold text-[#0F2228] dark:text-[#F1F5F9] leading-snug">
+              <p className="text-[16px] lg:text-[18px] font-bold text-[#0F2228] dark:text-[#F1F5F9] leading-snug">
                 Quét QR Trải Nghiệm
               </p>
-              <p className="text-[14px] text-[#334E58] dark:text-[#CBD5E1]">
+              <p className="text-[14px] lg:text-[14.5px] text-[#334E58] dark:text-[#CBD5E1]">
                 Poster Đồ án 1 · Chạm phóng to
               </p>
             </div>
@@ -549,11 +549,11 @@ export const About: React.FC<AboutProps> = ({
 
           {/* ASYMMETRIC ROW 2 (7 COLS / 5 COLS): IN ẤN LẤY LIỀN & SĂN ĐIỂM RÈN LUYỆN */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            {/* Block 02 (7 cols): In Tài Liệu Lấy Liền */}
-            <div className="lg:col-span-7 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-white dark:bg-[#122128] overflow-hidden flex flex-col justify-between">
-              <div className="p-6 sm:p-8 space-y-4">
+            {/* Block 02 (7 cols): In Tài Liệu Lấy Liền — Muted Science Teal Dot-Paper */}
+            <div className="lg:col-span-7 service-card-teal rounded-md border border-[#B3D5CE] dark:border-[#2B5865] hover:border-[#0D9488] dark:hover:border-[#5EEAD4] transition-colors overflow-hidden flex flex-col justify-between p-6 sm:p-8 gap-6">
+              <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5] dark:bg-[#0B1519] flex items-center justify-center shrink-0 text-[#0F2228] dark:text-[#F1F5F9]">
+                  <div className="w-11 h-11 rounded-md border border-[#A6CEC6] dark:border-[#2F6170] bg-[#FAF8F5] dark:bg-[#081C22] flex items-center justify-center shrink-0 text-[#0B544D] dark:text-[#7CEEE0]">
                     <svg
                       viewBox="0 0 24 24"
                       className="w-6 h-6 stroke-current fill-none"
@@ -567,40 +567,26 @@ export const About: React.FC<AboutProps> = ({
                       <rect x="6" y="14" width="12" height="8" />
                     </svg>
                   </div>
-                  <span className="text-[14px] font-bold uppercase tracking-wider text-[#334E58] dark:text-[#CBD5E1]">
+                  <span className="text-[14px] font-bold uppercase tracking-wider text-[#0B544D] dark:text-[#7CEEE0]">
                     02 · Xưởng in Sảnh Tòa I · Khổ A5 – A1
                   </span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h3 className="font-serif-display text-h2 font-bold text-[#0F2228] dark:text-[#F1F5F9]">
+                <div className="space-y-2">
+                  <h3 className="font-serif-display text-h2 font-bold text-[#0A1A1F] dark:text-white">
                     In Tài Liệu Lấy Liền &amp; Poster Đồ Án
                   </h3>
-                  <p className="text-[16px] text-[#334E58] dark:text-[#CBD5E1]">
+                  <p className="text-[16px] text-[#18333A] dark:text-[#E6F1F3] max-w-2xl leading-relaxed">
                     Tải file PDF từ điện thoại, tự động tính số trang và nhận bản in đóng gáy hoặc ống poster A1 giữa ca học.
                   </p>
                 </div>
               </div>
 
-              <div className="px-6 sm:px-8 pb-6 sm:pb-8 pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5]/60 dark:bg-[#0B1519]/40">
-                <div className="flex items-center gap-3">
-                  <img
-                    src="./assets/art/slice-print.webp"
-                    alt="Minh họa dịch vụ in ấn tài liệu và poster A1 tại Sảnh Tòa I"
-                    loading="lazy"
-                    width={64}
-                    height={64}
-                    className="w-14 h-14 rounded object-cover border border-[#E4E0D8] dark:border-[#1E353F] shrink-0"
-                  />
-                  <span className="text-[15px] font-semibold text-[#334E58] dark:text-[#CBD5E1]">
-                    Từ 350đ/trang A4 · Có sẵn ống đựng Poster
-                  </span>
-                </div>
-
+              <div className="pt-4 border-t border-[#B3D5CE] dark:border-[#2B5865] flex items-center justify-start">
                 <button
                   type="button"
                   onClick={() => onNavigateTab("print")}
-                  className="min-h-[44px] shrink-0 px-5 py-2.5 rounded-md bg-[#0F2228] hover:bg-[#0D9488] dark:bg-[#F1F5F9] dark:text-[#0F2228] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
+                  className="min-h-[44px] shrink-0 px-5 py-2.5 rounded-md bg-[#0F2228] hover:bg-[#0D9488] dark:bg-[#F8FAFC] dark:hover:bg-[#5EEAD4] dark:text-[#0B1519] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
                 >
                   <span>Đặt in ngay</span>
                   <ArrowRight className="w-4 h-4" />
@@ -608,11 +594,11 @@ export const About: React.FC<AboutProps> = ({
               </div>
             </div>
 
-            {/* Block 03 (5 cols): Săn Điểm Rèn Luyện */}
-            <div className="lg:col-span-5 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-white dark:bg-[#122128] overflow-hidden flex flex-col justify-between">
-              <div className="p-6 sm:p-8 space-y-4">
+            {/* Block 03 (5 cols): Săn Điểm Rèn Luyện — Warm Lab Sand Dot-Paper */}
+            <div className="lg:col-span-5 service-card-sand rounded-md border border-[#D3C6B2] dark:border-[#3A4B52] hover:border-[#0D9488] dark:hover:border-[#5EEAD4] transition-colors overflow-hidden flex flex-col justify-between p-6 sm:p-8 gap-6">
+              <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5] dark:bg-[#0B1519] flex items-center justify-center shrink-0 text-[#0F2228] dark:text-[#F1F5F9]">
+                  <div className="w-11 h-11 rounded-md border border-[#C9B9A2] dark:border-[#41555D] bg-[#FAF8F5] dark:bg-[#131A1D] flex items-center justify-center shrink-0 text-[#0F2228] dark:text-[#EFE4D2]">
                     <svg
                       viewBox="0 0 24 24"
                       className="w-6 h-6 stroke-current fill-none"
@@ -627,40 +613,26 @@ export const About: React.FC<AboutProps> = ({
                       <path d="m22 6-3-3" />
                     </svg>
                   </div>
-                  <span className="text-[14px] font-bold uppercase tracking-wider text-[#334E58] dark:text-[#CBD5E1]">
+                  <span className="text-[14px] font-bold uppercase tracking-wider text-[#4A3F30] dark:text-[#EFE4D2]">
                     03 · Hoạt động &amp; Học bổng
                   </span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h3 className="font-serif-display text-h2 font-bold text-[#0F2228] dark:text-[#F1F5F9]">
+                <div className="space-y-2">
+                  <h3 className="font-serif-display text-h2 font-bold text-[#0A1A1F] dark:text-white">
                     Săn Điểm Rèn Luyện HCMUS
                   </h3>
-                  <p className="text-[16px] text-[#334E58] dark:text-[#CBD5E1]">
+                  <p className="text-[16px] text-[#26231D] dark:text-[#E9ECEE] leading-relaxed">
                     Theo dõi hạn đăng ký hội thảo, học bổng và hoạt động tình nguyện theo từng giây.
                   </p>
                 </div>
               </div>
 
-              <div className="px-6 sm:px-8 pb-6 sm:pb-8 pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5]/60 dark:bg-[#0B1519]/40">
-                <div className="flex items-center gap-3">
-                  <img
-                    src="./assets/art/slice-events.webp"
-                    alt="Minh họa bảng đếm ngược sự kiện săn điểm rèn luyện"
-                    loading="lazy"
-                    width={64}
-                    height={64}
-                    className="w-14 h-14 rounded object-cover border border-[#E4E0D8] dark:border-[#1E353F] shrink-0"
-                  />
-                  <span className="text-[15px] font-semibold text-[#334E58] dark:text-[#CBD5E1]">
-                    Đủ 5 mục điểm rèn luyện
-                  </span>
-                </div>
-
+              <div className="pt-4 border-t border-[#D3C6B2] dark:border-[#3A4B52] flex items-center justify-start">
                 <button
                   type="button"
                   onClick={() => onNavigateTab("events")}
-                  className="min-h-[44px] shrink-0 px-5 py-2.5 rounded-md bg-[#0F2228] hover:bg-[#0D9488] dark:bg-[#F1F5F9] dark:text-[#0F2228] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
+                  className="min-h-[44px] shrink-0 px-5 py-2.5 rounded-md bg-[#0F2228] hover:bg-[#0D9488] dark:bg-[#F8FAFC] dark:hover:bg-[#5EEAD4] dark:text-[#0B1519] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
                 >
                   <span>Xem sự kiện</span>
                   <ArrowRight className="w-4 h-4" />
@@ -671,11 +643,11 @@ export const About: React.FC<AboutProps> = ({
 
           {/* ASYMMETRIC ROW 3 (5 COLS / 7 COLS): KẾT NỐI GIA SƯ & ĐẶC QUYỀN VIP */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            {/* Block 04 (5 cols): Kết Nối Gia Sư */}
-            <div className="lg:col-span-5 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-white dark:bg-[#122128] overflow-hidden flex flex-col justify-between">
-              <div className="p-6 sm:p-8 space-y-4">
+            {/* Block 04 (5 cols): Kết Nối Gia Sư — Warm Lab Sand Dot-Paper */}
+            <div className="lg:col-span-5 service-card-sand rounded-md border border-[#D3C6B2] dark:border-[#3A4B52] hover:border-[#0D9488] dark:hover:border-[#5EEAD4] transition-colors overflow-hidden flex flex-col justify-between p-6 sm:p-8 gap-6">
+              <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5] dark:bg-[#0B1519] flex items-center justify-center shrink-0 text-[#0F2228] dark:text-[#F1F5F9]">
+                  <div className="w-11 h-11 rounded-md border border-[#C9B9A2] dark:border-[#41555D] bg-[#FAF8F5] dark:bg-[#131A1D] flex items-center justify-center shrink-0 text-[#0F2228] dark:text-[#EFE4D2]">
                     <svg
                       viewBox="0 0 24 24"
                       className="w-6 h-6 stroke-current fill-none"
@@ -688,40 +660,26 @@ export const About: React.FC<AboutProps> = ({
                       <path d="M6 12v5c3 3 9 3 12 0v-5" />
                     </svg>
                   </div>
-                  <span className="text-[14px] font-bold uppercase tracking-wider text-[#334E58] dark:text-[#CBD5E1]">
+                  <span className="text-[14px] font-bold uppercase tracking-wider text-[#4A3F30] dark:text-[#EFE4D2]">
                     04 · Cộng đồng Học thuật
                   </span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h3 className="font-serif-display text-h2 font-bold text-[#0F2228] dark:text-[#F1F5F9]">
+                <div className="space-y-2">
+                  <h3 className="font-serif-display text-h2 font-bold text-[#0A1A1F] dark:text-white">
                     Kết Nối Gia Sư Tự Nhiên
                   </h3>
-                  <p className="text-[16px] text-[#334E58] dark:text-[#CBD5E1]">
+                  <p className="text-[16px] text-[#26231D] dark:text-[#E9ECEE] leading-relaxed">
                     Nhận lớp dạy kèm Toán, Lý, Hóa, Tin quanh Quận 5 và đăng hồ sơ gia sư sinh viên KHTN.
                   </p>
                 </div>
               </div>
 
-              <div className="px-6 sm:px-8 pb-6 sm:pb-8 pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5]/60 dark:bg-[#0B1519]/40">
-                <div className="flex items-center gap-3">
-                  <img
-                    src="./assets/art/slice-tutor.webp"
-                    alt="Minh họa kết nối gia sư sinh viên Khoa học Tự nhiên"
-                    loading="lazy"
-                    width={64}
-                    height={64}
-                    className="w-14 h-14 rounded object-cover border border-[#E4E0D8] dark:border-[#1E353F] shrink-0"
-                  />
-                  <span className="text-[15px] font-semibold text-[#334E58] dark:text-[#CBD5E1]">
-                    Lớp mới cập nhật mỗi tuần
-                  </span>
-                </div>
-
+              <div className="pt-4 border-t border-[#D3C6B2] dark:border-[#3A4B52] flex items-center justify-start">
                 <button
                   type="button"
                   onClick={() => onNavigateTab("tutor")}
-                  className="min-h-[44px] shrink-0 px-5 py-2.5 rounded-md bg-[#0F2228] hover:bg-[#0D9488] dark:bg-[#F1F5F9] dark:text-[#0F2228] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
+                  className="min-h-[44px] shrink-0 px-5 py-2.5 rounded-md bg-[#0F2228] hover:bg-[#0D9488] dark:bg-[#F8FAFC] dark:hover:bg-[#5EEAD4] dark:text-[#0B1519] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
                 >
                   <span>Tìm lớp &amp; gia sư</span>
                   <ArrowRight className="w-4 h-4" />
@@ -729,11 +687,11 @@ export const About: React.FC<AboutProps> = ({
               </div>
             </div>
 
-            {/* Block 05 (7 cols): Tích Điểm VIP & Trợ Lý AI */}
-            <div className="lg:col-span-7 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-white dark:bg-[#122128] overflow-hidden flex flex-col justify-between">
-              <div className="p-6 sm:p-8 space-y-4">
+            {/* Block 05 (7 cols): Tích Điểm VIP & Trợ Lý AI — Muted Science Teal Dot-Paper */}
+            <div className="lg:col-span-7 service-card-teal rounded-md border border-[#B3D5CE] dark:border-[#2B5865] hover:border-[#0D9488] dark:hover:border-[#5EEAD4] transition-colors overflow-hidden flex flex-col justify-between p-6 sm:p-8 gap-6">
+              <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-md border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5] dark:bg-[#0B1519] flex items-center justify-center shrink-0 text-[#0F2228] dark:text-[#F1F5F9]">
+                  <div className="w-11 h-11 rounded-md border border-[#A6CEC6] dark:border-[#2F6170] bg-[#FAF8F5] dark:bg-[#081C22] flex items-center justify-center shrink-0 text-[#0B544D] dark:text-[#7CEEE0]">
                     <svg
                       viewBox="0 0 24 24"
                       className="w-6 h-6 stroke-current fill-none"
@@ -745,30 +703,26 @@ export const About: React.FC<AboutProps> = ({
                       <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z" />
                     </svg>
                   </div>
-                  <span className="text-[14px] font-bold uppercase tracking-wider text-[#334E58] dark:text-[#CBD5E1]">
+                  <span className="text-[14px] font-bold uppercase tracking-wider text-[#0B544D] dark:text-[#7CEEE0]">
                     05 · Tích điểm &amp; Đặc quyền Sinh viên
                   </span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h3 className="font-serif-display text-h2 font-bold text-[#0F2228] dark:text-[#F1F5F9]">
+                <div className="space-y-2">
+                  <h3 className="font-serif-display text-h2 font-bold text-[#0A1A1F] dark:text-white">
                     Kho Điểm VIP, Đổi Voucher &amp; Trợ Lý Học Thuật
                   </h3>
-                  <p className="text-[16px] text-[#334E58] dark:text-[#CBD5E1]">
+                  <p className="text-[16px] text-[#18333A] dark:text-[#E6F1F3] max-w-2xl leading-relaxed">
                     Tích điểm sau mỗi đơn thuê đồ hoặc in ấn để đổi voucher giảm giá trực tiếp trong giỏ hàng và hỏi AI không giới hạn.
                   </p>
                 </div>
               </div>
 
-              <div className="px-6 sm:px-8 pb-6 sm:pb-8 pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5]/60 dark:bg-[#0B1519]/40">
-                <span className="text-[15px] font-semibold text-[#334E58] dark:text-[#CBD5E1]">
-                  Đổi voucher giảm 10.000đ · Miễn phí giao Tòa B–F
-                </span>
-
+              <div className="pt-4 border-t border-[#B3D5CE] dark:border-[#2B5865] flex items-center justify-start">
                 <button
                   type="button"
                   onClick={() => onNavigateTab("vip")}
-                  className="min-h-[44px] shrink-0 px-5 py-2.5 rounded-md bg-[#0F2228] hover:bg-[#0D9488] dark:bg-[#F1F5F9] dark:text-[#0F2228] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
+                  className="min-h-[44px] shrink-0 px-5 py-2.5 rounded-md bg-[#0F2228] hover:bg-[#0D9488] dark:bg-[#F8FAFC] dark:hover:bg-[#5EEAD4] dark:text-[#0B1519] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
                 >
                   <span>Khám phá VIP &amp; AI</span>
                   <ArrowRight className="w-4 h-4" />

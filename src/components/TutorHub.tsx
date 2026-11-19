@@ -415,11 +415,10 @@ export const TutorHub: React.FC<TutorHubProps> = ({
       ) : (
         <div className="paper-grid p-4 sm:p-6 rounded-[4px] border border-[#E2E8F0] dark:border-[#233044]">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredListings.map((item, idx) => {
+            {filteredListings.map((item) => {
               const isConnected = connectedIds.includes(item.id);
               const isExpanded = activeContactListing?.id === item.id;
               const phone = getPhoneFromListing(item);
-              const cardCode = `KHTN-${String(idx + 101).padStart(3, "0")}`;
 
               return (
                 <article
@@ -427,10 +426,7 @@ export const TutorHub: React.FC<TutorHubProps> = ({
                   className="rounded-[4px] border border-[#0B2545]/20 dark:border-[#233044] bg-white dark:bg-[#152033] flex flex-col justify-between transition hover:border-[#0B2545] dark:hover:border-[#F8FAFC]/60"
                 >
                   {/* Student ID Top Strip */}
-                  <div className="px-4 py-2.5 border-b border-[#E2E8F0] dark:border-[#233044] bg-[#F8FAFC] dark:bg-[#0E1624] flex items-center justify-between gap-2">
-                    <span className="text-tiny font-bold text-[#0B2545]/70 dark:text-[#F8FAFC]/70 tabular-nums">
-                      MÃ THẺ: {cardCode}
-                    </span>
+                  <div className="px-4 py-2.5 border-b border-[#E2E8F0] dark:border-[#233044] bg-[#F8FAFC] dark:bg-[#0E1624] flex items-center justify-start">
                     <span className="stamp">
                       {item.type === "parent-seeking"
                         ? "LỚP TÌM GIA SƯ"
