@@ -183,15 +183,10 @@ export const TutorHub: React.FC<TutorHubProps> = ({
   return (
     <div className="space-y-8 pb-16">
       {/* Editorial Header */}
-      <section className="pb-5 border-b border-[#E2E8F0] dark:border-[#233044] pl-4 margin-rule flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="font-serif-display text-h1 font-bold text-[#0B2545] dark:text-[#F8FAFC]">
-            Gia Sư Tự Nhiên
-          </h1>
-          <p className="text-small text-[#0B2545]/75 dark:text-[#F8FAFC]/75">
-            Hồ sơ gia sư sinh viên KHTN và lớp tìm gia sư quanh Quận 1, 3, 5, 10.
-          </p>
-        </div>
+      <section className="pb-4 border-b border-[#E2E8F0] dark:border-[#233044] pl-4 margin-rule flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="font-serif-display text-h1 font-bold text-[#0B2545] dark:text-[#F8FAFC]">
+          Gia Sư Tự Nhiên
+        </h1>
 
         <div className="flex items-center gap-2 shrink-0">
           {student?.isLoggedIn && onOpenEditProfile && (

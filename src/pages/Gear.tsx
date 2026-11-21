@@ -52,13 +52,10 @@ export const Gear: React.FC<GearProps> = ({ products, onSelectProduct }) => {
   return (
     <div className="space-y-10 pb-16">
       {/* Magazine-Style Editorial Header */}
-      <div className="border-b border-[#E2E8F0] dark:border-[#233044] pb-6 pl-4 margin-rule space-y-2">
+      <div className="border-b border-[#E2E8F0] dark:border-[#233044] pb-4 pl-4 margin-rule">
         <h1 className="font-serif-display text-h1 font-bold text-[#0B2545] dark:text-[#F8FAFC]">
           Thuê &amp; Bán học cụ Cơ sở 1
         </h1>
-        <p className="text-small text-[#0B2545]/75 dark:text-[#F8FAFC]/75 max-w-xl">
-          Thuê Casio, áo blouse theo buổi hoặc mua lại giáo trình 80% – 100%. Nhận tại Sảnh Tòa I.
-        </p>
       </div>
 
       {/* Underlined Text Filter & Search Bar */}

@@ -10,9 +10,7 @@ import {
   Code2,
   Copy,
   Check,
-  Layers,
   Map,
-  Compass,
   Search,
   Navigation,
 } from "lucide-react";
@@ -1014,53 +1012,41 @@ export const VipHub: React.FC<VipHubProps> = ({
       : "hover:brightness-95";
 
   return (
-    <div className="space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden">
+    <div className="space-y-3.5 sm:space-y-4 w-full max-w-full overflow-x-hidden">
       {/* 1. COMPACT TOP HEADER */}
-      <div className="pb-5 border-b border-[#E4E0D8] dark:border-[#1E353F] pl-4 margin-rule">
-        <div className="space-y-1 min-w-0">
-          <h1 className="font-serif-display text-h1 font-bold text-[#0F2228] dark:text-[#F8FAFC]">
-            Trung Tâm Tính Năng &amp; Tiện Ích Số
-          </h1>
-          <p className="text-small text-[#334E58] dark:text-[#CBD5E1]">
-            Tra cứu sơ đồ tầng Cơ sở 1, hỏi đáp Trợ lý AI FORUS, sao chép mẫu code LaTeX và đổi điểm nhận Voucher.
-          </p>
-        </div>
+      <div className="pb-3.5 border-b border-[#E4E0D8] dark:border-[#1E353F] pl-4 margin-rule">
+        <h1 className="font-serif-display text-h1 font-bold text-[#0F2228] dark:text-[#F8FAFC]">
+          Trung Tâm Tính Năng &amp; Tiện Ích Số
+        </h1>
       </div>
 
-      {/* 2. SLEEK HORIZONTAL FEATURE SELECTOR (ICON + NAME ONLY) */}
-      <section className="space-y-3.5">
-        <div className="flex items-center gap-2 min-w-0">
-          <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-[#0D9488] dark:text-[#5EEAD4] shrink-0" />
-          <h3 className="font-serif-display text-[17px] sm:text-[18px] font-bold text-[#0F2228] dark:text-[#F8FAFC] truncate">
-            Chọn Nhanh Tính Năng
-          </h3>
-        </div>
-
-        {/* 2x2 Grid on Mobile, 4 Horizontal Columns on Desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* 2. COMPACT CENTERED SEAMLESS FEATURE TAB BAR */}
+      <nav aria-label="Chọn tính năng" className="flex justify-center w-full">
+        <div className="grid grid-cols-2 sm:inline-flex sm:flex-wrap sm:items-center sm:justify-center gap-1.5 p-1.5 rounded-[14px] bg-[#EFEAE0]/80 dark:bg-[#0F1D24] border border-[#DFD8CA] dark:border-[#1E3540] w-full sm:w-auto">
           {[
             {
               id: "campus-map" as FeatureModuleId,
-              icon: <Map className="w-[18px] h-[18px]" />,
+              icon: Map,
               title: "Sơ Đồ Tầng CS1",
             },
             {
               id: "ai-assistant" as FeatureModuleId,
-              icon: <Bot className="w-[18px] h-[18px]" />,
+              icon: Bot,
               title: "Trợ Lý AI Học Tập",
             },
             {
               id: "latex-snippets" as FeatureModuleId,
-              icon: <Code2 className="w-[18px] h-[18px]" />,
+              icon: Code2,
               title: "Khung Code LaTeX",
             },
             {
               id: "voucher-hub" as FeatureModuleId,
-              icon: <Gift className="w-[18px] h-[18px]" />,
+              icon: Gift,
               title: "Đổi Điểm Voucher",
             },
           ].map((mod) => {
             const isSelected = activeModule === mod.id;
+            const IconComponent = mod.icon;
             return (
               <button
                 key={mod.id}
@@ -1069,29 +1055,27 @@ export const VipHub: React.FC<VipHubProps> = ({
                 onClick={() =>
                   setActiveModule(isSelected ? "all" : mod.id)
                 }
-                className={`group min-h-[60px] rounded-xl border px-3.5 sm:px-4 py-3 transition-colors duration-150 cursor-pointer flex items-center gap-3 text-left min-w-0 ${
+                className={`group inline-flex items-center justify-center sm:justify-start gap-2 min-h-[42px] sm:min-h-[40px] rounded-[8px] border px-3 sm:px-4 py-2 transition-colors duration-150 cursor-pointer min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-[#0F1D24] ${
                   isSelected
-                    ? "bg-[#0F2228] border-[#0F2228] text-white dark:bg-[#0D9488] dark:border-[#14B8A6] dark:text-white shadow-xs"
-                    : "bg-[#F3EFEA] hover:bg-[#EAE4DA] border-[#DDD6C9] hover:border-[#0D9488] text-[#0F2228] dark:bg-[#122229] dark:hover:bg-[#182E37] dark:border-[#1F3742] dark:hover:border-[#5EEAD4] dark:text-[#F1F5F9]"
+                    ? "bg-[#0F2228] border-[#0F2228] text-white shadow-xs dark:bg-[#0D9488] dark:border-[#14B8A6] dark:text-white"
+                    : "bg-white/90 hover:bg-white border-[#DED7C9] hover:border-[#0D9488] text-[#1A343D] hover:text-[#0F2228] dark:bg-[#14252D] dark:hover:bg-[#1A303A] dark:border-[#233D49] dark:hover:border-[#5EEAD4]/80 dark:text-[#CBD5E1] dark:hover:text-white"
                 }`}
               >
-                <div
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-150 ${
+                <IconComponent
+                  className={`w-4 h-4 shrink-0 transition-colors duration-150 ${
                     isSelected
-                      ? "bg-[#0D9488] text-white dark:bg-white/15 dark:text-white"
-                      : "bg-[#FAF8F5] dark:bg-[#0B161B] border border-[#DDD6C9] dark:border-[#243E4A] text-[#0F766E] dark:text-[#5EEAD4] group-hover:border-[#0D9488]/60"
+                      ? "text-[#5EEAD4] dark:text-white"
+                      : "text-[#0F766E] dark:text-[#5EEAD4] group-hover:text-[#0D9488]"
                   }`}
-                >
-                  {mod.icon}
-                </div>
-                <span className="text-[14.5px] sm:text-[15.5px] font-bold leading-snug truncate">
+                />
+                <span className="text-[13.5px] sm:text-[14px] font-semibold leading-none tracking-[-0.01em] whitespace-nowrap truncate">
                   {mod.title}
                 </span>
               </button>
             );
           })}
         </div>
-      </section>
+      </nav>
 
       {/* Toast Feedback */}
       {toastMessage && (
@@ -1103,24 +1087,38 @@ export const VipHub: React.FC<VipHubProps> = ({
 
       {/* 3. MODULE 1: SƠ ĐỒ CHỈ DẪN CÁC TẦNG */}
       {(activeModule === "all" || activeModule === "campus-map") && (
-        <section className="rounded-3xl border border-[#0B2545]/12 bg-white p-4 sm:p-7 dark:border-white/10 dark:bg-[#152238] space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#D95326] text-white flex items-center justify-center shrink-0">
-                <Compass className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-h2 font-bold text-[#0B2545] dark:text-[#F6F2E8]">
-                  Sơ Đồ Chỉ Dẫn Các Tầng &amp; Danh Bạ Phòng Ban (CS1 · 227 Nguyễn Văn Cừ)
-                </h3>
-                <p className="text-tiny text-[#0B2545]/65 dark:text-[#F6F2E8]/65">
-                  Bấm chọn từng tầng hoặc bấm trực tiếp vào ô phòng trên mặt bằng để xem thông tin
-                </p>
-              </div>
+        <section className="rounded-3xl border border-[#0B2545]/12 bg-white p-4 sm:p-6 dark:border-white/10 dark:bg-[#152238] space-y-4">
+          {/* FLOOR TABS + QUICK ROOM SEARCH ROW */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+              {[
+                { id: "B1-L1" as FloorId, label: "Tầng B1–L1" },
+                { id: "L2" as FloorId, label: "Tầng L2" },
+                { id: "L3" as FloorId, label: "Tầng L3" },
+                { id: "L4" as FloorId, label: "Tầng L4" },
+                { id: "L5-L11" as FloorId, label: "Tầng L5–L11" },
+              ].map((tab) => {
+                const active = selectedFloor === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => switchFloor(tab.id)}
+                    className={`min-w-[100px] sm:min-w-[114px] py-2 px-3.5 rounded-xl border text-small font-bold transition cursor-pointer whitespace-nowrap ${
+                      active
+                        ? "bg-[#D95326] border-[#D95326] text-white"
+                        : "bg-white border-[#0B2545]/15 text-[#0B2545] hover:border-[#D95326] dark:bg-[#0E1624] dark:border-white/15 dark:text-[#F6F2E8]"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="relative w-full md:w-64 shrink-0">
-              <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#0B2545]/50" />
+            <div className="relative w-full lg:w-64 shrink-0">
+              <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#0B2545]/50 dark:text-[#F6F2E8]/50" />
               <input
                 type="text"
                 value={searchQuery}
@@ -1161,53 +1159,8 @@ export const VipHub: React.FC<VipHubProps> = ({
             </div>
           )}
 
-          {/* FLOOR TABS ROW */}
-          <div className="pt-1 flex flex-col items-center space-y-3">
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {[
-                { id: "B1-L1" as FloorId, label: "Tầng B1–L1" },
-                { id: "L2" as FloorId, label: "Tầng L2" },
-                { id: "L3" as FloorId, label: "Tầng L3" },
-                { id: "L4" as FloorId, label: "Tầng L4" },
-                { id: "L5-L11" as FloorId, label: "Tầng L5–L11" },
-              ].map((tab) => {
-                const active = selectedFloor === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => switchFloor(tab.id)}
-                    className={`min-w-[104px] sm:min-w-[120px] py-2 px-4 rounded-xl border text-small font-bold transition cursor-pointer ${
-                      active
-                        ? "bg-[#D95326] border-[#D95326] text-white"
-                        : "bg-white border-[#0B2545]/15 text-[#0B2545] hover:border-[#D95326] dark:bg-[#0E1624] dark:border-white/15 dark:text-[#F6F2E8]"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            <h4 className="text-h2 font-bold tracking-tight text-[#0B2545] dark:text-[#F6F2E8] uppercase text-center">
-              {selectedFloor === "B1-L1" && "TẦNG TRỆT (L1) & HẦM B1"}
-              {selectedFloor === "L2" && "TẦNG L2 (LẦU 1)"}
-              {selectedFloor === "L3" && "TẦNG L3 (LẦU 2)"}
-              {selectedFloor === "L4" && "TẦNG L4 (LẦU 3)"}
-              {selectedFloor === "L5-L11" && "TẦNG L4 & TẦNG L5–L11 (TÒA I)"}
-            </h4>
-          </div>
-
           {/* OUTER MAP CONTAINER */}
           <div className="relative rounded-3xl border-2 border-[#D95326] bg-white dark:bg-[#0E1624] overflow-hidden">
-            <div className="bg-[#D95326] text-white font-bold text-small px-5 py-1.5 inline-block rounded-br-2xl">
-              {selectedFloor === "B1-L1" && "Tầng B1 – L1"}
-              {selectedFloor === "L2" && "Tầng L2"}
-              {selectedFloor === "L3" && "Tầng L3"}
-              {selectedFloor === "L4" && "Tầng L4"}
-              {selectedFloor === "L5-L11" && "Tầng L5 – L11"}
-            </div>
-
             <div className="p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
               {/* LEFT 8 COLS: 2D ARCHITECTURAL FOOTPRINT */}
               <div className="lg:col-span-8 rounded-2xl bg-[#F6F2E8] dark:bg-[#152238] border border-[#0B2545]/15 dark:border-white/10 p-3 sm:p-4 flex flex-col justify-between overflow-x-auto">

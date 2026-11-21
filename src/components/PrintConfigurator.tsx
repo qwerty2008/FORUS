@@ -267,13 +267,10 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
   return (
     <div ref={wizardTopRef} className="max-w-3xl mx-auto pb-28 space-y-8">
       {/* Editorial Header */}
-      <div className="border-b border-[#E2E8F0] dark:border-[#233044] pb-5 pl-4 margin-rule space-y-1.5">
+      <div className="border-b border-[#E2E8F0] dark:border-[#233044] pb-4 pl-4 margin-rule">
         <h1 className="font-serif-display text-h1 font-bold text-[#0B2545] dark:text-[#F8FAFC]">
           In tài liệu, giáo trình &amp; poster A5 – A1
         </h1>
-        <p className="text-small text-[#0B2545]/75 dark:text-[#F8FAFC]/75 max-w-2xl">
-          Gửi file trực tuyến, tự động áp giá sỉ từ 100 tờ và nhận bản in ngay tại Sảnh Tòa I hoặc Thư viện Cơ sở 1.
-        </p>
       </div>
 
       {/* Detached Centered Horizontal Step Switcher */}
