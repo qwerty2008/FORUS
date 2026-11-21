@@ -274,39 +274,62 @@ export const PrintConfigurator: React.FC<PrintConfiguratorProps> = ({
         <p className="text-small text-[#0B2545]/75 dark:text-[#F8FAFC]/75 max-w-2xl">
           Gửi file trực tuyến, tự động áp giá sỉ từ 100 tờ và nhận bản in ngay tại Sảnh Tòa I hoặc Thư viện Cơ sở 1.
         </p>
-
-        {/* Simple Step Progress Indicator */}
-        <div className="pt-4 flex items-center gap-6 text-small">
-          <button
-            type="button"
-            onClick={() => goToStep(1)}
-            className={`flex items-center gap-2 pb-2 border-b-2 transition cursor-pointer ${
-              step === 1
-                ? "border-[#D95326] font-bold text-[#0B2545] dark:text-[#F6F2E8]"
-                : "border-transparent text-[#0B2545]/60 dark:text-[#F6F2E8]/60 hover:text-[#0B2545]"
-            }`}
-          >
-            <span>1 Cấu hình in</span>
-          </button>
-          <span aria-hidden="true" className="text-[#0B2545]/40 dark:text-[#F6F2E8]/40 pb-2">
-            /
-          </span>
-          <button
-            type="button"
-            onClick={() => goToStep(2)}
-            disabled={!isStep1Valid}
-            className={`flex items-center gap-2 pb-2 border-b-2 transition ${
-              step === 2
-                ? "border-[#D95326] font-bold text-[#0B2545] dark:text-[#F6F2E8] cursor-pointer"
-                : isStep1Valid
-                ? "border-transparent text-[#0B2545]/60 dark:text-[#F6F2E8]/60 hover:text-[#0B2545] cursor-pointer"
-                : "border-transparent text-[#0B2545]/30 dark:text-[#F6F2E8]/30 cursor-not-allowed"
-            }`}
-          >
-            <span>2 Lịch nhận</span>
-          </button>
-        </div>
       </div>
+
+      {/* Detached Centered Horizontal Step Switcher */}
+      <nav
+        aria-label="Các bước đặt in"
+        className="flex flex-wrap items-center justify-center gap-3"
+      >
+        <button
+          type="button"
+          onClick={() => goToStep(1)}
+          aria-current={step === 1 ? "step" : undefined}
+          className={`inline-flex items-center justify-center gap-2.5 min-h-[44px] px-5 py-2.5 rounded-lg border text-small font-bold whitespace-nowrap shrink-0 transition duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0B1519] ${
+            step === 1
+              ? "bg-[#0D9488] text-white border-[#0D9488] shadow-sm dark:bg-[#14B8A6] dark:text-[#0B1519] dark:border-[#14B8A6]"
+              : "bg-white text-[#0F2228]/80 border-[#E4E0D8] hover:border-[#0D9488] hover:text-[#0F2228] dark:bg-[#122128] dark:text-[#F1F5F9]/80 dark:border-[#1E353F] dark:hover:border-[#14B8A6] dark:hover:text-[#F1F5F9]"
+          }`}
+        >
+          <span
+            className={`w-6 h-6 rounded-md flex items-center justify-center text-tiny font-bold tabular-nums shrink-0 ${
+              step === 1
+                ? "bg-white/20 text-white dark:bg-[#0B1519]/20 dark:text-[#0B1519]"
+                : "bg-[#0D9488]/15 text-[#0F766E] dark:bg-[#14B8A6]/20 dark:text-[#5EEAD4]"
+            }`}
+          >
+            {step === 2 ? <Check className="w-3.5 h-3.5" /> : "1"}
+          </span>
+          <span>Cấu hình in</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => goToStep(2)}
+          disabled={!isStep1Valid}
+          aria-current={step === 2 ? "step" : undefined}
+          className={`inline-flex items-center justify-center gap-2.5 min-h-[44px] px-5 py-2.5 rounded-lg border text-small font-bold whitespace-nowrap shrink-0 transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0B1519] ${
+            step === 2
+              ? "bg-[#0D9488] text-white border-[#0D9488] shadow-sm cursor-pointer dark:bg-[#14B8A6] dark:text-[#0B1519] dark:border-[#14B8A6]"
+              : isStep1Valid
+              ? "bg-white text-[#0F2228]/80 border-[#E4E0D8] hover:border-[#0D9488] hover:text-[#0F2228] cursor-pointer dark:bg-[#122128] dark:text-[#F1F5F9]/80 dark:border-[#1E353F] dark:hover:border-[#14B8A6] dark:hover:text-[#F1F5F9]"
+              : "bg-white/60 text-[#0F2228]/35 border-[#E4E0D8]/80 cursor-not-allowed dark:bg-[#122128]/50 dark:text-[#F1F5F9]/30 dark:border-[#1E353F]/60"
+          }`}
+        >
+          <span
+            className={`w-6 h-6 rounded-md flex items-center justify-center text-tiny font-bold tabular-nums shrink-0 ${
+              step === 2
+                ? "bg-white/20 text-white dark:bg-[#0B1519]/20 dark:text-[#0B1519]"
+                : isStep1Valid
+                ? "bg-[#F3EFEA] text-[#0F2228]/75 dark:bg-[#1E353F] dark:text-[#F1F5F9]/75"
+                : "bg-[#F3EFEA]/60 text-[#0F2228]/35 dark:bg-[#1E353F]/50 dark:text-[#F1F5F9]/30"
+            }`}
+          >
+            2
+          </span>
+          <span>Lịch nhận</span>
+        </button>
+      </nav>
 
       {/* Single-Column Wizard Form */}
       <form onSubmit={handleSubmit} onKeyDown={handleFormKeyDown}>

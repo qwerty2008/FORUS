@@ -1015,97 +1015,49 @@ export const VipHub: React.FC<VipHubProps> = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden">
-      {/* 1. COMPACT TOP HEADER & POINTS BAR */}
-      <div className="pb-5 border-b border-[#E2E8F0] dark:border-[#233044] pl-4 margin-rule flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+      {/* 1. COMPACT TOP HEADER */}
+      <div className="pb-5 border-b border-[#E4E0D8] dark:border-[#1E353F] pl-4 margin-rule">
         <div className="space-y-1 min-w-0">
-          <h1 className="font-serif-display text-h1 font-bold text-[#0B2545] dark:text-[#F8FAFC]">
+          <h1 className="font-serif-display text-h1 font-bold text-[#0F2228] dark:text-[#F8FAFC]">
             Trung Tâm Tính Năng &amp; Tiện Ích Số
           </h1>
-          <p className="text-small text-[#0B2545]/75 dark:text-[#F8FAFC]/75">
+          <p className="text-small text-[#334E58] dark:text-[#CBD5E1]">
             Tra cứu sơ đồ tầng Cơ sở 1, hỏi đáp Trợ lý AI FORUS, sao chép mẫu code LaTeX và đổi điểm nhận Voucher.
           </p>
         </div>
-
-        <div className="flex flex-wrap items-center gap-3 rounded-md border border-[#E2E8F0] dark:border-[#233044] bg-white dark:bg-[#152033] px-4 py-2.5 shrink-0">
-          <div className="space-y-0.5">
-            <p className="text-tiny font-bold uppercase text-[#0B2545]/60 dark:text-[#F8FAFC]/60">
-              {membershipTierLabel}
-            </p>
-            <p className="tabular-nums text-small font-bold text-[#0B2545] dark:text-[#F8FAFC]">
-              {student.points} / 100 điểm
-            </p>
-          </div>
-
-          {!isVipUnlocked && (
-            <button
-              type="button"
-              onClick={onUnlockDemoVip}
-              className="inline-flex items-center gap-1 rounded bg-[#0B2545] px-3 py-1.5 text-tiny font-bold text-white hover:bg-[#163A66] transition cursor-pointer"
-            >
-              <Zap className="h-3.5 w-3.5 shrink-0" />
-              <span>Kích hoạt 100đ</span>
-            </button>
-          )}
-        </div>
       </div>
 
-      {/* 2. COMPACT MOBILE-FIRST FEATURE MODULE SELECTOR */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between gap-2 border-b border-[#0B2545]/10 pb-2.5 dark:border-white/10">
-          <div className="flex items-center gap-2 min-w-0">
-            <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-[#D95326] shrink-0" />
-            <h3 className="text-body font-bold text-[#0B2545] dark:text-[#F6F2E8] truncate">
-              Chọn Nhanh Tính Năng
-            </h3>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setActiveModule("all")}
-            className={`rounded-xl px-3 py-1.5 text-tiny font-bold transition cursor-pointer shrink-0 ${
-              activeModule === "all"
-                ? "bg-[#0B2545] text-white dark:bg-[#D95326]"
-                : "border border-[#0B2545]/12 bg-white text-[#0B2545]/75 hover:text-[#0B2545] dark:border-white/10 dark:bg-[#152238] dark:text-[#F6F2E8]/75"
-            }`}
-          >
-            {activeModule === "all" ? "✓ Đang hiện tất cả" : "Hiện tất cả (4)"}
-          </button>
+      {/* 2. SLEEK HORIZONTAL FEATURE SELECTOR (ICON + NAME ONLY) */}
+      <section className="space-y-3.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-[#0D9488] dark:text-[#5EEAD4] shrink-0" />
+          <h3 className="font-serif-display text-[17px] sm:text-[18px] font-bold text-[#0F2228] dark:text-[#F8FAFC] truncate">
+            Chọn Nhanh Tính Năng
+          </h3>
         </div>
 
-        {/* 2x2 Grid on Mobile, 4 Columns on Desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+        {/* 2x2 Grid on Mobile, 4 Horizontal Columns on Desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             {
               id: "campus-map" as FeatureModuleId,
-              icon: <Map className="w-4 h-4" />,
-              iconBg: "bg-[#0B2545] text-white",
-              badge: "B1–L11",
+              icon: <Map className="w-[18px] h-[18px]" />,
               title: "Sơ Đồ Tầng CS1",
-              desc: "Mặt bằng các tòa F, C, B, A, E, I",
             },
             {
               id: "ai-assistant" as FeatureModuleId,
-              icon: <Bot className="w-4 h-4" />,
-              iconBg: "bg-[#0B2545] text-white",
-              badge: "AI 24/7",
+              icon: <Bot className="w-[18px] h-[18px]" />,
               title: "Trợ Lý AI Học Tập",
-              desc: "Giải toán đại cương, code & LaTeX",
             },
             {
               id: "latex-snippets" as FeatureModuleId,
-              icon: <Code2 className="w-4 h-4" />,
-              iconBg: "bg-[#0B2545] text-white",
-              badge: "18 mẫu",
+              icon: <Code2 className="w-[18px] h-[18px]" />,
               title: "Khung Code LaTeX",
-              desc: "Copy 1 chạm ma trận, tích phân, đồ án",
             },
             {
               id: "voucher-hub" as FeatureModuleId,
-              icon: <Gift className="w-4 h-4" />,
-              iconBg: "bg-[#D95326] text-white",
-              badge: `${student.points}đ`,
+              icon: <Gift className="w-[18px] h-[18px]" />,
               title: "Đổi Điểm Voucher",
-              desc: "Đổi mã giảm giá in ấn & thuê học cụ",
             },
           ].map((mod) => {
             const isSelected = activeModule === mod.id;
@@ -1113,35 +1065,27 @@ export const VipHub: React.FC<VipHubProps> = ({
               <button
                 key={mod.id}
                 type="button"
+                aria-pressed={isSelected}
                 onClick={() =>
                   setActiveModule(isSelected ? "all" : mod.id)
                 }
-                className={`text-left rounded-2xl border p-3 sm:p-4 transition cursor-pointer flex flex-col justify-between min-w-0 ${
+                className={`group min-h-[60px] rounded-xl border px-3.5 sm:px-4 py-3 transition-colors duration-150 cursor-pointer flex items-center gap-3 text-left min-w-0 ${
                   isSelected
-                    ? "border-[#D95326] bg-white ring-1 ring-[#D95326] dark:bg-[#152238]"
-                    : "border-[#0B2545]/12 bg-white hover:border-[#0B2545]/35 dark:border-white/10 dark:bg-[#152238]/80"
+                    ? "bg-[#0F2228] border-[#0F2228] text-white dark:bg-[#0D9488] dark:border-[#14B8A6] dark:text-white shadow-xs"
+                    : "bg-[#F3EFEA] hover:bg-[#EAE4DA] border-[#DDD6C9] hover:border-[#0D9488] text-[#0F2228] dark:bg-[#122229] dark:hover:bg-[#182E37] dark:border-[#1F3742] dark:hover:border-[#5EEAD4] dark:text-[#F1F5F9]"
                 }`}
               >
-                <div className="min-w-0">
-                  <div className="flex items-center justify-between gap-1.5">
-                    <div
-                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl ${mod.iconBg} flex items-center justify-center shrink-0`}
-                    >
-                      {mod.icon}
-                    </div>
-                    <span className="tabular-nums text-tiny font-bold text-[#0B2545]/60 dark:text-[#F6F2E8]/60 truncate">
-                      {mod.badge}
-                    </span>
-                  </div>
-                  <h4 className="mt-2.5 text-small font-bold text-[#0B2545] dark:text-[#F6F2E8] leading-snug truncate">
-                    {mod.title}
-                  </h4>
-                  <p className="mt-0.5 text-tiny text-[#0B2545]/65 dark:text-[#F6F2E8]/65 leading-snug line-clamp-1 sm:line-clamp-2">
-                    {mod.desc}
-                  </p>
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-150 ${
+                    isSelected
+                      ? "bg-[#0D9488] text-white dark:bg-white/15 dark:text-white"
+                      : "bg-[#FAF8F5] dark:bg-[#0B161B] border border-[#DDD6C9] dark:border-[#243E4A] text-[#0F766E] dark:text-[#5EEAD4] group-hover:border-[#0D9488]/60"
+                  }`}
+                >
+                  {mod.icon}
                 </div>
-                <span className="mt-2 inline-block text-tiny font-bold text-[#D95326] truncate">
-                  {isSelected ? "Đang mở · Chạm để thu gọn" : "Mở tính năng →"}
+                <span className="text-[14.5px] sm:text-[15.5px] font-bold leading-snug truncate">
+                  {mod.title}
                 </span>
               </button>
             );

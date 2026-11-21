@@ -457,7 +457,139 @@ export const About: React.FC<AboutProps> = ({
       </section>
 
       {/* =================================================================
-          SECTION 2: CÁC KHỐI DỊCH VỤ CỐT LÕI (BẤT ĐỐI XỨNG, KHÔNG LƯỚI ĐỒNG ĐỀU)
+          SECTION 2: BA TÌNH HUỐNG THỰC TẾ GIỮA CA HỌC (FULL-VIEWPORT DIPTYCH)
+          KEEP THE 3 SITUATION STAMPS HERE AS EXPLICITLY REQUESTED
+          ================================================================= */}
+      <section className="w-full min-h-[calc(100vh-5rem)] border-b border-[#E4E0D8] dark:border-[#1E353F] bg-[#F3EFEA] dark:bg-[#0E1A20] flex items-center py-16 lg:py-20">
+        <div className="w-full max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16">
+          <div className="rounded-md overflow-hidden border border-[#E4E0D8] dark:border-[#1E353F] grid grid-cols-1 lg:grid-cols-12 shadow-xs">
+            {/* Left 7 Cols: Warm Paper White (Scenes 1 & 2) */}
+            <div className="lg:col-span-7 bg-white dark:bg-[#122128] paper-grid p-7 sm:p-12 lg:p-14 flex flex-col justify-between gap-12 relative">
+              <div
+                aria-hidden="true"
+                className="hidden sm:block absolute top-0 bottom-0 left-7 lg:left-10 w-[3px] bg-[#0D9488]"
+              />
+
+              {/* Scene 01 */}
+              <div className="sm:pl-6 max-w-xl space-y-3.5">
+                <div className="flex items-center gap-3">
+                  <svg
+                    viewBox="0 0 40 40"
+                    className="w-10 h-10 stroke-[#0F2228] dark:stroke-[#F1F5F9] fill-none shrink-0"
+                    strokeWidth="1.8"
+                    aria-hidden="true"
+                  >
+                    <rect x="8" y="4" width="24" height="32" rx="2" />
+                    <rect x="12" y="8" width="16" height="7" />
+                    <line x1="15" y1="11.5" x2="25" y2="11.5" stroke="#0D9488" />
+                    <circle cx="14" cy="21" r="1.3" fill="currentColor" />
+                    <circle cx="20" cy="21" r="1.3" fill="currentColor" />
+                    <circle cx="26" cy="21" r="1.3" fill="currentColor" />
+                    <circle cx="14" cy="27" r="1.3" fill="currentColor" />
+                    <circle cx="20" cy="27" r="1.3" fill="currentColor" />
+                    <circle cx="26" cy="27" r="1.3" fill="currentColor" />
+                  </svg>
+                  <span className="stamp">Tình huống 01 · Ca thi sáng</span>
+                </div>
+                <h3 className="font-serif-display text-h1 font-bold text-[#0F2228] dark:text-[#F1F5F9]">
+                  Mai thi, máy tính hết pin.
+                </h3>
+                <p className="text-[16px] sm:text-[17px] text-[#334E58] dark:text-[#CBD5E1]">
+                  Đặt trước 30 giây, ghé Sảnh Tòa I nhận Casio fx-580VN X đã thay pin mới.
+                </p>
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => onNavigateTab("gear")}
+                    className="min-h-[44px] px-4 py-2 rounded border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5] dark:bg-[#0B1519] text-[16px] font-bold text-[#0F2228] dark:text-[#F1F5F9] hover:border-[#0D9488] inline-flex items-center gap-2 transition cursor-pointer"
+                  >
+                    <span>Thuê máy tính ngay</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Scene 02 */}
+              <div className="sm:pl-6 lg:ml-16 max-w-xl space-y-3.5 border-t border-[#E4E0D8] dark:border-[#1E353F] pt-10">
+                <div className="flex items-center gap-3">
+                  <svg
+                    viewBox="0 0 40 40"
+                    className="w-10 h-10 stroke-[#0F2228] dark:stroke-[#F1F5F9] fill-none shrink-0"
+                    strokeWidth="1.8"
+                    aria-hidden="true"
+                  >
+                    <ellipse cx="14" cy="12" rx="6" ry="3" />
+                    <path d="M8 12V28C8 29.6 10.7 31 14 31C17.3 31 20 29.6 20 28V12" />
+                    <path
+                      d="M20 15H32V31H20"
+                      stroke="#0D9488"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span className="stamp">Tình huống 02 · Bảo vệ đồ án</span>
+                </div>
+                <h3 className="font-serif-display text-h1 font-bold text-[#0F2228] dark:text-[#F1F5F9]">
+                  Sáng nộp, poster A1 chưa in.
+                </h3>
+                <p className="text-[16px] sm:text-[17px] text-[#334E58] dark:text-[#CBD5E1]">
+                  Tải file PDF từ điện thoại, nhận bản in kèm ống đựng tại Sảnh Tòa I.
+                </p>
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => onNavigateTab("print")}
+                    className="min-h-[44px] px-4 py-2 rounded border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5] dark:bg-[#0B1519] text-[16px] font-bold text-[#0F2228] dark:text-[#F1F5F9] hover:border-[#0D9488] inline-flex items-center gap-2 transition cursor-pointer"
+                  >
+                    <span>Đặt in A5 – A1</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right 5 Cols: Deep Slate #0F2228 (Scene 03) */}
+            <div className="lg:col-span-5 bg-[#0F2228] text-white p-7 sm:p-12 lg:p-14 flex flex-col justify-center space-y-6 border-t lg:border-t-0 lg:border-l border-[#1E353F]">
+              <div className="flex items-center gap-3">
+                <svg
+                  viewBox="0 0 40 40"
+                  className="w-10 h-10 stroke-white fill-none shrink-0"
+                  strokeWidth="1.8"
+                  aria-hidden="true"
+                >
+                  <circle cx="20" cy="21" r="13" />
+                  <polyline points="20,13 20,21 26,24" stroke="#2DD4BF" />
+                  <line x1="16" y1="4" x2="24" y2="4" />
+                </svg>
+                <span className="inline-flex items-center px-3 py-1 rounded text-[14px] font-bold uppercase tracking-wider border border-[#2DD4BF] text-[#5EEAD4]">
+                  Tình huống 03 · Điểm rèn luyện
+                </span>
+              </div>
+
+              <h3 className="font-serif-display text-h1 font-bold text-white">
+                Form đóng sau 2 giờ.
+              </h3>
+
+              <p className="text-[16px] sm:text-[17px] text-[#E2E8F0] max-w-md leading-relaxed">
+                Theo dõi đồng hồ đếm ngược các buổi seminar, học bổng và hoạt động tình nguyện tại Cơ sở 1.
+              </p>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab("events")}
+                  className="min-h-[48px] inline-flex items-center gap-2 rounded-md bg-white text-[#0F2228] hover:bg-[#F1F5F9] px-6 py-3 text-[16px] font-bold transition cursor-pointer"
+                >
+                  <span>Xem lịch sự kiện</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================================
+          SECTION 3: CÁC KHỐI DỊCH VỤ CỐT LÕI (BẤT ĐỐI XỨNG, KHÔNG LƯỚI ĐỒNG ĐỀU)
           Mỗi dịch vụ: Icon thật + Mô tả 1 dòng (>=16px) + Nút hành động rõ ràng
           ================================================================= */}
       <section
@@ -725,138 +857,6 @@ export const About: React.FC<AboutProps> = ({
                   className="min-h-[44px] shrink-0 px-5 py-2.5 rounded-md bg-[#0F2228] hover:bg-[#0D9488] dark:bg-[#F8FAFC] dark:hover:bg-[#5EEAD4] dark:text-[#0B1519] text-white text-[16px] font-bold inline-flex items-center gap-2 transition cursor-pointer"
                 >
                   <span>Khám phá VIP &amp; AI</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =================================================================
-          SECTION 3: BA TÌNH HUỐNG THỰC TẾ GIỮA CA HỌC (FULL-VIEWPORT DIPTYCH)
-          KEEP THE 3 SITUATION STAMPS HERE AS EXPLICITLY REQUESTED
-          ================================================================= */}
-      <section className="w-full min-h-[calc(100vh-5rem)] border-b border-[#E4E0D8] dark:border-[#1E353F] bg-[#F3EFEA] dark:bg-[#0E1A20] flex items-center py-16 lg:py-20">
-        <div className="w-full max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16">
-          <div className="rounded-md overflow-hidden border border-[#E4E0D8] dark:border-[#1E353F] grid grid-cols-1 lg:grid-cols-12 shadow-xs">
-            {/* Left 7 Cols: Warm Paper White (Scenes 1 & 2) */}
-            <div className="lg:col-span-7 bg-white dark:bg-[#122128] paper-grid p-7 sm:p-12 lg:p-14 flex flex-col justify-between gap-12 relative">
-              <div
-                aria-hidden="true"
-                className="hidden sm:block absolute top-0 bottom-0 left-7 lg:left-10 w-[3px] bg-[#0D9488]"
-              />
-
-              {/* Scene 01 */}
-              <div className="sm:pl-6 max-w-xl space-y-3.5">
-                <div className="flex items-center gap-3">
-                  <svg
-                    viewBox="0 0 40 40"
-                    className="w-10 h-10 stroke-[#0F2228] dark:stroke-[#F1F5F9] fill-none shrink-0"
-                    strokeWidth="1.8"
-                    aria-hidden="true"
-                  >
-                    <rect x="8" y="4" width="24" height="32" rx="2" />
-                    <rect x="12" y="8" width="16" height="7" />
-                    <line x1="15" y1="11.5" x2="25" y2="11.5" stroke="#0D9488" />
-                    <circle cx="14" cy="21" r="1.3" fill="currentColor" />
-                    <circle cx="20" cy="21" r="1.3" fill="currentColor" />
-                    <circle cx="26" cy="21" r="1.3" fill="currentColor" />
-                    <circle cx="14" cy="27" r="1.3" fill="currentColor" />
-                    <circle cx="20" cy="27" r="1.3" fill="currentColor" />
-                    <circle cx="26" cy="27" r="1.3" fill="currentColor" />
-                  </svg>
-                  <span className="stamp">Tình huống 01 · Ca thi sáng</span>
-                </div>
-                <h3 className="font-serif-display text-h1 font-bold text-[#0F2228] dark:text-[#F1F5F9]">
-                  Mai thi, máy tính hết pin.
-                </h3>
-                <p className="text-[16px] sm:text-[17px] text-[#334E58] dark:text-[#CBD5E1]">
-                  Đặt trước 30 giây, ghé Sảnh Tòa I nhận Casio fx-580VN X đã thay pin mới.
-                </p>
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() => onNavigateTab("gear")}
-                    className="min-h-[44px] px-4 py-2 rounded border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5] dark:bg-[#0B1519] text-[16px] font-bold text-[#0F2228] dark:text-[#F1F5F9] hover:border-[#0D9488] inline-flex items-center gap-2 transition cursor-pointer"
-                  >
-                    <span>Thuê máy tính ngay</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Scene 02 */}
-              <div className="sm:pl-6 lg:ml-16 max-w-xl space-y-3.5 border-t border-[#E4E0D8] dark:border-[#1E353F] pt-10">
-                <div className="flex items-center gap-3">
-                  <svg
-                    viewBox="0 0 40 40"
-                    className="w-10 h-10 stroke-[#0F2228] dark:stroke-[#F1F5F9] fill-none shrink-0"
-                    strokeWidth="1.8"
-                    aria-hidden="true"
-                  >
-                    <ellipse cx="14" cy="12" rx="6" ry="3" />
-                    <path d="M8 12V28C8 29.6 10.7 31 14 31C17.3 31 20 29.6 20 28V12" />
-                    <path
-                      d="M20 15H32V31H20"
-                      stroke="#0D9488"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span className="stamp">Tình huống 02 · Bảo vệ đồ án</span>
-                </div>
-                <h3 className="font-serif-display text-h1 font-bold text-[#0F2228] dark:text-[#F1F5F9]">
-                  Sáng nộp, poster A1 chưa in.
-                </h3>
-                <p className="text-[16px] sm:text-[17px] text-[#334E58] dark:text-[#CBD5E1]">
-                  Tải file PDF từ điện thoại, nhận bản in kèm ống đựng tại Sảnh Tòa I.
-                </p>
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() => onNavigateTab("print")}
-                    className="min-h-[44px] px-4 py-2 rounded border border-[#E4E0D8] dark:border-[#1E353F] bg-[#FAF8F5] dark:bg-[#0B1519] text-[16px] font-bold text-[#0F2228] dark:text-[#F1F5F9] hover:border-[#0D9488] inline-flex items-center gap-2 transition cursor-pointer"
-                  >
-                    <span>Đặt in A5 – A1</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Right 5 Cols: Deep Slate #0F2228 (Scene 03) */}
-            <div className="lg:col-span-5 bg-[#0F2228] text-white p-7 sm:p-12 lg:p-14 flex flex-col justify-center space-y-6 border-t lg:border-t-0 lg:border-l border-[#1E353F]">
-              <div className="flex items-center gap-3">
-                <svg
-                  viewBox="0 0 40 40"
-                  className="w-10 h-10 stroke-white fill-none shrink-0"
-                  strokeWidth="1.8"
-                  aria-hidden="true"
-                >
-                  <circle cx="20" cy="21" r="13" />
-                  <polyline points="20,13 20,21 26,24" stroke="#2DD4BF" />
-                  <line x1="16" y1="4" x2="24" y2="4" />
-                </svg>
-                <span className="inline-flex items-center px-3 py-1 rounded text-[14px] font-bold uppercase tracking-wider border border-[#2DD4BF] text-[#5EEAD4]">
-                  Tình huống 03 · Điểm rèn luyện
-                </span>
-              </div>
-
-              <h3 className="font-serif-display text-h1 font-bold text-white">
-                Form đóng sau 2 giờ.
-              </h3>
-
-              <p className="text-[16px] sm:text-[17px] text-[#E2E8F0] max-w-md leading-relaxed">
-                Theo dõi đồng hồ đếm ngược các buổi seminar, học bổng và hoạt động tình nguyện tại Cơ sở 1.
-              </p>
-
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => onNavigateTab("events")}
-                  className="min-h-[48px] inline-flex items-center gap-2 rounded-md bg-white text-[#0F2228] hover:bg-[#F1F5F9] px-6 py-3 text-[16px] font-bold transition cursor-pointer"
-                >
-                  <span>Xem lịch sự kiện</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>

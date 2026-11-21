@@ -287,48 +287,6 @@ export const GEAR_AND_RENTAL_PRODUCTS: ProductItem[] = [
     ],
   },
   {
-    id: "dich-vu-setup-tram-ghi-chep-latex",
-    code: "FORUS-05",
-    name: 'Gói Dịch Vụ "Setup Trạm Ghi Chép Số & Template LaTeX Chuẩn Khoa CNTT"',
-    subtitle: "Cài đặt tận tay tại CS1 hoặc qua UltraViewer · Trọn bộ Template Đồ án & Poster A1",
-    category: "study-aid",
-    description:
-      "Dịch vụ kỹ thuật 1-kèm-1 giúp tân sinh viên làm chủ hệ thống ghi chép số và soạn thảo báo cáo học thuật chuẩn Khoa CNTT ĐH KHTN. Đội ngũ kỹ thuật viên FORUS trực tiếp cài đặt môi trường TeX Live / Overleaf, cấu hình VS Code LaTeX Workshop, Obsidian Math và bàn giao kho Template báo cáo đồ án, slide Beamer, Poster A1 chuẩn.",
-    highlights: [
-      "Cài đặt hoàn chỉnh bộ gõ công thức nhanh trên Notion, Obsidian, OneNote hoặc Scrble",
-      "Bàn giao bộ Template LaTeX chuẩn Khoa CNTT (Báo cáo đồ án, tiểu luận, slide thuyết trình, Poster A1)",
-      "Hướng dẫn 15 phút nắm vững cách chèn hình ảnh, bảng biểu, trích dẫn tài liệu BibTeX không lỗi tiếng Việt",
-      "Bảo hành hỗ trợ sửa lỗi biên dịch LaTeX miễn phí suốt cả học kỳ",
-    ],
-    fallbackIcon: "Terminal",
-    fallbackGradient: "from-[#0B2545] to-[#0E1624]",
-    pointsReward: 8,
-    inStock: 99,
-    availabilityStatus: "available",
-    deliveryInfo: "Hỗ trợ trực tiếp tại sảnh Tòa I / Thư viện CS1 hoặc Online ngay lập tức",
-    variants: [
-      {
-        id: "service-setup",
-        label: "Gói Setup trọn gói + Bộ Template",
-        price: 29000,
-        unitLabel: "/ lần",
-        type: "service",
-      },
-    ],
-    reviews: [
-      {
-        id: "rv-6",
-        studentName: "Võ Minh Tuấn",
-        studentIdMasked: "24120***",
-        faculty: "Khoa Công nghệ Thông tin",
-        rating: 5,
-        comment:
-          "Mình mới vào năm nhất chưa biết dùng LaTeX, nhờ các bạn FORUS setup và chỉ tận tình 15 phút là tự làm được báo cáo đẹp mê ly.",
-        date: "Hôm qua",
-      },
-    ],
-  },
-  {
     id: "sticker-ban-phim-ky-hieu-toan",
     code: "FORUS-06",
     name: "Bộ Sticker Bàn Phím Ký Hiệu Toán Học & Tổ Hợp Phím Tắt (∀, ∃, ∈, ⇒, ⇔)",

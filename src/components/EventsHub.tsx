@@ -69,6 +69,45 @@ function calculateTimeRemaining(
   };
 }
 
+const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+
+function getEventFinalRelevantMs(ev: HcmusDocumentEvent): number {
+  const timestamps = [
+    new Date(ev.targetTimestamp).getTime(),
+    new Date(ev.eventStartTimestamp).getTime(),
+  ];
+  if (ev.eventEndTimestamp) {
+    timestamps.push(new Date(ev.eventEndTimestamp).getTime());
+  }
+  return Math.max(...timestamps);
+}
+
+function isExpiredOverOneMonth(
+  ev: HcmusDocumentEvent,
+  nowMs: number
+): boolean {
+  return nowMs - getEventFinalRelevantMs(ev) >= ONE_MONTH_MS;
+}
+
+function getEffectiveTargetTimestamp(
+  ev: HcmusDocumentEvent,
+  nowMs: number
+): string {
+  if (new Date(ev.targetTimestamp).getTime() > nowMs) {
+    return ev.targetTimestamp;
+  }
+  if (new Date(ev.eventStartTimestamp).getTime() > nowMs) {
+    return ev.eventStartTimestamp;
+  }
+  if (
+    ev.eventEndTimestamp &&
+    new Date(ev.eventEndTimestamp).getTime() > nowMs
+  ) {
+    return ev.eventEndTimestamp;
+  }
+  return ev.targetTimestamp;
+}
+
 export const EventsHub: React.FC<EventsHubProps> = ({
   student,
   onToggleReminder,
@@ -93,53 +132,67 @@ export const EventsHub: React.FC<EventsHubProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  const activeEvents = useMemo(() => {
+    return HCMUS_DOCUMENT_EVENTS.filter(
+      (ev) => !isExpiredOverOneMonth(ev, nowMs)
+    );
+  }, [nowMs]);
+
+  const activeRemindedCount = useMemo(() => {
+    return activeEvents.filter((ev) =>
+      student.remindedEventIds.includes(ev.id)
+    ).length;
+  }, [activeEvents, student.remindedEventIds]);
+
   const upcomingSortedEvents = useMemo(() => {
-    return [...HCMUS_DOCUMENT_EVENTS]
+    return [...activeEvents]
       .filter((ev) => {
-        const rem = calculateTimeRemaining(ev.targetTimestamp, nowMs);
+        const effectiveTarget = getEffectiveTargetTimestamp(ev, nowMs);
+        const rem = calculateTimeRemaining(effectiveTarget, nowMs);
         return !rem.isExpired && ev.statusType !== "closed";
       })
       .sort(
         (a, b) =>
-          new Date(a.targetTimestamp).getTime() -
-          new Date(b.targetTimestamp).getTime()
+          new Date(getEffectiveTargetTimestamp(a, nowMs)).getTime() -
+          new Date(getEffectiveTargetTimestamp(b, nowMs)).getTime()
       );
-  }, [nowMs]);
+  }, [activeEvents, nowMs]);
 
   const nearestEvent: HcmusDocumentEvent =
-    upcomingSortedEvents[0] || HCMUS_DOCUMENT_EVENTS[0];
+    upcomingSortedEvents[0] || activeEvents[0] || HCMUS_DOCUMENT_EVENTS[0];
   const nearestCountdown = calculateTimeRemaining(
-    nearestEvent.targetTimestamp,
+    getEffectiveTargetTimestamp(nearestEvent, nowMs),
     nowMs
   );
 
   const filteredEvents = useMemo(() => {
-    return HCMUS_DOCUMENT_EVENTS.filter((ev) => {
-      const matchCat =
-        selectedCategory === "all"
-          ? true
-          : selectedCategory === "reminded"
-          ? student.remindedEventIds.includes(ev.id)
-          : ev.category === selectedCategory;
-      const q = searchQuery.trim().toLowerCase();
-      const matchSearch =
-        !q ||
-        ev.title.toLowerCase().includes(q) ||
-        ev.organizer.toLowerCase().includes(q) ||
-        ev.location.toLowerCase().includes(q);
-      return matchCat && matchSearch;
-    }).sort((a, b) => {
-      const remA = calculateTimeRemaining(a.targetTimestamp, nowMs);
-      const remB = calculateTimeRemaining(b.targetTimestamp, nowMs);
-      const closedA = a.statusType === "closed" || remA.isExpired;
-      const closedB = b.statusType === "closed" || remB.isExpired;
-      if (closedA !== closedB) return closedA ? 1 : -1;
-      return (
-        new Date(a.targetTimestamp).getTime() -
-        new Date(b.targetTimestamp).getTime()
-      );
-    });
-  }, [selectedCategory, searchQuery, student.remindedEventIds, nowMs]);
+    return activeEvents
+      .filter((ev) => {
+        const matchCat =
+          selectedCategory === "all"
+            ? true
+            : selectedCategory === "reminded"
+            ? student.remindedEventIds.includes(ev.id)
+            : ev.category === selectedCategory;
+        const q = searchQuery.trim().toLowerCase();
+        const matchSearch =
+          !q ||
+          ev.title.toLowerCase().includes(q) ||
+          ev.organizer.toLowerCase().includes(q) ||
+          ev.location.toLowerCase().includes(q);
+        return matchCat && matchSearch;
+      })
+      .sort((a, b) => {
+        const targetA = getEffectiveTargetTimestamp(a, nowMs);
+        const targetB = getEffectiveTargetTimestamp(b, nowMs);
+        const remA = calculateTimeRemaining(targetA, nowMs);
+        const remB = calculateTimeRemaining(targetB, nowMs);
+        const closedA = a.statusType === "closed" || remA.isExpired;
+        const closedB = b.statusType === "closed" || remB.isExpired;
+        if (closedA !== closedB) return closedA ? 1 : -1;
+        return new Date(targetA).getTime() - new Date(targetB).getTime();
+      });
+  }, [activeEvents, selectedCategory, searchQuery, student.remindedEventIds, nowMs]);
 
   const handleSaveNote = (eventId: string) => {
     onSaveEventNote(eventId, noteDrafts[eventId] || "");
@@ -148,7 +201,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
   };
 
   const handleDownloadIcs = (ev: HcmusDocumentEvent) => {
-    const startDate = new Date(ev.targetTimestamp);
+    const startDate = new Date(getEffectiveTargetTimestamp(ev, nowMs));
     const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
     const formatIcsDate = (d: Date) =>
       d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
@@ -279,7 +332,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0] dark:border-[#233044]">
           <div className="flex flex-wrap items-center gap-6">
             {[
-              { id: "all", label: `Tất cả (${HCMUS_DOCUMENT_EVENTS.length})` },
+              { id: "all", label: `Tất cả (${activeEvents.length})` },
               { id: "seminar-conference", label: "Hội thảo & Khoa học" },
               { id: "academic-contest", label: "Cuộc thi Học thuật" },
               {
@@ -288,7 +341,7 @@ export const EventsHub: React.FC<EventsHubProps> = ({
               },
               {
                 id: "reminded",
-                label: `Đã nhắc hẹn (${student.remindedEventIds.length})`,
+                label: `Đã nhắc hẹn (${activeRemindedCount})`,
               },
             ].map((cat) => {
               const active = selectedCategory === cat.id;
@@ -360,7 +413,10 @@ export const EventsHub: React.FC<EventsHubProps> = ({
             {filteredEvents.map((ev) => {
               const isReminded = student.remindedEventIds.includes(ev.id);
               const isExpanded = expandedEventId === ev.id;
-              const rem = calculateTimeRemaining(ev.targetTimestamp, nowMs);
+              const rem = calculateTimeRemaining(
+                getEffectiveTargetTimestamp(ev, nowMs),
+                nowMs
+              );
               const isClosed = ev.statusType === "closed" || rem.isExpired;
 
               return (
