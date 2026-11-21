@@ -2,7 +2,7 @@ name: Deploy FORUS to GitHub Pages
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -12,10 +12,10 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -37,25 +37,27 @@ jobs:
       - name: Copy index.html to 404.html for SPA routing
         run: cp dist/index.html dist/404.html
 
-      - name: Publish built site to gh-pages branch
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./dist"
+
+      - name: Backup built site to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
 
-      - name: Setup Pages (when Source is set to GitHub Actions)
-        id: pages_setup
-        continue-on-error: true
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        if: steps.pages_setup.outcome == 'success'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./dist"
-
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
-        if: steps.pages_setup.outcome == 'success'
         id: deployment
-        continue-on-error: true
         uses: actions/deploy-pages@v4
