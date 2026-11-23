@@ -56,6 +56,17 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     if (product) {
       setSelectedVariantId(initialVariantId || product.variants[0]?.id || "");
       setSelectedModelId(initialModelId || product.modelOptions?.[0]?.id || "");
+      // Preload all model option images so switching variants is instantaneous
+      const urls = new Set<string>();
+      if (product.imageUrl) urls.add(product.imageUrl);
+      product.modelOptions?.forEach((m) => {
+        if (m.imageUrl) urls.add(m.imageUrl);
+      });
+      urls.forEach((url) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = url;
+      });
     }
   }, [product, initialModelId, initialVariantId]);
 
@@ -211,6 +222,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   }
                   fallbackIcon={product.fallbackIcon}
                   code={product.code}
+                  priority
                   className="aspect-[4/3] w-full rounded border border-[#DCD5C7] dark:border-[#233044]"
                 />
 
@@ -239,6 +251,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                                 <img
                                   src={mod.imageUrl}
                                   alt={mod.name}
+                                  loading="eager"
+                                  decoding="async"
                                   className="h-full w-full object-contain"
                                 />
                               </div>

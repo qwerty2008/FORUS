@@ -125,11 +125,12 @@ export const Gear: React.FC<GearProps> = ({ products, onSelectProduct }) => {
       ) : (
         <div className="paper-grid p-4 sm:p-6 lg:p-8 rounded-[4px] border border-[#E2E8F0] dark:border-[#233044]">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, index) => (
               <ProductCard
                 key={product.id}
                 product={product}
                 onSelect={onSelectProduct}
+                priority={index < 6}
               />
             ))}
           </div>

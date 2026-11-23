@@ -121,7 +121,7 @@ const PRESET_AVATARS = [
   {
     id: "forus-emblem",
     label: "FORUS",
-    url: "assets/aistudio/c837a9a8-73eb-40b4-bbbe-701efae040ef_f48d9132.png",
+    url: "assets/optimized/forus-logo-square.webp",
   },
   {
     id: "sv-male",

@@ -7,12 +7,14 @@ interface ProductCardProps {
   product: ProductItem;
   onSelect: (product: ProductItem) => void;
   className?: string;
+  priority?: boolean;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onSelect,
   className = "",
+  priority = false,
 }) => {
   const minPrice = product.variants.reduce(
     (min, v) => (v.price < min ? v.price : min),
@@ -46,6 +48,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               alt={product.name}
               fallbackIcon={product.fallbackIcon}
               code={product.code}
+              priority={priority}
               className="h-full w-full transition-transform duration-300 group-hover:scale-[1.03]"
             />
           </div>

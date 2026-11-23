@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   PenTool,
   Keyboard,
@@ -11,6 +11,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+const loadedImageUrls = new Set<string>();
+
 interface ProductVisualProps {
   imageUrl?: string;
   alt: string;
@@ -18,6 +20,7 @@ interface ProductVisualProps {
   fallbackGradient?: string;
   code: string;
   className?: string;
+  priority?: boolean;
 }
 
 export const ProductVisual: React.FC<ProductVisualProps> = ({
@@ -26,13 +29,31 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
   fallbackIcon,
   code,
   className = "aspect-[4/3] w-full",
+  priority = false,
 }) => {
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const [imgError, setImgError] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(() =>
+    Boolean(imageUrl && loadedImageUrls.has(imageUrl))
+  );
 
   useEffect(() => {
     setImgError(false);
-    setImgLoaded(false);
+    if (!imageUrl) {
+      setImgLoaded(false);
+      return;
+    }
+    if (loadedImageUrls.has(imageUrl)) {
+      setImgLoaded(true);
+      return;
+    }
+    const imgEl = imgRef.current;
+    if (imgEl && imgEl.complete && imgEl.naturalWidth > 0) {
+      loadedImageUrls.add(imageUrl);
+      setImgLoaded(true);
+    } else {
+      setImgLoaded(false);
+    }
   }, [imageUrl]);
 
   const isPortraitProduct =
@@ -57,13 +78,19 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
           />
         )}
         <img
+          ref={imgRef}
           src={imageUrl}
           alt={alt}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={priority ? "high" : "auto"}
           referrerPolicy="no-referrer"
-          onLoad={() => setImgLoaded(true)}
+          onLoad={() => {
+            loadedImageUrls.add(imageUrl);
+            setImgLoaded(true);
+          }}
           onError={() => setImgError(true)}
-          className={`relative z-10 h-full w-full transition-transform duration-300 group-hover:scale-[1.03] ${
+          className={`relative z-10 h-full w-full transition-[opacity,transform] duration-200 group-hover:scale-[1.03] ${
             isPortraitProduct ? "object-contain" : "object-cover"
           } ${imgLoaded ? "opacity-100" : "opacity-0"}`}
         />
